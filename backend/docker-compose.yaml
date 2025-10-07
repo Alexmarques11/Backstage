@@ -1,7 +1,7 @@
 services:
   database:
     image: postgres:15
-    container_name: meu-postgres
+    container_name: postgres_backstage
     environment:
       POSTGRES_USER: user123
       POSTGRES_PASSWORD: 123456
