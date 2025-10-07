@@ -1,0 +1,28 @@
+services:
+  database:
+    image: postgres:15
+    container_name: meu-postgres
+    environment:
+      POSTGRES_USER: user123
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: backstage
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: backend_app
+    ports:
+      - "13000:3000"
+    depends_on:
+      - database
+    environment:
+      DATABASE_HOST: database
+      DATABASE_USER: user123
+      DATABASE_PASSWORD: 123456
+      DATABASE_NAME: backstage
+
+volumes:
+  postgres_data:
