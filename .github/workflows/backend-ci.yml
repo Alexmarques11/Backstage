@@ -45,33 +45,62 @@ jobs:
       working-directory: backend
       run: npm ci
     
+    - name: Install PostgreSQL client
+      run: sudo apt-get update && sudo apt-get install -y postgresql-client
+    
+    - name: Test database connectivity
+      run: |
+        # Test if PostgreSQL is ready
+        PGPASSWORD=123456 pg_isready -h localhost -p 5432 -U user123 -d backstage || {
+          echo "PostgreSQL is not ready"
+          exit 1
+        }
+        echo "PostgreSQL is ready"
+    
     - name: Start backend server
       working-directory: backend
       run: |
         npm run dev &
-        sleep 5
+        SERVER_PID=$!
+        echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+        
+        # Wait for server to start
+        for i in {1..30}; do
+          if curl -s http://localhost:3000/ > /dev/null 2>&1; then
+            echo "Server is ready"
+            break
+          fi
+          echo "Waiting for server... ($i/30)"
+          sleep 2
+        done
       env:
+        NODE_ENV: test
+        # Override database config for GitHub Actions
         DATABASE_HOST: localhost
         DATABASE_USER: user123
         DATABASE_PASSWORD: 123456
-        DATABASE_NAME: backstage
-    
-    - name: Setup database
+        DATABASE_NAME: backstage    - name: Setup database
       run: |
-        curl -f http://localhost:3000/setup || exit 1
+        echo "Testing database connection..."
+        curl -v http://localhost:3000/setup || {
+          echo "Setup failed, checking server logs..."
+          curl -v http://localhost:3000/ || echo "Server not responding"
+          exit 1
+        }
     
     - name: Test API endpoints
       run: |
-        # Test GET endpoint
+        echo "Testing GET endpoint..."
         curl -f http://localhost:3000/ || exit 1
         
-        # Test POST endpoint
+        echo "Testing POST endpoint..."
         curl -f -X POST http://localhost:3000/ \
           -H "Content-Type: application/json" \
           -d '{"name": "Test", "lastname": "User"}' || exit 1
         
-        # Verify user was created
+        echo "Verifying user was created..."
         response=$(curl -s http://localhost:3000/)
+        echo "Response: $response"
         echo "$response" | grep -q "Test" || exit 1
 
   build-docker:
