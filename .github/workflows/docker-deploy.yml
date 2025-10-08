@@ -67,11 +67,8 @@ jobs:
     - name: Test Docker Compose setup
       working-directory: backend
       run: |
-        # Update docker-compose to use the built image
-        export IMAGE_TAG=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-        
         # Start services
-        docker-compose up -d
+        docker compose up -d
         sleep 15
         
         # Test endpoints
@@ -79,7 +76,7 @@ jobs:
         curl -f http://localhost:13000/
         
         # Cleanup
-        docker-compose down
+        docker compose down
 
   # Uncomment and configure for actual deployment
   # deploy:
