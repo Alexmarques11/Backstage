@@ -89,11 +89,11 @@ jobs:
     - name: Test Docker image
       working-directory: backend
       run: |
-        docker-compose up -d
+        docker compose up -d
         sleep 10
         
         # Test that services are running
         curl -f http://localhost:13000/setup || exit 1
         curl -f http://localhost:13000/ || exit 1
         
-        docker-compose down
+        docker compose down
