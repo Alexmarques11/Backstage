@@ -79,7 +79,9 @@ jobs:
         DATABASE_HOST: localhost
         DATABASE_USER: user123
         DATABASE_PASSWORD: 123456
-        DATABASE_NAME: backstage    - name: Setup database
+        DATABASE_NAME: backstage
+    
+    - name: Setup database
       run: |
         echo "Testing database connection..."
         curl -v http://localhost:3000/setup || {
