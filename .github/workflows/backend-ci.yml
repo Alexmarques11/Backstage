@@ -1,0 +1,99 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths: 
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths: 
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: user123
+          POSTGRES_PASSWORD: 123456
+          POSTGRES_DB: backstage
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: backend
+      run: npm ci
+    
+    - name: Start backend server
+      working-directory: backend
+      run: |
+        npm run dev &
+        sleep 5
+      env:
+        DATABASE_HOST: localhost
+        DATABASE_USER: user123
+        DATABASE_PASSWORD: 123456
+        DATABASE_NAME: backstage
+    
+    - name: Setup database
+      run: |
+        curl -f http://localhost:3000/setup || exit 1
+    
+    - name: Test API endpoints
+      run: |
+        # Test GET endpoint
+        curl -f http://localhost:3000/ || exit 1
+        
+        # Test POST endpoint
+        curl -f -X POST http://localhost:3000/ \
+          -H "Content-Type: application/json" \
+          -d '{"name": "Test", "lastname": "User"}' || exit 1
+        
+        # Verify user was created
+        response=$(curl -s http://localhost:3000/)
+        echo "$response" | grep -q "Test" || exit 1
+
+  build-docker:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build Docker image
+      working-directory: backend
+      run: |
+        docker build -t backstage-backend:latest .
+        
+    - name: Test Docker image
+      working-directory: backend
+      run: |
+        docker-compose up -d
+        sleep 10
+        
+        # Test that services are running
+        curl -f http://localhost:13000/setup || exit 1
+        curl -f http://localhost:13000/ || exit 1
+        
+        docker-compose down
