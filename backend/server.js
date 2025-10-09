@@ -22,9 +22,16 @@ app.get("/", async (req, res) => {
 
 app.post("/", async (req, res) => {
   const { name, lastname } = req.body;
+  
+  // Validate input
+  if (!name || !lastname) {
+    return res.status(400).send({ error: "Name and lastname are required" });
+  }
+  
   try {
     await pool.query(
-      `INSERT INTO users (name, lastname) VALUES ('${name}', '${lastname}')`
+      `INSERT INTO users (name, lastname) VALUES ($1, $2)`,
+      [name, lastname]
     );
     res.status(200).send({ message: "User created" });
   } catch (err) {
@@ -38,8 +45,7 @@ app.get("/setup", async (req, res) => {
     await pool.query(`CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
-            lastname VARCHAR(100) NOT NULL,
-            password VARCHAR(255) NOT NULL
+            lastname VARCHAR(100) NOT NULL
         )`);
     res.status(200).send({ message: "Table created" });
   } catch (err) {
