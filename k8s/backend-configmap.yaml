@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: backstage
+data:
+  NODE_ENV: "production"
+  # External database configuration - update these values for your database
+  DATABASE_HOST: "your-external-db-host.com"  # Replace with your DB host
+  DATABASE_USER: "your_db_user"               # Replace with your DB user
+  DATABASE_NAME: "backstage"                  # Replace with your DB name
+  DATABASE_PORT: "5432"                       # Replace with your DB port
