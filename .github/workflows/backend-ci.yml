@@ -97,7 +97,7 @@ jobs:
         echo "Testing POST endpoint..."
         curl -f -X POST http://localhost:3000/ \
           -H "Content-Type: application/json" \
-          -d '{"name": "Test", "lastname": "User", "age": 22, "username": "Username", "email": "teste@gmail.com", "password": "Password","musical_genre": ["rock", "pop"]}' || exit 1
+          -d '{"name": "Test", "lastname": "User"}' || exit 1
         
         echo "Verifying user was created..."
         response=$(curl -s http://localhost:3000/)
