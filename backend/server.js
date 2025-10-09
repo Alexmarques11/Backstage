@@ -21,31 +21,41 @@ app.get("/", async (req, res) => {
 });
 
 app.post("/", async (req, res) => {
-  const { name, lastname } = req.body;
-  
-  // Validate input
-  if (!name || !lastname) {
-    return res.status(400).send({ error: "Name and lastname are required" });
+  const { name, lastname, username, email, password } = req.body;
+
+  if (!name || !lastname || !username || !email || !password) {
+    return res.status(400).json({ error: "Missing required fields" });
   }
-  
+
   try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     await pool.query(
-      `INSERT INTO users (name, lastname) VALUES ($1, $2)`,
-      [name, lastname]
+      `INSERT INTO users (name, lastname, username, email, password)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [name, lastname, username, email, hashedPassword]
     );
-    res.status(200).send({ message: "User created" });
+
+    res.status(201).json({ message: "User created" });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error creating user");
+    res.status(500).json({ message: "Error creating user" });
   }
 });
+
+//Setup route to create users table if it doesn't exist
 
 app.get("/setup", async (req, res) => {
   try {
     await pool.query(`CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
-            lastname VARCHAR(100) NOT NULL
+            lastname VARCHAR(100) NOT NULL,
+            age INT,
+            username VARCHAR(100) NOT NULL UNIQUE,
+            email VARCHAR(100) NOT NULL UNIQUE,
+            password VARCHAR(255) NOT NULL,
+            musical_genre TEXT[]
         )`);
     res.status(200).send({ message: "Table created" });
   } catch (err) {
@@ -56,11 +66,13 @@ app.get("/setup", async (req, res) => {
 
 app.get("/posts", authenticateToken, async (req, res) => {
   try {
-    const username = req.user.name;
+    const userId = req.user.id;
 
     const result = await pool.query(
-      "SELECT id, name, lastname FROM users WHERE name = $1",
-      [username]
+      `SELECT id, name, lastname, age, username, email, musical_genre
+       FROM users
+       WHERE id = $1`,
+      [userId]
     );
 
     if (result.rows.length === 0) {
