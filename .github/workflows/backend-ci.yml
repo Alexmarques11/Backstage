@@ -83,10 +83,9 @@ jobs:
     
     - name: Setup database
       run: |
-        echo "Testing database connection..."
-        curl -v http://localhost:3000/setup || {
-          echo "Setup failed, checking server logs..."
-          curl -v http://localhost:3000/ || echo "Server not responding"
+        echo "Setting up database tables..."
+        curl -f http://localhost:3000/setup || {
+          echo "Database setup failed"
           exit 1
         }
     
@@ -105,6 +104,14 @@ jobs:
         echo "Response: $response"
         echo "$response" | grep -q "Test" || exit 1
 
+    - name: Cleanup
+      if: always()
+      run: |
+        if [ ! -z "$SERVER_PID" ]; then
+          echo "Stopping server process $SERVER_PID"
+          kill $SERVER_PID || true
+        fi
+
   build-docker:
     runs-on: ubuntu-latest
     needs: test
@@ -120,11 +127,25 @@ jobs:
     - name: Test Docker image
       working-directory: backend
       run: |
+        echo "Starting Docker Compose services..."
         docker compose up -d
-        sleep 10
+        sleep 15
         
-        # Test that services are running
+        echo "Testing Docker setup endpoint..."
         curl -f http://localhost:13000/setup || exit 1
+        
+        echo "Testing Docker GET endpoint..."
         curl -f http://localhost:13000/ || exit 1
         
+        echo "Testing Docker POST endpoint..."
+        curl -f -X POST http://localhost:13000/ \
+          -H "Content-Type: application/json" \
+          -d '{"name": "Docker", "lastname": "Test"}' || exit 1
+        
+        echo "Verifying Docker user was created..."
+        response=$(curl -s http://localhost:13000/)
+        echo "Docker Response: $response"
+        echo "$response" | grep -q "Docker" || exit 1
+        
+        echo "Stopping Docker services..."
         docker compose down

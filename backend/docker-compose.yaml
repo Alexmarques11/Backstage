@@ -3,13 +3,18 @@ services:
     image: postgres:15
     container_name: postgres_backstage
     environment:
-      POSTGRES_USER: user123
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: backstage
+      POSTGRES_USER: ${DATABASE_USER:-user123}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-123456}
+      POSTGRES_DB: ${DATABASE_NAME:-backstage}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-user123} -d ${DATABASE_NAME:-backstage}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app:
     build: .
@@ -17,12 +22,15 @@ services:
     ports:
       - "13000:3000"
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     environment:
+      NODE_ENV: ${NODE_ENV:-production}
       DATABASE_HOST: database
-      DATABASE_USER: user123
-      DATABASE_PASSWORD: 123456
-      DATABASE_NAME: backstage
+      DATABASE_USER: ${DATABASE_USER:-user123}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-123456}
+      DATABASE_NAME: ${DATABASE_NAME:-backstage}
+      DATABASE_PORT: 5432
 
   auth:
     build:
@@ -32,12 +40,15 @@ services:
     ports:
       - "4000:4000"
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     environment:
+      NODE_ENV: ${NODE_ENV:-production}
       DATABASE_HOST: database
-      DATABASE_USER: user123
-      DATABASE_PASSWORD: 123456
-      DATABASE_NAME: backstage
+      DATABASE_USER: ${DATABASE_USER:-user123}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-123456}
+      DATABASE_NAME: ${DATABASE_NAME:-backstage}
+      DATABASE_PORT: 5432
 
 volumes:
   postgres_data:
