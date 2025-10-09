@@ -45,8 +45,6 @@ app.post("/", async (req, res) => {
 
 //Setup route to create users table if it doesn't exist
 
-//dadadada
-
 app.get("/setup", async (req, res) => {
   try {
     await pool.query(`CREATE TABLE IF NOT EXISTS users (
