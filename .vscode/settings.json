@@ -1,0 +1,12 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "CloudSQL-PostgreSQL",
+            "name": "backstage",
+            "database": "backstage",
+            "username": "user123",
+            "instanceConnectionName": "localhost:5432"
+        }
+    ]
+}
