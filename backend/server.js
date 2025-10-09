@@ -20,26 +20,6 @@ app.get("/", async (req, res) => {
   }
 });
 
-app.post("/", async (req, res) => {
-  const { name, lastname } = req.body;
-
-  // Validate input
-  if (!name || !lastname) {
-    return res.status(400).send({ error: "Name and lastname are required" });
-  }
-
-  try {
-    await pool.query(`INSERT INTO users (name, lastname) VALUES ($1, $2)`, [
-      name,
-      lastname,
-    ]);
-    res.status(200).send({ message: "User created" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error creating user");
-  }
-});
-
 //Setup route to create users table if it doesn't exist
 
 app.get("/setup", async (req, res) => {
