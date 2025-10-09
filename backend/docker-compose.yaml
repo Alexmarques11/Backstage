@@ -24,5 +24,20 @@ services:
       DATABASE_PASSWORD: 123456
       DATABASE_NAME: backstage
 
+  auth:
+    build:
+      context: .
+    container_name: auth_server
+    command: ["node", "authserver.js"]
+    ports:
+      - "4000:4000"
+    depends_on:
+      - database
+    environment:
+      DATABASE_HOST: database
+      DATABASE_USER: user123
+      DATABASE_PASSWORD: 123456
+      DATABASE_NAME: backstage
+
 volumes:
   postgres_data:

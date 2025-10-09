@@ -1,4 +1,7 @@
 ###
+GET http://localhost:13000/setup
+
+###
 GET http://localhost:13000
 
 ###
@@ -7,6 +10,58 @@ Post http://localhost:13000
 Content-Type: application/json
 
 {
-  "name": "John",
-  "lastname": "Doe"
+  "name": "Gonçalo",
+  "lastname": "Gaspar"
 }
+
+###
+
+GET http://localhost:13000/posts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSmltIiwiaWF0IjoxNzYwMDA1MzUzLCJleHAiOjE3NjAwMDUzNjh9.0AEmhv7dyRzd4cPFua0TGdQSGnEa4typ_dzQv2U_cJU
+###
+POST http://localhost:4000/token
+Content-Type: application/json
+
+{
+  "token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSmltIiwiaWF0IjoxNzYwMDA1MzUzfQ.QeT0z91jA5RyS0i1DBJn_asSpePAIo_byyHGn-koubg"
+}
+
+###
+POST http://localhost:4000/login
+Content-Type: application/json
+
+{
+  "username": "Jim"
+}
+###
+
+POST http://localhost:4000/register
+Content-Type: application/json
+
+{
+  "name": "Gonçalo",
+  "lastname": "Moreira",
+  "password": "12345678"
+}
+
+###
+POST http://localhost:4000/login
+Content-Type: application/json
+
+{
+  "name": "Gonçalo",
+  "password": "12345678"
+}
+
+###
+
+DELETE http://localhost:4000/logout
+Content-Type: application/json
+
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiR29uw6dhbG8iLCJpZCI6MzUsImlhdCI6MTc2MDAwODUwMCwiZXhwIjoxNzYwMDA4NTE1fQ.irlUa2xbUXtXT8SKth3AYrFL7JZ_yi-qqfz4gyRR5HM"
+}
+
+###
+GET http://localhost:13000/posts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiR29uw6dhbG8iLCJpZCI6MzUsImlhdCI6MTc2MDAwODUwMCwiZXhwIjoxNzYwMDA4NTE1fQ.irlUa2xbUXtXT8SKth3AYrFL7JZ_yi-qqfz4gyRR5HM
