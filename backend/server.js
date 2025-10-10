@@ -99,6 +99,88 @@ function authenticateToken(req, res, next) {
   });
 }
 
+//? Users
+
+app.get("/users/profile", async (req, res) => {
+  try {
+    const { username } = req.body;
+    
+    const result = await pool.query(
+      `SELECT name, lastname, age, username, musical_genre
+      FROM users
+      WHERE username = $1`,
+      [username]
+    );
+  
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'user not found' });
+    }
+  
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error fetching user data' });
+  }
+})
+
+app.patch("/users/profile", async (req, res) => {
+  try {
+    const { username, name, lastname, age } = req.body;
+    
+    const result = await pool.query(
+      `UPDATE users
+      SET name = $2, lastname = $3, age = $4
+      WHERE username = $1`,
+      [username, name, lastname, age]
+    );
+  
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error fetching user data' });
+  }
+})
+
+app.get("/users/preferences", async (req, res) => {
+  try {
+    const { username } = req.body;
+    
+    const result = await pool.query(
+      `SELECT musical_genre
+      FROM users
+      WHERE username = $1`,
+      [username]
+    );
+  
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'user not found' });
+    }
+  
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error fetching user data' });
+  }
+})
+
+app.patch("/users/preferences", async (req, res) => {
+  try {
+    const { username, musical_genre } = req.body;
+    
+    const result = await pool.query(
+      `UPDATE users
+      SET musical_genre = $2
+      WHERE username = $1`,
+      [username, musical_genre]
+    );
+  
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error fetching user data' });
+  }
+})
+
 app.listen(port, () =>
   console.log(`Server running on port http://localhost:${port}`)
 );

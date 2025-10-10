@@ -6,6 +6,48 @@ GET http://localhost:13000
 
 ###
 
+GET http://localhost:13000/users/profile
+Content-Type: application/json
+
+{
+  "username": "doutorgaspar"
+}
+
+###
+
+PATCH http://localhost:13000/users/profile
+Content-Type: application/json
+
+{
+  "username": "doutorgaspar",
+  
+  "name": "Gonçalo",
+  "lastname": "Gaspar",
+  "age": 22
+}
+
+###
+
+GET http://localhost:13000/users/preferences
+Content-Type: application/json
+
+{
+  "username": "doutorgaspar"
+}
+
+###
+
+PATCH http://localhost:13000/users/preferences
+Content-Type: application/json
+
+{
+  "username": "doutorgaspar",
+
+  "musical_genre": ["pimba", "pimba mas diferente"]
+}
+
+###
+
 # GET http://localhost:13000/posts
 # Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSmltIiwiaWF0IjoxNzYwMDA1MzUzLCJleHAiOjE3NjAwMDUzNjh9.0AEmhv7dyRzd4cPFua0TGdQSGnEa4typ_dzQv2U_cJU
 # ###
