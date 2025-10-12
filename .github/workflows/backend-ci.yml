@@ -80,6 +80,8 @@ jobs:
         DATABASE_USER: user123
         DATABASE_PASSWORD: 123456
         DATABASE_NAME: backstage
+        # JWT secret for authentication
+        ACCESS_TOKEN_SECRET: test_jwt_secret_for_github_actions
     
     - name: Setup database
       run: |
@@ -94,15 +96,26 @@ jobs:
         echo "Testing GET endpoint..."
         curl -f http://localhost:3000/ || exit 1
         
-        echo "Testing POST endpoint..."
+        echo "Testing POST endpoint with new schema..."
         curl -f -X POST http://localhost:3000/ \
           -H "Content-Type: application/json" \
-          -d '{"name": "Test", "lastname": "User"}' || exit 1
+          -d '{
+            "name": "Test",
+            "lastname": "User", 
+            "username": "testuser",
+            "email": "test@example.com",
+            "password": "testpass123"
+          }' || exit 1
         
         echo "Verifying user was created..."
         response=$(curl -s http://localhost:3000/)
         echo "Response: $response"
         echo "$response" | grep -q "Test" || exit 1
+        
+        echo "Testing user profile endpoint..."
+        curl -f -X GET http://localhost:3000/users/profile \
+          -H "Content-Type: application/json" \
+          -d '{"username": "testuser"}' || exit 1
 
     - name: Cleanup
       if: always()
@@ -140,7 +153,13 @@ jobs:
         echo "Testing Docker POST endpoint..."
         curl -f -X POST http://localhost:13000/ \
           -H "Content-Type: application/json" \
-          -d '{"name": "Docker", "lastname": "Test"}' || exit 1
+          -d '{
+            "name": "Docker",
+            "lastname": "Test",
+            "username": "dockeruser",
+            "email": "docker@example.com", 
+            "password": "dockerpass123"
+          }' || exit 1
         
         echo "Verifying Docker user was created..."
         response=$(curl -s http://localhost:13000/)

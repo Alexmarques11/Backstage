@@ -50,6 +50,11 @@ spec:
             secretKeyRef:
               name: backend-secret
               key: DATABASE_PASSWORD
+        - name: ACCESS_TOKEN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: backend-secret
+              key: ACCESS_TOKEN_SECRET
         livenessProbe:
           httpGet:
             path: /

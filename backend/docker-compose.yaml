@@ -31,6 +31,7 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-123456}
       DATABASE_NAME: ${DATABASE_NAME:-backstage}
       DATABASE_PORT: 5432
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-default_jwt_secret_change_in_production}
 
   auth:
     build:
@@ -49,6 +50,7 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-123456}
       DATABASE_NAME: ${DATABASE_NAME:-backstage}
       DATABASE_PORT: 5432
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-default_jwt_secret_change_in_production}
 
 volumes:
   postgres_data:

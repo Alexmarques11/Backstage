@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 const express = require("express");
+const bcrypt = require("bcrypt");
 const pool = require("./database");
 const port = 3000;
 
