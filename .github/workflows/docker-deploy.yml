@@ -11,18 +11,25 @@ on:
 
 env:
   REGISTRY: docker.io
-  # Current Docker Hub user configuration
-  # SERVER_IMAGE: ${{ secrets.DOCKER_USERNAME }}/backstage-server
-  # AUTH_IMAGE: ${{ secrets.DOCKER_USERNAME }}/backstage-auth
   
-  # Alternative Docker Hub users (uncomment to switch):
-  # For Goncalo's account:
+  # ===== DOCKER HUB ACCOUNT CONFIGURATION =====
+  # Uncomment ONE of the following configurations:
+  
+  # Option 1: Default account (alexmarques11)
+  # DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
+  # DOCKER_PASS: ${{ secrets.DOCKER_PASSWORD }}
+  
+  # Option 2: Goncalo's account (CURRENTLY ACTIVE)
+  DOCKER_USER: ${{ secrets.DOCKER_USERNAME_GONCALO }}
+  DOCKER_PASS: ${{ secrets.DOCKER_PASSWORD_GONCALO }}
+  
+  # Option 3: ZE's account
+  # DOCKER_USER: ${{ secrets.DOCKER_USERNAME_ZE }}
+  # DOCKER_PASS: ${{ secrets.DOCKER_PASSWORD_ZE }}
+  
+  # ===== IMAGE NAMES (AUTO-GENERATED) =====
   SERVER_IMAGE: ${{ secrets.DOCKER_USERNAME_GONCALO }}/backstage-server
   AUTH_IMAGE: ${{ secrets.DOCKER_USERNAME_GONCALO }}/backstage-auth
-
-  # For ZE's account:
-  # SERVER_IMAGE: ${{ secrets.DOCKER_USERNAME_ZE }}/backstage-server
-  # AUTH_IMAGE: ${{ secrets.DOCKER_USERNAME_ZE }}/backstage-auth
 
 jobs:
   build-and-push-server:
@@ -38,18 +45,8 @@ jobs:
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
-        # Current Docker Hub credentials
-        #username: ${{ secrets.DOCKER_USERNAME }}
-        #password: ${{ secrets.DOCKER_PASSWORD }}
-        
-        # Alternative Docker Hub credentials (uncomment to switch):
-        # For Goncalo's account:
-        username: ${{ secrets.DOCKER_USERNAME_GONCALO }}
-        password: ${{ secrets.DOCKER_PASSWORD_GONCALO }}
-        
-        # For ZE's account:
-        # username: ${{ secrets.DOCKER_USERNAME_ZE }}
-        # password: ${{ secrets.DOCKER_PASSWORD_ZE }}
+        username: ${{ env.DOCKER_USER }}
+        password: ${{ env.DOCKER_PASS }}
 
     - name: Extract metadata for Server
       id: meta
@@ -79,8 +76,8 @@ jobs:
     - name: Server image pushed successfully
       run: |
         echo "✅ Server Docker image pushed successfully!"
-        echo "🐳 Docker Hub: https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/backstage-server"
-        echo "📦 Pull command: docker pull ${{ secrets.DOCKER_USERNAME }}/backstage-server:latest"
+        echo "🐳 Docker Hub: https://hub.docker.com/r/${{ env.DOCKER_USER }}/backstage-server"
+        echo "📦 Pull command: docker pull ${{ env.DOCKER_USER }}/backstage-server:latest"
 
   build-and-push-auth:
     runs-on: ubuntu-latest
@@ -95,18 +92,8 @@ jobs:
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
-        # Current Docker Hub credentials
-        # username: ${{ secrets.DOCKER_USERNAME }}
-        # password: ${{ secrets.DOCKER_PASSWORD }}
-        
-        # Alternative Docker Hub credentials (uncomment to switch):
-        # For Goncalo's account:
-        username: ${{ secrets.DOCKER_USERNAME_GONCALO }}
-        password: ${{ secrets.DOCKER_PASSWORD_GONCALO }}
-        
-        # For ZE's account:
-        # username: ${{ secrets.DOCKER_USERNAME_ZE }}
-        # password: ${{ secrets.DOCKER_PASSWORD_ZE }}
+        username: ${{ env.DOCKER_USER }}
+        password: ${{ env.DOCKER_PASS }}
 
     - name: Extract metadata for Auth Server
       id: meta
@@ -136,8 +123,8 @@ jobs:
     - name: Auth Server image pushed successfully
       run: |
         echo "✅ Auth Server Docker image pushed successfully!"
-        echo "� Docker Hub: https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/backstage-auth"
-        echo "�📦 Pull command: docker pull ${{ secrets.DOCKER_USERNAME }}/backstage-auth:latest"
+        echo "🐳 Docker Hub: https://hub.docker.com/r/${{ env.DOCKER_USER }}/backstage-auth"
+        echo "📦 Pull command: docker pull ${{ env.DOCKER_USER }}/backstage-auth:latest"
 
   test-docker-images:
     runs-on: ubuntu-latest
@@ -150,22 +137,12 @@ jobs:
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
-        # Current Docker Hub credentials
-        # username: ${{ secrets.DOCKER_USERNAME }}
-        # password: ${{ secrets.DOCKER_PASSWORD }}
-        
-        # Alternative Docker Hub credentials (uncomment to switch):
-        # For Goncalo's account:
-        username: ${{ secrets.DOCKER_USERNAME_GONCALO }}
-        password: ${{ secrets.DOCKER_PASSWORD_GONCALO }}
-
-        # For ZE's account:
-        # username: ${{ secrets.DOCKER_USERNAME_ZE }}
-        # password: ${{ secrets.DOCKER_PASSWORD_ZE }}
+        username: ${{ env.DOCKER_USER }}
+        password: ${{ env.DOCKER_PASS }}
 
     - name: Test Server Docker image from Docker Hub
       run: |
-        echo "Testing Server image: ${{ secrets.DOCKER_USERNAME }}/backstage-server:latest"
+        echo "Testing Server image: ${{ env.DOCKER_USER }}/backstage-server:latest"
         
         # Pull and run the server image from Docker Hub
         docker run -d -p 3000:3000 \
@@ -175,7 +152,7 @@ jobs:
           -e DATABASE_NAME=testdb \
           -e ACCESS_TOKEN_SECRET=test_secret \
           --name backstage-server-test \
-          ${{ secrets.DOCKER_USERNAME }}/backstage-server:latest
+          ${{ env.DOCKER_USER }}/backstage-server:latest
         
         # Wait for container to start
         sleep 10
@@ -189,7 +166,7 @@ jobs:
 
     - name: Test Auth Server Docker image from Docker Hub
       run: |
-        echo "Testing Auth Server image: ${{ secrets.DOCKER_USERNAME }}/backstage-auth:latest"
+        echo "Testing Auth Server image: ${{ env.DOCKER_USER }}/backstage-auth:latest"
         
         # Pull and run the auth server image from Docker Hub
         docker run -d -p 4000:4000 \
@@ -200,7 +177,7 @@ jobs:
           -e ACCESS_TOKEN_SECRET=test_secret \
           -e REFRESH_TOKEN_SECRET=test_refresh_secret \
           --name backstage-auth-test \
-          ${{ secrets.DOCKER_USERNAME }}/backstage-auth:latest
+          ${{ env.DOCKER_USER }}/backstage-auth:latest
         
         # Wait for container to start
         sleep 10
@@ -223,8 +200,8 @@ jobs:
       run: |
         echo "Ready for production deployment"
         echo "Images available on Docker Hub:"
-        echo "📦 Server: ${{ secrets.DOCKER_USERNAME }}/backstage-server:latest"
-        echo "📦 Auth Server: ${{ secrets.DOCKER_USERNAME }}/backstage-auth:latest"
+        echo "📦 Server: ${{ env.DOCKER_USER }}/backstage-server:latest"
+        echo "📦 Auth Server: ${{ env.DOCKER_USER }}/backstage-auth:latest"
         echo ""
         echo "Set these secrets in GitHub for automated deployment:"
         echo "- PRODUCTION_SERVER_HOST"
