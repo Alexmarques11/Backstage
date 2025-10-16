@@ -1,0 +1,18 @@
+# ConfigMap para configurações não sensíveis
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backstage-config
+  namespace: backstage
+data:
+  # Configurações do banco de dados
+  DATABASE_HOST: "postgres-service"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "backstage"
+  
+  # Configurações dos serviços
+  NODE_ENV: "production"
+  
+  # URLs dos serviços
+  SERVER_URL: "http://backstage-server-service:3000"
+  AUTH_URL: "http://backstage-auth-service:4000"

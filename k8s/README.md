@@ -1,51 +1,64 @@
-# Kubernetes Deployment for BackstageKotlin
+# Backstage Kubernetes Deployment
 
-This directory contains Kubernetes manifests for deploying the BackstageKotlin application.
+Deploy seguro da aplicação Backstage usando Minikube com PostgreSQL, Server e Auth Server separados.
 
-## 🏗️ **Architecture**
-
-The default setup assumes you have an **external PostgreSQL database** (recommended for production).
+## 🏗️ **Arquitetura**
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Ingress       │    │   Backend Pod    │    │  External       │
-│  (backstage.    │───▶│   (Node.js)      │───▶│  PostgreSQL     │
-│   local)        │    │                  │    │  Database       │
+│   Ingress       │    │  Backstage       │    │   PostgreSQL    │
+│  (backstage.    │───▶│  Server + Auth   │───▶│   Database      │
+│   local)        │    │  (Microservices) │    │  (Persistent)   │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
 ```
 
-## 📁 **File Structure**
+## 📁 **Estrutura dos Arquivos**
 
 ```
 k8s/
-├── namespace.yaml           # Creates 'backstage' namespace
-├── backend-configmap.yaml   # Backend environment variables
-├── backend-secret.yaml      # Database password (base64 encoded)
-├── backend-deployment.yaml  # Backend deployment & service
-├── ingress.yaml            # Exposes app via backstage.local
-└── optional/               # PostgreSQL for testing only
-    ├── postgres-configmap.yaml
-    ├── postgres-secret.yaml
-    ├── postgres-pvc.yaml
-    └── postgres-deployment.yaml
+├── 00-namespace.yaml     # Namespace 'backstage'
+├── 01-configmap.yaml     # Configurações não sensíveis
+├── 02-secrets.yaml       # Credenciais e JWT secrets
+├── 03-postgres.yaml      # PostgreSQL com persistência
+├── 04-server.yaml        # Backstage Server (API principal)
+├── 05-auth.yaml          # Auth Server (autenticação)
+├── 06-ingress.yaml       # Ingress + NodePort services
+├── deploy.sh             # Script de deployment automatizado
+├── cleanup.sh            # Script de limpeza
+├── monitor.sh            # Script de monitoramento
+├── MINIKUBE_SETUP.md     # Guia detalhado de setup
+└── README.md             # Esta documentação
 ```
 
-## 🚀 **Deployment Options**
+## 🚀 **Quick Start**
 
-### **Option 1: External Database (Production)**
+### **Opção 1: Deploy Completo (Recomendado)**
 ```bash
-# 1. Edit database configuration
-nano k8s/backend-configmap.yaml  # Update DB host, user, name
-nano k8s/backend-secret.yaml     # Update DB password (base64)
+# Deploy com menu interativo
+./deploy.sh
 
-# 2. Deploy
-./deploy-minikube.sh
+# Deploy automático com usuário Docker específico
+./deploy.sh development goncalocruz
 ```
 
-### **Option 2: With PostgreSQL (Testing)**
+### **Opção 2: Deploy Manual**
 ```bash
-# Deploy with PostgreSQL included for testing
-./deploy-minikube-with-postgres.sh
+# 1. Verificar pré-requisitos
+minikube status
+
+# 2. Aplicar manifests
+kubectl apply -f 00-namespace.yaml
+kubectl apply -f 01-configmap.yaml
+kubectl apply -f 02-secrets.yaml
+kubectl apply -f 03-postgres.yaml
+kubectl apply -f 04-server.yaml
+kubectl apply -f 05-auth.yaml
+kubectl apply -f 06-ingress.yaml
+
+# 3. Aguardar deployments
+kubectl wait --for=condition=available --timeout=300s deployment/postgres -n backstage
+kubectl wait --for=condition=available --timeout=300s deployment/backstage-server -n backstage
+kubectl wait --for=condition=available --timeout=300s deployment/backstage-auth -n backstage
 ```
 
 ## ⚙️ **Configuration**
