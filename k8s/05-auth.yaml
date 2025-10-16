@@ -20,10 +20,11 @@ spec:
     spec:
       containers:
       - name: backstage-auth
-        # ALTERE PARA SUA CONTA DOCKER HUB
-        image: alexmarques11/backstage-auth:latest
-        # image: goncalocruz/backstage-auth:latest
-        # image: zeaccount/backstage-auth:latest
+        # ALTERE PARA SUA CONTA DOCKER HUB - Opções disponíveis:
+        # image: alexmarques11/backstage-auth:latest    # Conta principal
+        image: goncalocruz/backstage-auth:latest        # Conta do Gonçalo (ATIVA)
+        # image: zeaccount/backstage-auth:latest        # Conta do ZE
+        # image: gmomachine/backstage-auth:latest       # Conta alternativa
         imagePullPolicy: Always
         ports:
         - containerPort: 4000

@@ -20,10 +20,11 @@ spec:
     spec:
       containers:
       - name: backstage-server
-        # ALTERE PARA SUA CONTA DOCKER HUB
-        image: alexmarques11/backstage-server:latest
-        # image: goncalocruz/backstage-server:latest
-        # image: zeaccount/backstage-server:latest
+        # ALTERE PARA SUA CONTA DOCKER HUB - Opções disponíveis:
+        # image: alexmarques11/backstage-server:latest    # Conta principal
+        image: goncalocruz/backstage-server:latest        # Conta do Gonçalo (ATIVA)
+        # image: zeaccount/backstage-server:latest        # Conta do ZE
+        # image: gmomachine/backstage-server:latest       # Conta alternativa
         imagePullPolicy: Always
         ports:
         - containerPort: 3000

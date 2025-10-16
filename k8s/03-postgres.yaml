@@ -50,7 +50,12 @@ spec:
     spec:
       containers:
       - name: postgres
+        # Usar imagem Alpine para menor tamanho e melhor segurança
         image: postgres:15-alpine
+        # Alternativas (descomente se necessário):
+        # image: postgres:16-alpine    # Versão mais recente
+        # image: postgres:14-alpine    # Versão mais estável
+        # image: postgres:15           # Versão completa (maior)
         ports:
         - containerPort: 5432
         env:
