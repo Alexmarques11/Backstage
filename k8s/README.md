@@ -6,7 +6,8 @@ This directory contains Kubernetes manifests for **manual deployment** of the Ba
 
 
 
-## 🗂️ Files Overview## 🏗️ **Arquitetura**
+## 🗂️ Files Overview
+## 🏗️ **Arquitetura**
 
 
 
