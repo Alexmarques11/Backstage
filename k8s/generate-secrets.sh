@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script para gerar secrets seguros para o Kubernetes
-# Este script NÃO deve ser commitado com valores reais!
+# Secrets são criados diretamente no cluster - NUNCA salvos em arquivos!
 
 set -e
 
@@ -18,37 +18,21 @@ if ! command -v openssl &> /dev/null; then
     exit 1
 fi
 
-# Prompt para credenciais do banco (ou usar defaults seguros)
-echo ""
-echo "📊 Database Configuration:"
-read -p "Database username (default: backstage_user): " DB_USER
-DB_USER=${DB_USER:-backstage_user}
-
-read -s -p "Database password (will generate secure one if empty): " DB_PASSWORD
-echo ""
-if [ -z "$DB_PASSWORD" ]; then
-    DB_PASSWORD=$(openssl rand -hex 32)
-    echo "✅ Generated secure database password"
-fi
-
-read -p "Database name (default: backstage): " DB_NAME
-DB_NAME=${DB_NAME:-backstage}
-
-# Gerar JWT secrets seguros
-echo ""
-echo "🔑 Generating JWT secrets..."
-ACCESS_TOKEN_SECRET=$(openssl rand -hex 64)
-REFRESH_TOKEN_SECRET=$(openssl rand -hex 64)
-echo "✅ Generated secure JWT secrets"
-
 # Verificar se namespace existe
 if ! kubectl get namespace backstage &> /dev/null; then
-    echo "📁 Creating backstage namespace..."
+    echo "� Creating backstage namespace..."
     kubectl create namespace backstage
 fi
 
-echo ""
-echo "🚀 Creating Kubernetes secrets..."
+# Gerar credenciais seguras
+echo "🔑 Generating secure credentials..."
+DB_USER="backstage_user"
+DB_NAME="backstage"
+DB_PASSWORD=$(openssl rand -hex 32)
+ACCESS_TOKEN_SECRET=$(openssl rand -hex 64)
+REFRESH_TOKEN_SECRET=$(openssl rand -hex 64)
+
+echo " Creating Kubernetes secrets..."
 
 # Criar secret para a aplicação
 kubectl create secret generic backstage-secrets \
@@ -73,9 +57,10 @@ echo ""
 echo "📋 Summary:"
 echo "  • Database User: $DB_USER"
 echo "  • Database Name: $DB_NAME"
-echo "  • JWT Secrets: Generated securely"
+echo "  • Secrets stored securely in Kubernetes cluster"
+echo "  • NO secrets saved to files or Git repository"
 echo ""
-echo "⚠️  IMPORTANT: Save these credentials in a secure location!"
-echo "🔒 Database Password: $DB_PASSWORD"
+echo "🔒 Generated Password: $DB_PASSWORD"
+echo "⚠️  Save this password in a secure location!"
 echo ""
-echo "🎯 You can now deploy your application with: ./deploy.sh"
+echo "🎯 You can now deploy with: ./deploy.sh"

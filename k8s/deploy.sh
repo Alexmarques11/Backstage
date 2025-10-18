@@ -114,8 +114,8 @@ deploy_application() {
     log_info "Aplicando ConfigMaps..."
     kubectl apply -f "$K8S_DIR/01-configmap.yaml"
     
-    log_info "Aplicando Secrets..."
-    kubectl apply -f "$K8S_DIR/02-secrets.yaml"
+    log_info "Creating dynamic secrets (never stored in Git)..."
+    create_secure_secrets
     
     log_info "Deploying PostgreSQL..."
     kubectl apply -f "$K8S_DIR/03-postgres.yaml"
@@ -139,6 +139,55 @@ deploy_application() {
     kubectl wait --for=condition=available --timeout=300s deployment/backstage-auth -n $NAMESPACE
     
     log_success "Deploy da aplicação concluído"
+}
+
+# Função para criar secrets dinamicamente (NUNCA no Git!)
+create_secure_secrets() {
+    log_info "Gerando secrets seguros dinamicamente..."
+    
+    # Verificar se secrets já existem
+    if kubectl get secret backstage-secrets -n $NAMESPACE &> /dev/null; then
+        log_warning "backstage-secrets já existe, pulando criação"
+    else
+        log_info "Criando backstage-secrets..."
+        
+        # Gerar credenciais seguras
+        DB_USER="backstage_user"
+        DB_PASSWORD=$(openssl rand -hex 32)
+        JWT_SECRET=$(openssl rand -hex 64)
+        REFRESH_SECRET=$(openssl rand -hex 64)
+        
+        kubectl create secret generic backstage-secrets \
+            --from-literal=DATABASE_USER="$DB_USER" \
+            --from-literal=DATABASE_PASSWORD="$DB_PASSWORD" \
+            --from-literal=ACCESS_TOKEN_SECRET="$JWT_SECRET" \
+            --from-literal=REFRESH_TOKEN_SECRET="$REFRESH_SECRET" \
+            --namespace=$NAMESPACE
+        
+        log_success "backstage-secrets criado com valores seguros"
+    fi
+    
+    if kubectl get secret postgres-secret -n $NAMESPACE &> /dev/null; then
+        log_warning "postgres-secret já existe, pulando criação"
+    else
+        log_info "Criando postgres-secret..."
+        
+        # Usar as mesmas credenciais para consistência
+        DB_USER="backstage_user"
+        if kubectl get secret backstage-secrets -n $NAMESPACE &> /dev/null; then
+            DB_PASSWORD=$(kubectl get secret backstage-secrets -n $NAMESPACE -o jsonpath='{.data.DATABASE_PASSWORD}' | base64 -d)
+        else
+            DB_PASSWORD=$(openssl rand -hex 32)
+        fi
+        
+        kubectl create secret generic postgres-secret \
+            --from-literal=POSTGRES_USER="$DB_USER" \
+            --from-literal=POSTGRES_PASSWORD="$DB_PASSWORD" \
+            --from-literal=POSTGRES_DB="backstage" \
+            --namespace=$NAMESPACE
+        
+        log_success "postgres-secret criado"
+    fi
 }
 
 # Configurar acesso local

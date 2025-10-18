@@ -35,3 +35,7 @@ replay_pid*
 .kotlin/
 .github/copilot-instructions.md
 k8s/02-secrets.yaml
+# Security: Never commit secrets
+k8s/*secrets*.yaml
+*.env
+.env.*

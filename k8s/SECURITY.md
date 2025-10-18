@@ -2,7 +2,7 @@
 
 ## ⚠️ SECURITY NOTICE
 
-**NEVER commit real secrets to Git!** This project uses a secure deployment process that generates secrets dynamically.
+**SECRETS NEVER STORED IN GIT!** This project uses secure deployment that generates secrets dynamically and stores them only in the Kubernetes cluster.
 
 ## 🚀 Quick Start
 
@@ -12,9 +12,10 @@ cd k8s/
 ./generate-secrets.sh
 ```
 This will:
-- Generate secure database credentials
-- Create strong JWT secrets
-- Apply them directly to Kubernetes (never saved to files)
+- Generate secure database credentials with `openssl`
+- Create strong JWT secrets (64-byte random)
+- Apply secrets directly to Kubernetes cluster
+- **NEVER save secrets to files or Git**
 
 ### 2. Deploy Application
 ```bash
@@ -24,23 +25,23 @@ This will:
 ## 🔍 What was fixed
 
 ### Before (VULNERABLE):
-- Real passwords in `k8s/02-secrets.yaml`
-- Base64 encoding gave false sense of security
-- Anyone could decode: `echo "MTIzNDU2" | base64 -d` → `123456`
+- Real passwords in `k8s/02-secrets.yaml` file
+- Even base64 encoding was easily decodable
+- Anyone with GitHub access could see: `user123`, `123456`, etc.
 
 ### After (SECURE):
-- `02-secrets.yaml` is now a template with placeholders
-- Real secrets generated dynamically with `./generate-secrets.sh`
-- Secrets only exist in Kubernetes cluster, not in Git
-- Strong passwords generated with `openssl rand`
+- **NO secrets file in Git repository**
+- Secrets generated dynamically during deployment
+- Secrets stored only in Kubernetes cluster
+- Strong passwords generated with `openssl rand -hex 32`
 
 ## 📋 Security Best Practices
 
-1. **Never commit real secrets** - Use templates and generation scripts
-2. **Rotate secrets regularly** - Re-run `./generate-secrets.sh`
-3. **Use strong passwords** - Generated automatically with OpenSSL
-4. **Limit cluster access** - Use RBAC and network policies
-5. **Monitor access** - Check Kubernetes audit logs
+1. **Never commit secrets** - No secrets files in Git, period
+2. **Generate dynamically** - Create secrets during deployment
+3. **Use strong passwords** - 32+ byte random generation with OpenSSL
+4. **Rotate regularly** - Re-run `./generate-secrets.sh`
+5. **Limit cluster access** - Use RBAC and network policies
 
 ## 🔧 Available Scripts
 
