@@ -48,38 +48,47 @@ docker pull postgres:15-alpine
 
 # Create production environment file if it doesn't exist
 if [ ! -f "$ENV_FILE" ]; then
-    echo "📝 Creating production environment file..."
+    echo "📝 Creating production environment template..."
     cat > $ENV_FILE << EOL
 # Production Environment Variables
 NODE_ENV=production
 
-# Database Configuration
+# Database Configuration - REPLACE WITH SECURE VALUES!
 DATABASE_HOST=database
-DATABASE_USER=backstage_user
-DATABASE_PASSWORD=secure_password_change_me
+DATABASE_USER=generate_secure_username
+DATABASE_PASSWORD=GENERATE_SECURE_PASSWORD_WITH_openssl_rand_hex_32
 DATABASE_NAME=backstage_prod
 DATABASE_PORT=5432
 
-# JWT Secrets - CHANGE THESE IN PRODUCTION!
-ACCESS_TOKEN_SECRET=your_super_secure_access_token_secret_here
-REFRESH_TOKEN_SECRET=your_super_secure_refresh_token_secret_here
+# JWT Secrets - GENERATE STRONG SECRETS!
+# Use: openssl rand -hex 64
+ACCESS_TOKEN_SECRET=GENERATE_STRONG_JWT_SECRET_openssl_rand_hex_64
+REFRESH_TOKEN_SECRET=GENERATE_STRONG_REFRESH_SECRET_openssl_rand_hex_64
 
 # Docker Configuration
 DOCKER_USERNAME=${DOCKER_USERNAME}
+
+# Security Notice:
+# ALL VALUES ABOVE MUST BE CHANGED BEFORE PRODUCTION DEPLOYMENT!
+# Generate secure passwords: openssl rand -hex 32
+# Generate JWT secrets: openssl rand -hex 64
 EOL
-    echo "⚠️  Please edit $ENV_FILE and set secure passwords and JWT secrets!"
-    echo "⚠️  Never commit this file to version control!"
+    echo "🚨 SECURITY WARNING: Template environment file created!"
+    echo "📝 Edit $ENV_FILE and replace ALL placeholder values with secure credentials!"
+    echo "🔑 Generate passwords: openssl rand -hex 32"
+    echo "🔑 Generate JWT secrets: openssl rand -hex 64"
+    echo "⚠️  NEVER commit this file to version control!"
+    exit 1
 fi
 
-# Check if environment file has secure values
-if grep -q "change_me\|your_super_secure" "$ENV_FILE"; then
-    echo "⚠️  WARNING: Default values detected in $ENV_FILE"
-    echo "⚠️  Please update the passwords and JWT secrets before deploying to production!"
-    read -p "Continue anyway? (y/N): " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit 1
-    fi
+# Check if environment file still has template values
+if grep -q "GENERATE_\|generate_secure" "$ENV_FILE"; then
+    echo "🚨 CRITICAL SECURITY ERROR: Template values detected in $ENV_FILE"
+    echo "📝 Please replace ALL placeholder values with actual secure credentials!"
+    echo "🔑 Generate passwords: openssl rand -hex 32"
+    echo "🔑 Generate JWT secrets: openssl rand -hex 64"
+    echo "❌ Deployment aborted for security reasons."
+    exit 1
 fi
 
 # Deploy with Docker Compose
