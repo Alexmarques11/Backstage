@@ -1,80 +1,156 @@
-# Backstage Kubernetes Deployment
+# 📋 Manual Kubernetes Deployment# Backstage Kubernetes Deployment
 
-Deploy seguro da aplicação Backstage usando Minikube com PostgreSQL, Server e Auth Server separados.
 
-## 🏗️ **Arquitetura**
+
+This directory contains Kubernetes manifests for **manual deployment** of the Backstage application.Deploy seguro da aplicação Backstage usando Minikube com PostgreSQL, Server e Auth Server separados.
+
+
+
+## 🗂️ Files Overview## 🏗️ **Arquitetura**
+
+
+
+- `00-namespace.yaml` - Creates the backstage namespace```
+
+- `01-configmap.yaml` - Configuration for the applications  ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+
+- `03-postgres.yaml` - PostgreSQL database deployment│   Ingress       │    │  Backstage       │    │   PostgreSQL    │
+
+- `04-server.yaml` - Main Backstage server (port 3000)│  (backstage.    │───▶│  Server + Auth   │───▶│   Database      │
+
+- `05-auth.yaml` - Authentication server (port 4000)│   local)        │    │  (Microservices) │    │  (Persistent)   │
+
+- `06-services.yaml` - Services and ingress configuration└─────────────────┘    └──────────────────┘    └─────────────────┘
 
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Ingress       │    │  Backstage       │    │   PostgreSQL    │
-│  (backstage.    │───▶│  Server + Auth   │───▶│   Database      │
-│   local)        │    │  (Microservices) │    │  (Persistent)   │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-```
+
+## 🔐 Security Notice
 
 ## 📁 **Estrutura dos Arquivos**
 
+**NO SECRETS FILES** - This project does not include any secrets files for security reasons. You must create secrets manually using the commands in `SECURITY.md`.
+
 ```
-k8s/
+
+## 🚀 Manual Deployment Processk8s/
+
 ├── 00-namespace.yaml     # Namespace 'backstage'
-├── 01-configmap.yaml     # Configurações não sensíveis
-├── 02-secrets.yaml       # Credenciais e JWT secrets
-├── 03-postgres.yaml      # PostgreSQL com persistência
-├── 04-server.yaml        # Backstage Server (API principal)
+
+### 1. Read Security Guide First├── 01-configmap.yaml     # Configurações não sensíveis
+
+```bash├── 02-secrets.yaml       # Credenciais e JWT secrets
+
+cat SECURITY.md├── 03-postgres.yaml      # PostgreSQL com persistência
+
+```├── 04-server.yaml        # Backstage Server (API principal)
+
 ├── 05-auth.yaml          # Auth Server (autenticação)
-├── 06-ingress.yaml       # Ingress + NodePort services
-├── deploy.sh             # Script de deployment automatizado
-├── cleanup.sh            # Script de limpeza
-├── monitor.sh            # Script de monitoramento
+
+### 2. Create Namespace├── 06-ingress.yaml       # Ingress + NodePort services
+
+```bash├── deploy.sh             # Script de deployment automatizado
+
+kubectl create namespace backstage├── cleanup.sh            # Script de limpeza
+
+```├── monitor.sh            # Script de monitoramento
+
 ├── MINIKUBE_SETUP.md     # Guia detalhado de setup
-└── README.md             # Esta documentação
-```
 
-## 🚀 **Quick Start**
+### 3. Generate Secrets Manually└── README.md             # Esta documentação
 
-### **Opção 1: Deploy Completo (Recomendado)**
+```bash```
+
+# Generate strong passwords
+
+openssl rand -hex 32  # Database password## 🚀 **Quick Start**
+
+openssl rand -hex 64  # JWT secrets
+
+```### **Opção 1: Deploy Completo (Recomendado)**
+
 ```bash
-# Deploy com menu interativo
-./deploy.sh
 
-# Deploy automático com usuário Docker específico
-./deploy.sh development goncalocruz
-```
+### 4. Create Kubernetes Secrets# Deploy com menu interativo
 
-### **Opção 2: Deploy Manual**
-```bash
-# 1. Verificar pré-requisitos
+```bash./deploy.sh
+
+# Use your generated values
+
+kubectl create secret generic backstage-secrets \# Deploy automático com usuário Docker específico
+
+    --from-literal=DATABASE_USER="backstage_user" \./deploy.sh development goncalocruz
+
+    --from-literal=DATABASE_PASSWORD="<YOUR_GENERATED_PASSWORD>" \```
+
+    --from-literal=ACCESS_TOKEN_SECRET="<YOUR_JWT_SECRET>" \
+
+    --from-literal=REFRESH_TOKEN_SECRET="<YOUR_REFRESH_SECRET>" \### **Opção 2: Deploy Manual**
+
+    --namespace=backstage```bash
+
+```# 1. Verificar pré-requisitos
+
 minikube status
 
-# 2. Aplicar manifests
-kubectl apply -f 00-namespace.yaml
-kubectl apply -f 01-configmap.yaml
-kubectl apply -f 02-secrets.yaml
-kubectl apply -f 03-postgres.yaml
-kubectl apply -f 04-server.yaml
-kubectl apply -f 05-auth.yaml
+### 5. Deploy Application
+
+```bash# 2. Aplicar manifests
+
+kubectl apply -f 01-configmap.yamlkubectl apply -f 00-namespace.yaml
+
+kubectl apply -f 03-postgres.yamlkubectl apply -f 01-configmap.yaml
+
+kubectl apply -f 04-server.yaml  kubectl apply -f 02-secrets.yaml
+
+kubectl apply -f 05-auth.yamlkubectl apply -f 03-postgres.yaml
+
+kubectl apply -f 06-services.yamlkubectl apply -f 04-server.yaml
+
+```kubectl apply -f 05-auth.yaml
+
 kubectl apply -f 06-ingress.yaml
 
-# 3. Aguardar deployments
-kubectl wait --for=condition=available --timeout=300s deployment/postgres -n backstage
-kubectl wait --for=condition=available --timeout=300s deployment/backstage-server -n backstage
-kubectl wait --for=condition=available --timeout=300s deployment/backstage-auth -n backstage
-```
+### 6. Initialize Database
 
-## ⚙️ **Configuration**
+```bash# 3. Aguardar deployments
 
-### **External Database Setup**
+kubectl port-forward service/backstage-server 13000:3000 -n backstage &kubectl wait --for=condition=available --timeout=300s deployment/postgres -n backstage
 
-1. **Update ConfigMap** (`k8s/backend-configmap.yaml`):
-```yaml
+curl http://localhost:13000/setupkubectl wait --for=condition=available --timeout=300s deployment/backstage-server -n backstage
+
+kill %1kubectl wait --for=condition=available --timeout=300s deployment/backstage-auth -n backstage
+
+``````
+
+
+
+## 📚 Documentation## ⚙️ **Configuration**
+
+
+
+- `SECURITY.md` - **Complete manual deployment guide** with security best practices### **External Database Setup**
+
+- `deploy.sh` - Reference script (can be customized for your needs)
+
+- `cleanup.sh` - Remove all deployments1. **Update ConfigMap** (`k8s/backend-configmap.yaml`):
+
+- `monitor.sh` - Check deployment status```yaml
+
 data:
-  DATABASE_HOST: "your-db-host.com"
-  DATABASE_USER: "your_username"
-  DATABASE_NAME: "backstage"
-  DATABASE_PORT: "5432"
-```
 
-2. **Update Secret** (`k8s/backend-secret.yaml`):
+## ⚠️ Important Notes  DATABASE_HOST: "your-db-host.com"
+
+  DATABASE_USER: "your_username"
+
+- **Always generate unique secrets** for each environment  DATABASE_NAME: "backstage"
+
+- **Never commit secrets** to version control  DATABASE_PORT: "5432"
+
+- **Use strong passwords** (32+ bytes) with OpenSSL```
+
+- **Store credentials securely** in a password manager
+
+- **Follow manual steps** - no automatic generation2. **Update Secret** (`k8s/backend-secret.yaml`):
 ```bash
 # Encode your password
 echo -n "your_actual_password" | base64
