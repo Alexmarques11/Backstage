@@ -11,6 +11,15 @@ const app = express();
 
 app.use(express.json());
 
+// Health check endpoint for Kubernetes probes
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'healthy', 
+    service: 'backstage-server',
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.get('/', async (req, res) => {
   try {
     const data = await pool.query(`SELECT * FROM users`);

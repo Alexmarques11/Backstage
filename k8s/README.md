@@ -1,57 +1,158 @@
-# 📋 Manual Kubernetes Deployment# Backstage Kubernetes Deployment
+# Backstage Minikube Deployment
 
+This directory contains Kubernetes manifests for deploying the Backstage application on **Minikube**. This is a working, tested deployment that includes external access configuration.
 
-
-This directory contains Kubernetes manifests for **manual deployment** of the Backstage application.Deploy seguro da aplicação Backstage usando Minikube com PostgreSQL, Server e Auth Server separados.
-
-
-
-## 🗂️ Files Overview
-## 🏗️ **Arquitetura**
-
-
-
-- `00-namespace.yaml` - Creates the backstage namespace```
-
-- `01-configmap.yaml` - Configuration for the applications  ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-
-- `03-postgres.yaml` - PostgreSQL database deployment│   Ingress       │    │  Backstage       │    │   PostgreSQL    │
-
-- `04-server.yaml` - Main Backstage server (port 3000)│  (backstage.    │───▶│  Server + Auth   │───▶│   Database      │
-
-- `05-auth.yaml` - Authentication server (port 4000)│   local)        │    │  (Microservices) │    │  (Persistent)   │
-
-- `06-services.yaml` - Services and ingress configuration└─────────────────┘    └──────────────────┘    └─────────────────┘
+## 🏗️ Architecture
 
 ```
+External Machine → Host Network → Port Forward/Relay → Minikube → Kubernetes Services → Pods
+```
+
+**Components:**
+- **PostgreSQL Database**: Persistent storage for user data
+- **Backstage Server**: Main API server (port 3000)
+- **Auth Server**: Authentication service (port 4000)
+- **External Access**: Multiple methods for cross-network connectivity
+
+## 📁 File Structure
+
+```
+k8s/
+├── 00-namespace.yaml     # Namespace 'backstage'
+├── 01-configmap.yaml     # Non-sensitive configuration
+├── 03-postgres.yaml      # PostgreSQL with persistent storage
+├── 04-server.yaml        # Backstage Server (main API)
+├── 05-auth.yaml          # Auth Server (authentication)
+├── 06-ingress.yaml       # Ingress + NodePort services
+├── deploy.sh             # Automated deployment script
+├── README.md             # This file
+├── MINIKUBE_SETUP.md     # Minikube installation guide
+└── SECURITY.md           # Security and secrets management
+```
+
+## 🚀 Quick Deployment
+
+### Option 1: Automated Deployment (Recommended)
+```bash
+cd k8s
+./deploy.sh
+```
+
+### Option 2: Manual Deployment
+Follow the steps in `SECURITY.md` for manual deployment.
 
 ## 🔐 Security Notice
 
-## 📁 **Estrutura dos Arquivos**
-
-**NO SECRETS FILES** - This project does not include any secrets files for security reasons. You must create secrets manually using the commands in `SECURITY.md`.
-
-```
-
-## 🚀 Manual Deployment Processk8s/
-
-├── 00-namespace.yaml     # Namespace 'backstage'
-
-### 1. Read Security Guide First├── 01-configmap.yaml     # Configurações não sensíveis
-
-```bash├── 02-secrets.yaml       # Credenciais e JWT secrets
-
-cat SECURITY.md├── 03-postgres.yaml      # PostgreSQL com persistência
-
-```├── 04-server.yaml        # Backstage Server (API principal)
-
-├── 05-auth.yaml          # Auth Server (autenticação)
-
-### 2. Create Namespace├── 06-ingress.yaml       # Ingress + NodePort services
+**NO SECRETS IN GIT** - This project generates secrets dynamically during deployment. See `SECURITY.md` for details on secure secret management.
 
 ```bash├── deploy.sh             # Script de deployment automatizado
 
-kubectl create namespace backstage├── cleanup.sh            # Script de limpeza
+## 🌐 External Access Methods
+
+The deployment includes multiple tested methods for external access:
+
+### Method 1: Port Forwarding (Primary)
+```bash
+kubectl port-forward --address 0.0.0.0 service/backstage-server-service 8080:3000 -n backstage
+kubectl port-forward --address 0.0.0.0 service/backstage-auth-service 8081:4000 -n backstage
+```
+**Access URLs:**
+- Main Server: `http://YOUR_HOST_IP:8080/`
+- Auth Server: `http://YOUR_HOST_IP:8081/`
+
+### Method 2: NodePort Services
+```bash
+minikube service backstage-server-nodeport -n backstage --url
+minikube service backstage-auth-nodeport -n backstage --url
+```
+**Direct Minikube Access:**
+- Main Server: `http://MINIKUBE_IP:30300/`
+- Auth Server: `http://MINIKUBE_IP:30400/`
+
+### Method 3: Additional Relay Methods
+For enhanced connectivity, additional relay methods (socat, Python proxy) can be configured. See the main project README for details.
+
+## 🔍 Monitoring and Health Checks
+
+### Check Deployment Status
+```bash
+kubectl get pods -n backstage
+kubectl get services -n backstage
+kubectl get endpoints -n backstage
+```
+
+### Test Health Endpoints
+```bash
+# Internal testing
+kubectl exec -it deployment/backstage-server -n backstage -- curl localhost:3000/health
+kubectl exec -it deployment/backstage-auth -n backstage -- curl localhost:4000/health
+
+# External testing (after port-forward setup)
+curl http://localhost:8080/health
+curl http://localhost:8081/health
+```
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+1. **Pods not starting**: Check logs with `kubectl logs <pod-name> -n backstage`
+2. **External access failing**: Verify port-forwarding and firewall settings
+3. **Database connection issues**: Check PostgreSQL pod status and secrets
+
+### Useful Commands
+```bash
+# Check all resources
+kubectl get all -n backstage
+
+# Describe failing pods
+kubectl describe pod <pod-name> -n backstage
+
+# View logs
+kubectl logs -f deployment/backstage-server -n backstage
+
+# Restart deployment
+kubectl rollout restart deployment/backstage-server -n backstage
+```
+
+## 📊 Scaling and Updates
+
+### Scale Services
+```bash
+kubectl scale deployment backstage-server --replicas=3 -n backstage
+kubectl scale deployment backstage-auth --replicas=2 -n backstage
+```
+
+### Update Services
+```bash
+# Rebuild images in Minikube
+eval $(minikube docker-env)
+docker build -t backstage-server -f ../backend/Dockerfile.server ../backend/
+
+# Restart deployment to use new image
+kubectl rollout restart deployment/backstage-server -n backstage
+```
+
+This deployment has been tested and confirmed working with external access from different network segments.
+
+## 📊 Scaling and Updates
+
+### Scale Services
+```bash
+kubectl scale deployment backstage-server --replicas=3 -n backstage
+kubectl scale deployment backstage-auth --replicas=2 -n backstage
+```
+
+### Update Services
+```bash
+# Rebuild images in Minikube
+eval $(minikube docker-env)
+docker build -t backstage-server -f ../backend/Dockerfile.server ../backend/
+
+# Restart deployment to use new image
+kubectl rollout restart deployment/backstage-server -n backstage
+```
+
+This deployment has been tested and confirmed working with external access from different network segments.├── cleanup.sh            # Script de limpeza
 
 ```├── monitor.sh            # Script de monitoramento
 

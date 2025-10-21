@@ -21,11 +21,11 @@ spec:
       containers:
       - name: backstage-auth
         # ALTERE PARA SUA CONTA DOCKER HUB - Opções disponíveis:
-        # image: alexmarques11/backstage-auth:latest    # Conta principal
+        # image: goncalocruz/backstage-auth:latest    # Conta principal
         image: goncalocruz/backstage-auth:latest        # Conta do Gonçalo (ATIVA)
-        # image: zeaccount/backstage-auth:latest        # Conta do ZE
-        # image: gmomachine/backstage-auth:latest       # Conta alternativa
-        imagePullPolicy: Always
+        # image: goncalocruz/backstage-auth:latest        # Conta do ZE
+        # image: goncalocruz/backstage-auth:latest       # Conta alternativa
+        imagePullPolicy: Never
         ports:
         - containerPort: 4000
           name: http
@@ -77,7 +77,7 @@ spec:
         # Health checks
         livenessProbe:
           httpGet:
-            path: /auth/token
+            path: /health
             port: 4000
           initialDelaySeconds: 30
           timeoutSeconds: 5
@@ -85,7 +85,7 @@ spec:
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /auth/token
+            path: /health
             port: 4000
           initialDelaySeconds: 5
           timeoutSeconds: 3

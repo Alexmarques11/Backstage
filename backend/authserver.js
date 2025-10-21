@@ -14,6 +14,24 @@ app.use(express.json());
 
 let refreshTokens = [];
 
+// Health check endpoint for Kubernetes probes
+app.get("/health", (req, res) => {
+  res.status(200).json({ 
+    status: "healthy", 
+    service: "backstage-auth",
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Root endpoint
+app.get("/", (req, res) => {
+  res.status(200).json({ 
+    message: "Backstage Auth Server", 
+    version: "1.0.0",
+    endpoints: ["/auth/login", "/auth/register", "/auth/token", "/health"]
+  });
+});
+
 app.post("/auth/token", (req, res) => {
   const { token: refreshToken } = req.body;
   if (!refreshToken) return res.sendStatus(401);

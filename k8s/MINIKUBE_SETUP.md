@@ -1,53 +1,146 @@
-# Guia de Instalação e Setup do Minikube
+# Minikube Installation and Setup Guide
 
-## 📋 Pré-requisitos
+## 📋 Prerequisites
 
-- Docker instalado e funcionando
-- Pelo menos 2GB de RAM livre
-- Pelo menos 2GB de espaço em disco
+- Docker installed and running
+- At least 3GB of RAM free
+- At least 2GB of disk space
+- Linux/Ubuntu system (tested configuration)
 
-## 🚀 Instalação do Minikube
+## 🚀 Minikube Installation
 
-### Ubuntu/Debian:
+### Ubuntu/Debian Installation:
 ```bash
-# Baixar e instalar minikube
+# Download and install minikube
 curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
 sudo install minikube-linux-amd64 /usr/local/bin/minikube
 
-# Instalar kubectl
+# Install kubectl
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 ```
 
-### Ou via package manager:
+### Alternative Package Manager Installation:
 ```bash
-# Minikube
+# Minikube via apt
 sudo apt update && sudo apt install -y minikube
 
-# kubectl
+# kubectl via snap
 sudo snap install kubectl --classic
 ```
 
-## 🔧 Configuração Inicial
+## 🔧 Initial Configuration
 
-### 1. Iniciar Minikube:
+### 1. Start Minikube (Tested Configuration):
 ```bash
-# Iniciar com driver Docker (recomendado)
-minikube start --driver=docker
+# Start with Docker driver and sufficient resources
+minikube start --driver=docker --memory=3072 --cpus=2
 
-# Ou com mais recursos se necessário
-minikube start --driver=docker --memory=4096 --cpus=2
-```
-
-### 2. Verificar Status:
-```bash
+# Verify startup
 minikube status
 kubectl cluster-info
 ```
 
-### 3. Habilitar Addons Úteis:
+### 2. Enable Required Addons:
 ```bash
-# Dashboard para interface web
+# Enable ingress for external access
+minikube addons enable ingress
+
+# Enable metrics server for monitoring
+minikube addons enable metrics-server
+
+# Enable dashboard for web interface
+minikube addons enable dashboard
+```
+
+### 3. Configure Docker Environment:
+```bash
+# Point local Docker to Minikube's Docker daemon
+eval $(minikube docker-env)
+
+# Verify configuration
+docker ps
+```
+
+## 🚀 Deploy Backstage Application
+
+### Option 1: Automated Deployment (Recommended)
+```bash
+cd k8s
+./deploy.sh
+```
+
+### Option 2: Manual Deployment
+```bash
+# Build images in Minikube
+eval $(minikube docker-env)
+cd backend
+docker build -t backstage-server -f Dockerfile.server .
+docker build -t backstage-auth -f Dockerfile.auth .
+
+# Deploy to Kubernetes
+cd ../k8s
+kubectl apply -f 00-namespace.yaml
+kubectl apply -f 01-configmap.yaml
+# Create secrets (see SECURITY.md)
+kubectl apply -f 03-postgres.yaml
+kubectl apply -f 04-server.yaml
+kubectl apply -f 05-auth.yaml
+kubectl apply -f 06-ingress.yaml
+```
+
+## 🌐 External Access Setup
+
+### Get Network Information:
+```bash
+# Get Minikube IP
+minikube ip
+
+# Get host IP
+hostname -I | awk '{print $1}'
+
+# Get service URLs
+minikube service list -n backstage
+```
+
+### Setup Port Forwarding (Primary Method):
+```bash
+# Forward main server
+kubectl port-forward --address 0.0.0.0 service/backstage-server-service 8080:3000 -n backstage &
+
+# Forward auth server
+kubectl port-forward --address 0.0.0.0 service/backstage-auth-service 8081:4000 -n backstage &
+```
+
+**External Access URLs:**
+- Main Server: `http://YOUR_HOST_IP:8080/`
+- Auth Server: `http://YOUR_HOST_IP:8081/`
+
+## 🔍 Verification and Testing
+
+### Check Pod Status:
+```bash
+kubectl get pods -n backstage
+kubectl get services -n backstage
+```
+
+### Test Health Endpoints:
+```bash
+# Local testing
+curl http://localhost:8080/health
+curl http://localhost:8081/health
+
+# External testing (replace with your host IP)
+curl http://YOUR_HOST_IP:8080/health
+curl http://YOUR_HOST_IP:8081/health
+```
+
+### Monitor Logs:
+```bash
+kubectl logs -f deployment/backstage-server -n backstage
+kubectl logs -f deployment/backstage-auth -n backstage
+kubectl logs -f statefulset/postgres -n backstage
+```
 minikube addons enable dashboard
 
 # Ingress para exposição de serviços
