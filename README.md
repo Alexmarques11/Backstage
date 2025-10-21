@@ -97,7 +97,25 @@ External Machine → Host Network → Port Forward/Relay → Minikube → Kubern
 - `POST /auth/logout` - Invalidate refresh token
 - `GET /health` - Health check
 
-## 🛠️ Development
+## � CI/CD Pipeline
+
+The project includes automated GitHub Actions workflows:
+
+### Backend CI Pipeline
+- **Triggers**: On pushes to `main`/`develop`, PRs to `main`
+- **Tests**: API endpoints, database integration, Docker builds
+- **Environment**: PostgreSQL 15 + Node.js 22
+- **Validation**: Complete user workflow testing
+
+### Docker Deployment Pipeline
+- **Triggers**: On pushes to `main`, GitHub releases
+- **Builds**: Multi-platform Docker images
+- **Publishes**: Images to Docker Hub automatically
+- **Tests**: Image functionality after deployment
+
+See [GitHub Workflows Documentation](./GITHUB_WORKFLOWS.md) for detailed pipeline explanation.
+
+## �🛠️ Development
 
 ### Backend Development
 ```bash
@@ -153,6 +171,7 @@ kubectl get services -n backstage
 
 - [Docker Commands Reference](./DOCKER_COMMANDS.md) - Complete Docker usage guide
 - [Minikube Commands Reference](./MINIKUBE_COMMANDS.md) - Kubernetes and Minikube commands
+- [GitHub Workflows Documentation](./GITHUB_WORKFLOWS.md) - CI/CD pipeline explanation
 - [Minikube Setup Guide](./k8s/MINIKUBE_SETUP.md) - Installation and configuration
 - [Security Documentation](./k8s/SECURITY.md) - Secrets and security management
 - [Kubernetes Deployment Guide](./k8s/README.md) - Detailed deployment instructions

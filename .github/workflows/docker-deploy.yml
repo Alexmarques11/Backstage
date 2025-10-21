@@ -11,25 +11,10 @@ on:
 
 env:
   REGISTRY: docker.io
-  
-  # ===== DOCKER HUB ACCOUNT CONFIGURATION =====
-  # Uncomment ONE of the following configurations:
-  
-  # Option 1: Default account (alexmarques11)
-  # DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
-  # DOCKER_PASS: ${{ secrets.DOCKER_PASSWORD }}
-  
-  # Option 2: Goncalo's account (CURRENTLY ACTIVE)
-  DOCKER_USER: ${{ secrets.DOCKER_USERNAME_GONCALO }}
-  DOCKER_PASS: ${{ secrets.DOCKER_PASSWORD_GONCALO }}
-  
-  # Option 3: ZE's account
-  # DOCKER_USER: ${{ secrets.DOCKER_USERNAME_ZE }}
-  # DOCKER_PASS: ${{ secrets.DOCKER_PASSWORD_ZE }}
-  
-  # ===== IMAGE NAMES (AUTO-GENERATED) =====
-  SERVER_IMAGE: ${{ secrets.DOCKER_USERNAME_GONCALO }}/backstage-server
-  AUTH_IMAGE: ${{ secrets.DOCKER_USERNAME_GONCALO }}/backstage-auth
+  DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASS: ${{ secrets.DOCKER_PASSWORD }}
+  SERVER_IMAGE: ${{ secrets.DOCKER_USERNAME }}/backstage-server
+  AUTH_IMAGE: ${{ secrets.DOCKER_USERNAME }}/backstage-auth
 
 jobs:
   build-and-push-server:
@@ -189,36 +174,19 @@ jobs:
         docker stop backstage-auth-test
         docker rm backstage-auth-test
 
-  deploy:
+  notification:
     runs-on: ubuntu-latest
     needs: [build-and-push-server, build-and-push-auth, test-docker-images]
     if: github.ref == 'refs/heads/main'
-    environment: production
     
     steps:
-    - name: Deploy to production
+    - name: Deployment notification
       run: |
-        echo "Ready for production deployment"
-        echo "Images available on Docker Hub:"
+        echo "✅ Docker images successfully built and pushed!"
+        echo "🐳 Images available on Docker Hub:"
         echo "📦 Server: ${{ env.DOCKER_USER }}/backstage-server:latest"
         echo "📦 Auth Server: ${{ env.DOCKER_USER }}/backstage-auth:latest"
         echo ""
-        echo "Set these secrets in GitHub for automated deployment:"
-        echo "- PRODUCTION_SERVER_HOST"
-        echo "- PRODUCTION_SERVER_USER" 
-        echo "- PRODUCTION_SERVER_KEY"
-        echo "- DATABASE_USER (override default)"
-        echo "- DATABASE_PASSWORD (override default)"
-        echo "- DATABASE_HOST (production database)"
-        
-        # Uncomment when secrets are configured:
-        # - name: Deploy via SSH
-        #   uses: appleboy/ssh-action@v1.0.0
-        #   with:
-        #     host: ${{ secrets.PRODUCTION_SERVER_HOST }}
-        #     username: ${{ secrets.PRODUCTION_SERVER_USER }}
-        #     key: ${{ secrets.PRODUCTION_SERVER_KEY }}
-        #     script: |
-        #       cd /path/to/your/app
-        #       docker compose pull
-        #       docker compose up -d
+        echo "🚀 Ready for deployment with:"
+        echo "docker pull ${{ env.DOCKER_USER }}/backstage-server:latest"
+        echo "docker pull ${{ env.DOCKER_USER }}/backstage-auth:latest"
