@@ -20,19 +20,32 @@ A full-stack application with a Node.js/Express backend and Android Kotlin front
 
 ## 🚀 Quick Start
 
-### Option 1: Docker Compose (Local Development)
+### Option 1: Minikube with Backstage Manager (Recommended)
+```bash
+# Complete setup with auto-scaling and management
+./backstage-manager.sh start
+
+# Check status anytime
+./backstage-manager.sh status
+
+# Stop/restart as needed
+./backstage-manager.sh stop
+./backstage-manager.sh restart
+```
+
+### Option 2: Docker Compose (Local Development)
 ```bash
 cd backend
 docker-compose up
 ```
 
-### Option 2: Minikube Deployment
+### Option 3: Manual Minikube Deployment
 ```bash
 cd k8s
 ./deploy.sh
 ```
 
-### Option 3: Production Docker
+### Option 4: Production Docker
 ```bash
 cd backend
 docker-compose -f docker-compose.prod.yaml up
@@ -55,12 +68,33 @@ The Minikube deployment includes multiple methods for external access:
 
 ## 🔧 How It Works
 
+### Backstage Manager Script
+The `backstage-manager.sh` script provides complete lifecycle management:
+
+#### Available Commands
+```bash
+./backstage-manager.sh start      # Complete deployment with auto-scaling
+./backstage-manager.sh stop       # Graceful shutdown (optional Minikube stop)
+./backstage-manager.sh restart    # Quick app restart (preserves data)
+./backstage-manager.sh status     # Show current deployment status
+./backstage-manager.sh clean      # Complete cleanup (deletes everything)
+./backstage-manager.sh port-forward # Re-setup external access
+```
+
+#### Smart Features
+- **Incremental Setup**: Only rebuilds/recreates what's needed
+- **Data Preservation**: Normal stop/start preserves database data
+- **Auto-scaling**: Automatically configures HPA (Horizontal Pod Autoscaler)
+- **External Access**: Sets up cross-network port forwarding
+- **Health Monitoring**: Waits for services to be ready before proceeding
+
 ### Minikube Deployment Process
 1. **Namespace Creation**: Isolates Backstage services
 2. **Secret Generation**: Dynamic JWT secrets (never committed)
 3. **Database Setup**: PostgreSQL StatefulSet with persistent storage
 4. **Service Deployment**: Main server and auth server with health checks
-5. **External Access**: Multiple forwarding methods for cross-network connectivity
+5. **Auto-scaling Setup**: CPU-based horizontal pod autoscaling
+6. **External Access**: Multiple forwarding methods for cross-network connectivity
 
 ### Network Architecture
 ```
@@ -78,6 +112,12 @@ External Machine → Host Network → Port Forward/Relay → Minikube → Kubern
 - Parameterized database queries
 - Kubernetes secrets management
 - Network isolation via namespaces
+
+### Auto-scaling Configuration
+- **Main Server**: 2-5 replicas based on 70% CPU threshold
+- **Auth Server**: 2-3 replicas based on 70% CPU threshold
+- **Metrics**: CPU and memory monitoring via metrics-server
+- **Testing**: Load testing script available (`test-autoscaling.sh`)
 
 ## 📋 API Endpoints
 
@@ -146,19 +186,48 @@ Use the REST client file at `backend/test.rest` for API testing.
 ├── k8s/                    # Kubernetes manifests
 │   ├── deploy.sh          # Automated deployment script
 │   └── *.yaml             # Kubernetes resource definitions
+├── backstage-manager.sh    # Complete deployment lifecycle management
+├── test-autoscaling.sh     # Auto-scaling testing and monitoring
 └── README.md              # This file
 ```
 
 ## 🔍 Troubleshooting
 
-### Check Service Status
+### Quick Diagnostics
+```bash
+# Check overall status
+./backstage-manager.sh status
+
+# Check service health
+curl http://YOUR_HOST_IP:8080/health
+curl http://YOUR_HOST_IP:8081/health
+```
+
+### Detailed Debugging
 ```bash
 kubectl get pods -n backstage
 kubectl get services -n backstage
+kubectl logs -f deployment/backstage-server -n backstage
 ```
 
-### Check External Access
+### Auto-scaling Monitoring
 ```bash
+# Check auto-scaling status
+kubectl get hpa -n backstage
+
+# Monitor resource usage
+kubectl top pods -n backstage
+
+# Test auto-scaling
+./test-autoscaling.sh
+```
+
+### External Access Issues
+```bash
+# Re-setup port forwarding
+./backstage-manager.sh port-forward
+
+# Check connection guide
 ./updated-connection-guide.sh
 ```
 
@@ -166,6 +235,7 @@ kubectl get services -n backstage
 - **Network connectivity**: Ensure firewall allows traffic on ports 8080, 8081, 9090, 9300, 9301
 - **Minikube not accessible**: Use host-based URLs instead of direct Minikube IPs
 - **Pod failures**: Check logs with `kubectl logs -n backstage <pod-name>`
+- **Auto-scaling not working**: Verify metrics-server addon is enabled
 
 ## 📚 References
 

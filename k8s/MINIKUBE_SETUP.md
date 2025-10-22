@@ -64,19 +64,40 @@ docker ps
 
 ## 🚀 Deploy Backstage Application
 
-### Option 1: Automated Deployment (Recommended)
+### Option 1: Backstage Manager (Recommended)
+```bash
+# Complete automated setup with auto-scaling
+./backstage-manager.sh start
+
+# Check status
+./backstage-manager.sh status
+
+# Test auto-scaling
+./test-autoscaling.sh
+```
+**Features:**
+- ✅ Complete Minikube setup and configuration
+- ✅ Docker image building and tagging
+- ✅ Kubernetes deployment with health checks
+- ✅ Auto-scaling configuration (HPA)
+- ✅ External access setup
+- ✅ Data preservation on restart
+
+### Option 2: Automated Deployment Script
 ```bash
 cd k8s
 ./deploy.sh
 ```
 
-### Option 2: Manual Deployment
+### Option 3: Manual Deployment
 ```bash
 # Build images in Minikube
 eval $(minikube docker-env)
 cd backend
 docker build -t backstage-server -f Dockerfile.server .
 docker build -t backstage-auth -f Dockerfile.auth .
+docker tag backstage-server:latest goncalocruz/backstage-server:latest
+docker tag backstage-auth:latest goncalocruz/backstage-auth:latest
 
 # Deploy to Kubernetes
 cd ../k8s
@@ -87,6 +108,10 @@ kubectl apply -f 03-postgres.yaml
 kubectl apply -f 04-server.yaml
 kubectl apply -f 05-auth.yaml
 kubectl apply -f 06-ingress.yaml
+
+# Setup auto-scaling
+kubectl autoscale deployment backstage-server --cpu-percent=70 --min=2 --max=5 -n backstage
+kubectl autoscale deployment backstage-auth --cpu-percent=70 --min=2 --max=3 -n backstage
 ```
 
 ## 🌐 External Access Setup
@@ -118,21 +143,39 @@ kubectl port-forward --address 0.0.0.0 service/backstage-auth-service 8081:4000 
 
 ## 🔍 Verification and Testing
 
-### Check Pod Status:
+### Quick Status Check:
 ```bash
+# Check everything with manager
+./backstage-manager.sh status
+
+# Or manual checks
 kubectl get pods -n backstage
 kubectl get services -n backstage
+kubectl get hpa -n backstage
 ```
 
 ### Test Health Endpoints:
 ```bash
-# Local testing
-curl http://localhost:8080/health
-curl http://localhost:8081/health
+# Get your host IP
+HOST_IP=$(hostname -I | awk '{print $1}')
 
-# External testing (replace with your host IP)
-curl http://YOUR_HOST_IP:8080/health
-curl http://YOUR_HOST_IP:8081/health
+# Test endpoints
+curl http://$HOST_IP:8080/health
+curl http://$HOST_IP:8081/health
+
+# Or internal testing
+kubectl exec -it deployment/backstage-server -n backstage -- curl localhost:3000/health
+kubectl exec -it deployment/backstage-auth -n backstage -- curl localhost:4000/health
+```
+
+### Test Auto-scaling:
+```bash
+# Run load test to trigger scaling
+./test-autoscaling.sh
+
+# Monitor scaling in real-time
+kubectl get hpa -n backstage -w
+kubectl top pods -n backstage
 ```
 
 ### Monitor Logs:
@@ -222,6 +265,22 @@ minikube start --driver=docker --subnet=192.168.59.0/24
 ## 🎯 Próximos Passos
 
 Após a instalação bem-sucedida:
+
+### With Backstage Manager (Recommended):
+```bash
+# Check status
+./backstage-manager.sh status
+
+# Test auto-scaling
+./test-autoscaling.sh
+
+# Daily operations
+./backstage-manager.sh restart    # Quick restart
+./backstage-manager.sh stop       # Graceful stop
+./backstage-manager.sh start      # Full start
+```
+
+### Manual Operations:
 1. Execute os scripts de deploy do Backstage
 2. Acesse o dashboard para monitoramento
 3. Configure ingress para acesso externo
@@ -229,11 +288,21 @@ Após a instalação bem-sucedida:
 
 ## 📝 Configuração para o Projeto Backstage
 
-Variáveis de ambiente importantes:
+### Manager Environment:
+```bash
+# The manager handles all of this automatically
+./backstage-manager.sh start
+```
+
+### Manual Environment Setup:
 ```bash
 # Definir namespace padrão
 kubectl config set-context --current --namespace=backstage
 
 # Verificar contexto
 kubectl config current-context
+
+# Setup auto-scaling
+kubectl autoscale deployment backstage-server --cpu-percent=70 --min=2 --max=5 -n backstage
+kubectl autoscale deployment backstage-auth --cpu-percent=70 --min=2 --max=3 -n backstage
 ```

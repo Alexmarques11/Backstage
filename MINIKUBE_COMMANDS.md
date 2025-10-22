@@ -2,6 +2,44 @@
 
 This document explains all Minikube and Kubernetes commands used in the BackstageKotlin project.
 
+## 🎛️ Backstage Manager (Recommended)
+
+### Quick Management Commands
+```bash
+# Complete setup with auto-scaling
+./backstage-manager.sh start
+
+# Check current status  
+./backstage-manager.sh status
+
+# Quick app restart (preserves data)
+./backstage-manager.sh restart
+
+# Graceful shutdown
+./backstage-manager.sh stop
+
+# Re-setup external access
+./backstage-manager.sh port-forward
+
+# Complete cleanup (deletes everything)
+./backstage-manager.sh clean
+```
+
+**What the manager does:**
+- **Smart Setup**: Only creates/builds what's needed
+- **Auto-scaling**: Configures HPA automatically
+- **Data Preservation**: Normal operations preserve database
+- **External Access**: Sets up cross-network port forwarding
+- **Health Monitoring**: Waits for services to be ready
+
+### Manager vs Manual Commands
+| Operation | Manager | Manual |
+|-----------|---------|--------|
+| **Complete Setup** | `./backstage-manager.sh start` | 15+ commands |
+| **Status Check** | `./backstage-manager.sh status` | 5+ commands |
+| **Quick Restart** | `./backstage-manager.sh restart` | 8+ commands |
+| **External Access** | `./backstage-manager.sh port-forward` | 3+ commands |
+
 ## ☸️ Minikube Setup Commands
 
 ### Initial Setup
@@ -251,15 +289,28 @@ kubectl scale deployment backstage-auth --replicas=2 -n backstage
 - Kubernetes automatically load balances between replicas
 - Useful for handling increased traffic
 
-#### Auto-scaling (HPA)
+### Auto-scaling (HPA)
 ```bash
-kubectl autoscale deployment backstage-server --cpu-percent=70 --min=1 --max=5 -n backstage
+kubectl autoscale deployment backstage-server --cpu-percent=70 --min=2 --max=5 -n backstage
+kubectl autoscale deployment backstage-auth --cpu-percent=70 --min=2 --max=3 -n backstage
 kubectl get hpa -n backstage
+kubectl top pods -n backstage
 ```
 **What it does:**
 - Automatically scales based on CPU usage
 - `--cpu-percent=70`: Triggers scaling when CPU exceeds 70%
-- `--min=1 --max=5`: Sets scaling limits
+- `--min/max`: Sets scaling limits (server: 2-5, auth: 2-3)
+- `get hpa`: Shows current auto-scaling status
+- `top pods`: Shows CPU/memory usage
+
+**Auto-scaling Testing:**
+```bash
+# Test auto-scaling with load
+./test-autoscaling.sh
+
+# Monitor scaling in real-time
+kubectl get hpa -n backstage -w
+```
 
 ### Rolling Updates
 
@@ -335,7 +386,19 @@ minikube start --memory=3072 --cpus=2 --driver=docker
 
 ## 🎯 Project-Specific Workflows
 
-### Complete Deployment Workflow
+### Complete Deployment with Manager (Recommended)
+```bash
+# One command setup with auto-scaling
+./backstage-manager.sh start
+
+# Check everything is working
+./backstage-manager.sh status
+
+# Test auto-scaling
+./test-autoscaling.sh
+```
+
+### Manual Complete Deployment Workflow
 ```bash
 # 1. Start Minikube
 minikube start --memory=3072 --cpus=2 --driver=docker
@@ -349,39 +412,71 @@ eval $(minikube docker-env)
 # 4. Build images
 docker build -t backstage-server -f backend/Dockerfile.server backend/
 docker build -t backstage-auth -f backend/Dockerfile.auth backend/
+docker tag backstage-server:latest goncalocruz/backstage-server:latest
+docker tag backstage-auth:latest goncalocruz/backstage-auth:latest
 
 # 5. Deploy to Kubernetes
 cd k8s
 ./deploy.sh
 
-# 6. Check deployment
+# 6. Setup auto-scaling
+kubectl autoscale deployment backstage-server --cpu-percent=70 --min=2 --max=5 -n backstage
+kubectl autoscale deployment backstage-auth --cpu-percent=70 --min=2 --max=3 -n backstage
+
+# 7. Check deployment
 kubectl get pods -n backstage
 kubectl get services -n backstage
+kubectl get hpa -n backstage
 
-# 7. Setup external access
+# 8. Setup external access
 kubectl port-forward --address 0.0.0.0 service/backstage-server-service 8080:3000 -n backstage &
 kubectl port-forward --address 0.0.0.0 service/backstage-auth-service 8081:4000 -n backstage &
 ```
 
+### Daily Development Workflow with Manager
+```bash
+# Morning - start everything
+./backstage-manager.sh start
+
+# Check status throughout the day
+./backstage-manager.sh status
+
+# Quick restart after code changes
+./backstage-manager.sh restart
+
+# Evening - stop but keep data
+./backstage-manager.sh stop
+```
+
 ### Troubleshooting Workflow
 ```bash
-# 1. Check pod status
+# 1. Quick status check with manager
+./backstage-manager.sh status
+
+# 2. Check pod status
 kubectl get pods -n backstage
 
-# 2. Check pod details
+# 3. Check pod details if issues found
 kubectl describe pod <failing-pod> -n backstage
 
-# 3. Check logs
+# 4. Check logs
 kubectl logs <failing-pod> -n backstage
 
-# 4. Check service endpoints
+# 5. Check service endpoints
 kubectl get endpoints -n backstage
 
-# 5. Test internal connectivity
+# 6. Test internal connectivity
 kubectl exec -it deployment/backstage-server -n backstage -- curl backstage-auth-service:4000/health
 
-# 6. Check resource usage
+# 7. Check auto-scaling status
+kubectl get hpa -n backstage
 kubectl top pods -n backstage
+
+# 8. Test external access
+curl http://$(hostname -I | awk '{print $1}'):8080/health
+
+# 9. If port forwarding issues
+./backstage-manager.sh port-forward
 ```
 
 ### Development Workflow
