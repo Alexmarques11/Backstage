@@ -1,123 +1,257 @@
-# BackstageKotlin
+# Backstage Application
 
-A full-stack application with a Node.js/Express backend and Android Kotlin frontend, deployable via Docker and Kubernetes (Minikube).
+A full-stack application with Node.js/Express backend and Android Kotlin frontend, deployed on DigitalOcean Kubernetes in London.
 
-## 🏗️ Architecture Overview
+## � Current Deployment
 
-### Backend Services
-- **Main Server** (Port 3000): Express.js API with PostgreSQL database
-- **Auth Server** (Port 4000): Authentication service with JWT tokens
-- **Database**: PostgreSQL running in Docker container
+**✅ Production**: London Region (lon1) - Optimized for European users
 
-### Frontend
-- **Android App**: Kotlin with Jetpack Compose UI
-- **Package**: `com.example.backstagekotlin`
-
-### Deployment Options
-- **Local Development**: Docker Compose
-- **Production**: Docker Compose with pre-built images
-- **Kubernetes**: Minikube deployment with external access
+- **Server API**: `http://159.65.95.83:30001`
+- **Auth API**: `http://159.65.95.83:30002`
+- **Health Check**: `http://159.65.95.83:30001/health`
 
 ## 🚀 Quick Start
 
-### Option 1: Minikube with Backstage Manager (Recommended)
+### For Administrators
 ```bash
-# Complete setup with auto-scaling and management
-./backstage-manager.sh start
+# Check deployment status
+./london-deploy.sh status
 
-# Check status anytime
-./backstage-manager.sh status
+# Deploy latest changes
+./london-deploy.sh update
 
-# Stop/restart as needed
-./backstage-manager.sh stop
-./backstage-manager.sh restart
+# Test deployment
+./london-deploy.sh test
 ```
 
-### Option 2: Docker Compose (Local Development)
+### For Developers
 ```bash
+# Local development
 cd backend
-docker-compose up
+npm install
+npm run dev
+
+# Build for production
+./london-deploy.sh build
 ```
 
-### Option 3: Manual Minikube Deployment
+## 🏗️ Architecture
+
+### Backend Services
+- **Server**: Main API (user management, business logic)
+- **Auth**: Authentication & JWT token management
+- **Database**: PostgreSQL 15 with SSL
+
+### Infrastructure
+- **Platform**: DigitalOcean Kubernetes (DOKS)
+- **Region**: London (lon1) - 37% faster for EU users
+- **Database**: Managed PostgreSQL in London
+- **Registry**: Private container registry
+
+### Security
+- ✅ SSL/TLS encryption
+- ✅ JWT-based authentication
+- ✅ bcrypt password hashing
+- ✅ Kubernetes secrets management
+
+# Backstage Application
+
+A full-stack application with Node.js/Express backend and Android Kotlin frontend, deployed on DigitalOcean Kubernetes in London.
+
+## 🌍 Live System
+
+**✅ Production**: London Region - Optimized for European users
+
+- **Server API**: http://159.65.95.83:30001 ([Health](http://159.65.95.83:30001/health))
+- **Auth API**: http://159.65.95.83:30002 ([Health](http://159.65.95.83:30002/health))
+
+## 🚀 Quick Start
+
 ```bash
-cd k8s
-./deploy.sh
+# Check if everything is working
+curl http://159.65.95.83:30001/health
+
+# Deploy code changes  
+./london-deploy.sh update
+
+# Check system status
+./london-deploy.sh status
 ```
 
-### Option 4: Production Docker
+## 📚 Documentation
+
+**Everything you need is in 2 files:**
+
+### 📖 [Complete Guide](docs/COMPLETE_GUIDE.md) 
+**START HERE** - Complete documentation covering:
+- Getting started (for newcomers)
+- Development (coding, testing, deploying)
+- Administration (monitoring, scaling, security)
+- Troubleshooting (fixing issues)
+- Deployment (new regions, fresh installs)
+- API reference
+
+### ⚡ [Quick Reference](docs/QUICK_REFERENCE.md)
+**Copy-paste commands** for:
+- Daily operations
+- Emergency procedures  
+- API testing
+- Troubleshooting
+
+---
+
+**Architecture**: Node.js + PostgreSQL + Kubernetes  
+**Location**: London (lon1)  
+**Cost**: ~$44/month  
+**Status**: ✅ Production Ready
+
+**Need help?** → [Complete Guide](docs/COMPLETE_GUIDE.md)
+
+## 📊 Performance
+
+- **Latency**: 264ms average (Portugal → London)
+- **Availability**: 99.9% target uptime
+- **Auto-scaling**: CPU-based (70% threshold)
+- **Resource Limits**: 256Mi memory, 200m CPU per pod
+
+## 🔧 Management
+
+### Daily Operations
+See [Admin Procedures](docs/ADMIN_PROCEDURES.md) for:
+- Health monitoring
+- Log analysis  
+- Scaling operations
+- Security management
+
+### Maintenance
+See [Maintenance Guide](docs/MAINTENANCE.md) for:
+- Update procedures
+- Backup strategies
+- Troubleshooting
+- Emergency recovery
+
+### Deployment Details
+See [London Deployment](docs/LONDON_DEPLOYMENT.md) for:
+- Infrastructure overview
+- Configuration details
+- Network architecture
+- Cost analysis
+
+## 🌐 API Endpoints
+
+### Server API (`http://159.65.95.83:30001`)
+- `GET /health` - Health check
+- `GET /` - List users
+- `POST /` - Create user
+- `GET /setup` - Initialize database
+- `GET /posts` - Protected endpoint
+
+### Auth API (`http://159.65.95.83:30002`)
+- `GET /health` - Health check
+- `POST /auth/register` - User registration
+- `POST /auth/login` - User login
+- `POST /auth/logout` - User logout
+- `POST /auth/token` - Refresh token
+
+## 🛠️ Development
+
+### Local Setup
 ```bash
+# Backend
 cd backend
-docker-compose -f docker-compose.prod.yaml up
+npm install
+npm run dev
+
+# Frontend (Android)
+cd backstage_frontend
+./gradlew build
 ```
 
-## 🌐 External Access Configuration
-
-The Minikube deployment includes multiple methods for external access:
-
-### Method 1: Port Forwarding (Recommended)
-- **Main Server**: `http://YOUR_HOST_IP:8080/`
-- **Auth Server**: `http://YOUR_HOST_IP:8081/`
-
-### Method 2: Socat Relay
-- **Main Server**: `http://YOUR_HOST_IP:9300/`
-- **Auth Server**: `http://YOUR_HOST_IP:9301/`
-
-### Method 3: Python Proxy (Unified)
-- **All Services**: `http://YOUR_HOST_IP:9090/`
-
-## 🔧 How It Works
-
-### Backstage Manager Script
-The `backstage-manager.sh` script provides complete lifecycle management:
-
-#### Available Commands
+### Testing
 ```bash
-./backstage-manager.sh start      # Complete deployment with auto-scaling
-./backstage-manager.sh stop       # Graceful shutdown (optional Minikube stop)
-./backstage-manager.sh restart    # Quick app restart (preserves data)
-./backstage-manager.sh status     # Show current deployment status
-./backstage-manager.sh clean      # Complete cleanup (deletes everything)
-./backstage-manager.sh port-forward # Re-setup external access
+# Health checks
+curl http://159.65.95.83:30001/health
+curl http://159.65.95.83:30002/health
+
+# User registration
+curl -X POST http://159.65.95.83:30002/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test","lastname":"User","username":"test","email":"test@example.com","password":"password123"}'
 ```
 
-#### Smart Features
-- **Incremental Setup**: Only rebuilds/recreates what's needed
-- **Data Preservation**: Normal stop/start preserves database data
-- **Auto-scaling**: Automatically configures HPA (Horizontal Pod Autoscaler)
-- **External Access**: Sets up cross-network port forwarding
-- **Health Monitoring**: Waits for services to be ready before proceeding
+### Deployment
+```bash
+# Update deployment
+./london-deploy.sh update
 
-### Minikube Deployment Process
-1. **Namespace Creation**: Isolates Backstage services
-2. **Secret Generation**: Dynamic JWT secrets (never committed)
-3. **Database Setup**: PostgreSQL StatefulSet with persistent storage
-4. **Service Deployment**: Main server and auth server with health checks
-5. **Auto-scaling Setup**: CPU-based horizontal pod autoscaling
-6. **External Access**: Multiple forwarding methods for cross-network connectivity
+# Check status
+./london-deploy.sh status
+```
 
-### Network Architecture
-```
-External Machine → Host Network → Port Forward/Relay → Minikube → Kubernetes Services → Pods
-```
+## 💰 Cost Optimization
+
+**Current Monthly Costs**: ~$44
+- DOKS Cluster: $24/month
+- PostgreSQL DB: $15/month  
+- Container Registry: $5/month
+
+**Optimization Opportunities**:
+- Scale down during low usage
+- Use smaller database if sufficient
+- Regular resource monitoring
+
+## 📈 Monitoring
 
 ### Health Monitoring
-- Each service has `/health` endpoints
-- Kubernetes liveness and readiness probes
-- Automatic pod restart on failure
+- Automated health checks every hour
+- Resource usage tracking
+- Application log analysis
 
-### Security Features
-- JWT-based authentication
-- Bcrypt password hashing
-- Parameterized database queries
-- Kubernetes secrets management
-- Network isolation via namespaces
+### Performance Metrics
+- Response time monitoring
+- Auto-scaling triggers
+- Database performance
 
-### Auto-scaling Configuration
-- **Main Server**: 2-5 replicas based on 70% CPU threshold
-- **Auth Server**: 2-3 replicas based on 70% CPU threshold
-- **Metrics**: CPU and memory monitoring via metrics-server
-- **Testing**: Load testing script available (`test-autoscaling.sh`)
+### Alerts
+- Service downtime
+- High resource usage
+- Database connectivity issues
+
+## 🔐 Security
+
+### Current Measures
+- SSL-enabled database connections
+- JWT token authentication
+- Secrets management via Kubernetes
+- Private container registry
+
+### Regular Security Tasks
+- Monthly JWT secret rotation
+- Weekly container image updates
+- Security patch monitoring
+
+## 📚 Documentation
+
+**New to Backstage?** → Start with [Getting Started Guide](docs/GETTING_STARTED.md)
+
+### User Guides
+- **[👋 Getting Started](docs/GETTING_STARTED.md)** - Complete introduction for newcomers
+- **[👩‍💻 Developer Guide](docs/DEVELOPER_GUIDE.md)** - Coding, testing, and development workflows  
+- **[👩‍🏭 Administrator Guide](docs/ADMIN_GUIDE.md)** - Daily operations and system management
+- **[🏗️ Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - Setting up new environments and migrations
+
+### Troubleshooting & Reference
+- **[🔧 Troubleshooting Guide](docs/TROUBLESHOOTING.md)** - Diagnose and fix common issues
+- **[📖 Technical Reference](docs/TECHNICAL_REFERENCE.md)** - Commands, APIs, and configurations
+
+### Quick Reference
+- **Server API**: http://159.65.95.83:30001 ([Health Check](http://159.65.95.83:30001/health))
+- **Auth API**: http://159.65.95.83:30002 ([Health Check](http://159.65.95.83:30002/health))
+- **Main Deployment Script**: `./london-deploy.sh status|update|test`
+
+---
+
+**Need help?** Check documentation above or review [Getting Started Guide](docs/GETTING_STARTED.md) for orientation.
 
 ## 📋 API Endpoints
 
