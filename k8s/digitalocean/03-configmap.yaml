@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backstage-config
+  namespace: backstage
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  AUTH_PORT: "4000"

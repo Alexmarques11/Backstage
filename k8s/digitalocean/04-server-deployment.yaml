@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backstage-server
+  namespace: backstage
+  labels:
+    app: backstage-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backstage-server
+  template:
+    metadata:
+      labels:
+        app: backstage-server
+    spec:
+      imagePullSecrets:
+      - name: registry-backstage-registry-1761508031
+      containers:
+      - name: backstage-server
+        # Update this with your actual registry image
+        image: registry.digitalocean.com/backstage-registry-1761508031/backstage-server:latest
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: DATABASE_HOST
+          valueFrom:
+            secretKeyRef:
+              name: backstage-secrets
+              key: DATABASE_HOST
+        - name: DATABASE_PORT
+          valueFrom:
+            secretKeyRef:
+              name: backstage-secrets
+              key: DATABASE_PORT
+        - name: DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: backstage-secrets
+              key: DATABASE_USER
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: backstage-secrets
+              key: DATABASE_PASSWORD
+        - name: DATABASE_NAME
+          valueFrom:
+            secretKeyRef:
+              name: backstage-secrets
+              key: DATABASE_NAME
+        - name: ACCESS_TOKEN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: backstage-secrets
+              key: ACCESS_TOKEN_SECRET
+        - name: REFRESH_TOKEN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: backstage-secrets
+              key: REFRESH_TOKEN_SECRET
+        envFrom:
+        - configMapRef:
+            name: backstage-config
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backstage-server-service
+  namespace: backstage
+  labels:
+    app: backstage-server
+spec:
+  selector:
+    app: backstage-server
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP
