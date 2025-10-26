@@ -1,24 +1,45 @@
 # Backstage Complete Guide
 
-Welcome! This is the **complete guide** for the Backstage application. Everything you need to know is in this one document.
+Welcome! This is the **complete guide** for the Backstage application. Everything you need to know about developing, integrating, and managing this full-stack application is in this one document.
 
 ## 🚀 What is Backstage?
 
-Backstage is a **full-stack application** with:
-- **Backend**: Node.js servers (API + Authentication)
-- **Frontend**: Android mobile app (Kotlin)
-- **Database**: PostgreSQL for user data
+Backstage is a **full-stack application** consisting of:
+- **Backend**: Production-ready Node.js APIs with PostgreSQL database
+- **Frontend**: Android mobile app (Kotlin + Jetpack Compose) - *currently in development*
+- **Infrastructure**: Auto-scaling Kubernetes deployment in London
 
-**Currently running live in London**: http://159.65.95.83:30001 🇬🇧
+**Current Status:**
+- ✅ **Backend**: Fully deployed and operational in London
+- 🚧 **Frontend**: Android app under development (`backstage_frontend/`)
+
+**Think of the architecture:**
+- **Backend APIs** = The engine (user management, authentication)
+- **PostgreSQL Database** = The storage (user data, app data)
+- **Android App** = The interface (users will interact with this)
+- **Kubernetes** = The foundation (infrastructure hosting everything)
+
+**Currently serving from London**: http://159.65.95.83:30001 🇬🇧
 
 ---
 
 ## 📍 Quick Access (Most Common Tasks)
 
-### Check if Everything is Working
+### Frontend Integration Testing
 ```bash
+# Test if backend is ready for your Android app
 curl http://159.65.95.83:30001/health    # Should say "Server is healthy"
 curl http://159.65.95.83:30002/health    # Should say "Auth server is healthy"
+
+# Register a user from your Android app
+curl -X POST http://159.65.95.83:30002/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Android","lastname":"User","username":"android_user1","email":"user@android.app","password":"secure123"}'
+
+# Authenticate user and get JWT token for app
+curl -X POST http://159.65.95.83:30002/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@android.app","password":"secure123"}'
 ```
 
 ### Deploy Code Changes
@@ -41,7 +62,8 @@ kubectl rollout restart deployment/backstage-server deployment/backstage-auth -n
 ## 👥 Choose Your Path
 
 ### 🆕 I'm New Here → [Jump to Getting Started](#getting-started)
-### 👩‍💻 I'm a Developer → [Jump to Development](#development)  
+### 👩‍💻 I'm Developing the Backend → [Jump to Backend Development](#backend-development)  
+### 📱 I'm Building the Android App → [Jump to Frontend Development](#frontend-development)
 ### 👩‍🏭 I'm an Admin → [Jump to Administration](#administration)
 ### 🚨 Something is Broken → [Jump to Troubleshooting](#troubleshooting)
 ### 🏗️ I Need to Deploy → [Jump to Deployment](#deployment)
@@ -52,36 +74,47 @@ kubectl rollout restart deployment/backstage-server deployment/backstage-auth -n
 
 ## What You're Looking At
 
+Backstage is a **full-stack application** with two main parts:
+
 ```
-[Your Phone/Computer] → [Internet] → [London Servers] → [Database]
+[Android App] → [Internet] → [London Backend] → [Database]
+   (Building)      🌐        (✅ Running)       (✅ Ready)
 ```
 
-1. **You**: Use Android app or browser
-2. **Internet**: Carries requests to London  
-3. **London Servers**: Process requests (2 servers: main + auth)
-4. **Database**: Stores user data securely
+1. **Android App**: Mobile interface users will interact with (*in development*)
+2. **Internet**: Carries requests from app to backend
+3. **London Backend**: Two Node.js servers processing requests (*live now*)
+4. **Database**: PostgreSQL storing all user and application data (*live now*)
 
-## Current Live System
+## Current Live Backend
 
-- **Main API**: http://159.65.95.83:30001 (user management, posts)
-- **Auth API**: http://159.65.95.83:30002 (login, registration)
-- **Database**: PostgreSQL in London
+- **User Management**: http://159.65.95.83:30001 (create users, manage profiles)
+- **Authentication**: http://159.65.95.83:30002 (login, registration, JWT tokens)
+- **Database**: PostgreSQL in London (user data, secure storage)
 - **Location**: DigitalOcean London data center
-- **Cost**: ~$44/month
+- **Status**: ✅ Production ready, waiting for Android app
 
-## Test the System
+## Frontend Development Status
+
+The Android app (`backstage_frontend/`) will:
+- Connect to the backend APIs above
+- Handle user registration and login
+- Display user data and manage profiles
+- Use Jetpack Compose for modern Android UI
+
+## Test the Backend (Ready Now)
 
 ```bash
-# Basic health check
+# Check if backend is running
 curl http://159.65.95.83:30001/health
 curl http://159.65.95.83:30002/health
 
-# Create a test user
+# Create a test user (what the Android app will do)
 curl -X POST http://159.65.95.83:30002/auth/register \
   -H "Content-Type: application/json" \
   -d '{"name":"Test","lastname":"User","username":"test123","email":"test123@example.com","password":"password123"}'
 
-# Login with test user
+# Login test user (what the Android app will do)
 curl -X POST http://159.65.95.83:30002/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test123@example.com","password":"password123"}'

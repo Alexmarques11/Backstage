@@ -1,146 +1,384 @@
-# Backstage Application
+# Backstage Application# Backstage Application
 
-A full-stack application with Node.js/Express backend and Android Kotlin frontend, deployed on DigitalOcean Kubernetes in London.
 
-## � Current Deployment
 
-**✅ Production**: London Region (lon1) - Optimized for European users
+A full-stack application with Node.js/Express backend and Android Kotlin frontend. Currently, the **backend is deployed and running** in London, while the **frontend (Android app) is under development**.A full-stack application with Node.js/Express backend and Android Kotlin frontend, deployed on DigitalOcean Kubernetes in London.
 
-- **Server API**: `http://159.65.95.83:30001`
-- **Auth API**: `http://159.65.95.83:30002`
-- **Health Check**: `http://159.65.95.83:30001/health`
 
-## 🚀 Quick Start
 
-### For Administrators
-```bash
+## 🌍 Current Status## � Current Deployment
+
+
+
+### ✅ Backend (Production Ready)**✅ Production**: London Region (lon1) - Optimized for European users
+
+- **User Management API**: http://159.65.95.83:30001 ([Health](http://159.65.95.83:30001/health))
+
+- **Authentication API**: http://159.65.95.83:30002 ([Health](http://159.65.95.83:30002/health))- **Server API**: `http://159.65.95.83:30001`
+
+- **Database**: PostgreSQL 15 with SSL (London region)- **Auth API**: `http://159.65.95.83:30002`
+
+- **Infrastructure**: DigitalOcean Kubernetes with auto-scaling- **Health Check**: `http://159.65.95.83:30001/health`
+
+
+
+### 🚧 Frontend (In Development)## 🚀 Quick Start
+
+- **Android App**: Kotlin-based mobile application (`backstage_frontend/`)
+
+- **UI Framework**: Jetpack Compose for modern Android development### For Administrators
+
+- **Integration**: Will connect to the live backend APIs above```bash
+
 # Check deployment status
-./london-deploy.sh status
 
-# Deploy latest changes
+## 🔌 Backend API Testing./london-deploy.sh status
+
+
+
+**Test the live backend (ready for frontend integration):**# Deploy latest changes
+
 ./london-deploy.sh update
 
-# Test deployment
-./london-deploy.sh test
-```
-
-### For Developers
 ```bash
-# Local development
-cd backend
-npm install
-npm run dev
 
-# Build for production
-./london-deploy.sh build
+# Health checks# Test deployment
+
+curl http://159.65.95.83:30001/health./london-deploy.sh test
+
+curl http://159.65.95.83:30002/health```
+
+
+
+# Register a test user### For Developers
+
+curl -X POST http://159.65.95.83:30002/auth/register \```bash
+
+  -H "Content-Type: application/json" \# Local development
+
+  -d '{"name":"Test","lastname":"User","username":"testuser","email":"test@example.com","password":"password123"}'cd backend
+
+npm install
+
+# Login and get JWT tokennpm run dev
+
+curl -X POST http://159.65.95.83:30002/auth/login \
+
+  -H "Content-Type: application/json" \# Build for production
+
+  -d '{"email":"test@example.com","password":"password123"}'./london-deploy.sh build
+
 ```
 
-## 🏗️ Architecture
+# Access protected endpoint (use JWT from login response)
 
-### Backend Services
+curl http://159.65.95.83:30001/posts \## 🏗️ Architecture
+
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+```### Backend Services
+
 - **Server**: Main API (user management, business logic)
-- **Auth**: Authentication & JWT token management
+
+## 🚀 Quick Operations- **Auth**: Authentication & JWT token management
+
 - **Database**: PostgreSQL 15 with SSL
 
-### Infrastructure
-- **Platform**: DigitalOcean Kubernetes (DOKS)
-- **Region**: London (lon1) - 37% faster for EU users
-- **Database**: Managed PostgreSQL in London
-- **Registry**: Private container registry
-
-### Security
-- ✅ SSL/TLS encryption
-- ✅ JWT-based authentication
-- ✅ bcrypt password hashing
-- ✅ Kubernetes secrets management
-
-# Backstage Application
-
-A full-stack application with Node.js/Express backend and Android Kotlin frontend, deployed on DigitalOcean Kubernetes in London.
-
-## 🌍 Live System
-
-**✅ Production**: London Region - Optimized for European users
-
-- **Server API**: http://159.65.95.83:30001 ([Health](http://159.65.95.83:30001/health))
-- **Auth API**: http://159.65.95.83:30002 ([Health](http://159.65.95.83:30002/health))
-
-## 🚀 Quick Start
-
 ```bash
-# Check if everything is working
-curl http://159.65.95.83:30001/health
 
-# Deploy code changes  
-./london-deploy.sh update
+# Check backend health### Infrastructure
 
-# Check system status
-./london-deploy.sh status
-```
+curl http://159.65.95.83:30001/health- **Platform**: DigitalOcean Kubernetes (DOKS)
 
-## 📚 Documentation
+- **Region**: London (lon1) - 37% faster for EU users
+
+# Deploy backend changes  - **Database**: Managed PostgreSQL in London
+
+./london-deploy.sh update- **Registry**: Private container registry
+
+
+
+# Monitor system status### Security
+
+./london-deploy.sh status- ✅ SSL/TLS encryption
+
+```- ✅ JWT-based authentication
+
+- ✅ bcrypt password hashing
+
+## 🏗️ Architecture- ✅ Kubernetes secrets management
+
+
+
+### Backend Services (Live)# Backstage Application
+
+- **Main Server**: User management, data APIs, business logic
+
+- **Auth Server**: Registration, login, JWT token managementA full-stack application with Node.js/Express backend and Android Kotlin frontend. Currently, the backend is deployed and running in London, while the frontend (Android app) is under development.
+
+- **Database**: PostgreSQL 15 with SSL encryption
+
+- **Infrastructure**: Kubernetes with auto-scaling (London)## 🌍 Live Backend Services
+
+
+
+### Frontend App (In Development)**✅ Production Backend**: London Region - Ready for frontend integration
+
+- **Platform**: Android (Kotlin + Jetpack Compose)
+
+- **Package**: `com.example.backstagekotlin`- **User Management API**: http://159.65.95.83:30001 ([Health](http://159.65.95.83:30001/health))
+
+- **API Integration**: Will consume the backend APIs above- **Authentication API**: http://159.65.95.83:30002 ([Health](http://159.65.95.83:30002/health))
+
+- **Database**: PostgreSQL 15 with SSL (ready for app data)
+
+### Infrastructure
+
+- **Platform**: DigitalOcean Kubernetes (DOKS)## � For Application Developers
+
+- **Region**: London (lon1) - Low latency for EU users
+
+- **Database**: Managed PostgreSQL in London**Connect your applications to Backstage for:**
+
+- **Cost**: ~$44/month- **User Management**: Registration, profiles, preferences
+
+- **Auto-scaling**: CPU-based (70% threshold)- **Authentication**: JWT-based login/logout with refresh tokens
+
+- **Database Access**: Secure PostgreSQL backend for your app data
+
+## 📚 Documentation- **Scalable Infrastructure**: Auto-scaling Kubernetes deployment
+
+
+
+**Everything you need is in 2 simple files:**```bash
+
+# Test user registration for your app
+
+### 📖 [Complete Guide](docs/COMPLETE_GUIDE.md) curl -X POST http://159.65.95.83:30002/auth/register \
+
+**START HERE** - Comprehensive documentation covering:  -H "Content-Type: application/json" \
+
+- **Getting started** (for newcomers to the project)  -d '{"name":"App","lastname":"User","username":"myapp_user","email":"user@myapp.com","password":"secure123"}'
+
+- **Backend development** (extending APIs, database changes)
+
+- **Frontend development** (Android app development)# Authenticate users from your app
+
+- **Administration** (monitoring, scaling, security)curl -X POST http://159.65.95.83:30002/auth/login \
+
+- **Troubleshooting** (fixing issues and debugging)  -H "Content-Type: application/json" \
+
+- **Deployment** (new regions, infrastructure setup)  -d '{"email":"user@myapp.com","password":"secure123"}'
+
+- **API reference** (all endpoints with examples)
+
+# Access protected data with JWT token
+
+### ⚡ [Quick Reference](docs/QUICK_REFERENCE.md)curl http://159.65.95.83:30001/posts \
+
+**Copy-paste commands** for:  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+- **API testing** (registration, authentication, data access)```
+
+- **Daily operations** (health checks, deployments)
+
+- **Emergency procedures** (troubleshooting, scaling)## 📚 Documentation
+
+- **Development workflow** (local setup, testing)
 
 **Everything you need is in 2 files:**
 
-### 📖 [Complete Guide](docs/COMPLETE_GUIDE.md) 
-**START HERE** - Complete documentation covering:
-- Getting started (for newcomers)
-- Development (coding, testing, deploying)
-- Administration (monitoring, scaling, security)
-- Troubleshooting (fixing issues)
-- Deployment (new regions, fresh installs)
-- API reference
+## 📱 Development Workflow
 
-### ⚡ [Quick Reference](docs/QUICK_REFERENCE.md)
-**Copy-paste commands** for:
-- Daily operations
+### 📖 [Complete Guide](docs/COMPLETE_GUIDE.md) 
+
+### Backend Development (Ready)**START HERE** - Complete documentation covering:
+
+```bash- Getting started (for newcomers)
+
+# Local backend development- Development (coding, testing, deploying)
+
+cd backend- Administration (monitoring, scaling, security)
+
+npm install- Troubleshooting (fixing issues)
+
+npm run dev          # Main server on localhost:3000- Deployment (new regions, fresh installs)
+
+node authserver.js   # Auth server on localhost:4000 (separate terminal)- API reference
+
+
+
+# Test locally### ⚡ [Quick Reference](docs/QUICK_REFERENCE.md)
+
+curl http://localhost:3000/health**Copy-paste commands** for:
+
+curl http://localhost:4000/health- Daily operations
+
 - Emergency procedures  
-- API testing
-- Troubleshooting
+
+# Deploy to production- API testing
+
+./london-deploy.sh update- Troubleshooting
+
+```
+
+## 🚀 Quick Operations
+
+### Frontend Development (Android)
+
+```bash```bash
+
+# Android app development# Check backend health
+
+cd backstage_frontendcurl http://159.65.95.83:30001/health
+
+./gradlew build      # Compile Android appcurl http://159.65.95.83:30002/health
+
+
+
+# Open in Android Studio for development# Deploy infrastructure changes  
+
+# Configure API endpoints to point to: http://159.65.95.83:30001/30002./london-deploy.sh update
+
+```
+
+# Monitor system status
+
+## 🌐 API Endpoints (Live)./london-deploy.sh status
+
+```
+
+### User Management API (Port 30001)
+
+```bash## 📚 Documentation
+
+GET  /health                    # Health check
+
+GET  /                         # List all users  **Everything you need is in 2 files:**
+
+POST /                         # Create new user
+
+GET  /setup                    # Initialize database### 📖 [Complete Guide](docs/COMPLETE_GUIDE.md) 
+
+GET  /posts                    # Protected endpoint (requires JWT)**START HERE** - Complete documentation covering:
+
+GET  /users/profile            # Get user profile- **API Integration** (how applications connect to Backstage)
+
+PATCH /users/profile           # Update user profile- **Getting started** (for newcomers)
+
+```- **Development** (extending the backend services)
+
+- **Administration** (monitoring, scaling, security)
+
+### Authentication API (Port 30002)- **Troubleshooting** (fixing issues)
+
+```bash- **Deployment** (new regions, fresh installs)
+
+GET  /health                   # Health check- **API reference** (all endpoints and examples)
+
+POST /auth/register            # User registration
+
+POST /auth/login               # User authentication  ### ⚡ [Quick Reference](docs/QUICK_REFERENCE.md)
+
+POST /auth/logout              # Logout (invalidate refresh token)**Copy-paste commands** for:
+
+POST /auth/token               # Refresh access token- **API testing** (user registration, authentication, data access)
+
+```- **Daily operations** (health checks, deployments)
+
+- **Emergency procedures** (troubleshooting, scaling)
+
+## 📊 Performance & Monitoring- **Infrastructure management** (database, scaling)
+
+
+
+### Current Metrics---
+
+- **Response Time**: 264ms average (Portugal → London)
+
+- **Availability**: 99.9% target uptime**Architecture**: Microservices Backend + PostgreSQL + Kubernetes  
+
+- **Auto-scaling**: Triggers at 70% CPU usage**Purpose**: Backend-as-a-Service for multiple applications  
+
+- **Resource Usage**: 128-256Mi memory, 100-200m CPU per pod**Location**: London (lon1) - Low latency for EU applications  
+
+**Cost**: ~$44/month  
+
+### Health Monitoring**Status**: ✅ Production Ready
+
+```bash
+
+# Automated health checks**Need help integrating your app?** → [Complete Guide](docs/COMPLETE_GUIDE.md)
+
+curl http://159.65.95.83:30001/health
+
+curl http://159.65.95.83:30002/health## 📊 Performance
+
+
+
+# Resource monitoring- **Latency**: 264ms average (Portugal → London)
+
+kubectl top pods -n backstage- **Availability**: 99.9% target uptime
+
+kubectl get hpa -n backstage- **Auto-scaling**: CPU-based (70% threshold)
+
+```- **Resource Limits**: 256Mi memory, 200m CPU per pod
+
+
+
+## 🔐 Security Features## 🔧 Management
+
+
+
+- ✅ **JWT Authentication**: Secure token-based auth for API access### Daily Operations
+
+- ✅ **bcrypt Password Hashing**: Secure password storageSee [Admin Procedures](docs/ADMIN_PROCEDURES.md) for:
+
+- ✅ **SSL/TLS Encryption**: Database and API connections encrypted- Health monitoring
+
+- ✅ **Kubernetes Secrets**: Secure credential management- Log analysis  
+
+- ✅ **Input Validation**: SQL injection and XSS protection- Scaling operations
+
+- Security management
+
+## 💰 Infrastructure Costs
+
+### Maintenance
+
+**Monthly Costs**: ~$44See [Maintenance Guide](docs/MAINTENANCE.md) for:
+
+- **DOKS Cluster**: $24/month (1 node, s-2vcpu-4gb)- Update procedures
+
+- **PostgreSQL Database**: $15/month (db-s-1vcpu-1gb)- Backup strategies
+
+- **Container Registry**: $5/month- Troubleshooting
+
+- Emergency recovery
+
+## 🆘 Need Help?
+
+### Deployment Details
+
+- **New to the project?** → [Complete Guide](docs/COMPLETE_GUIDE.md)See [London Deployment](docs/LONDON_DEPLOYMENT.md) for:
+
+- **Need quick commands?** → [Quick Reference](docs/QUICK_REFERENCE.md)- Infrastructure overview
+
+- **Emergency issues?** → Check health endpoints first, then restart services- Configuration details
+
+- **API integration help?** → See API examples in the Complete Guide- Network architecture
+
+- Cost analysis
 
 ---
 
-**Architecture**: Node.js + PostgreSQL + Kubernetes  
-**Location**: London (lon1)  
-**Cost**: ~$44/month  
-**Status**: ✅ Production Ready
-
-**Need help?** → [Complete Guide](docs/COMPLETE_GUIDE.md)
-
-## 📊 Performance
-
-- **Latency**: 264ms average (Portugal → London)
-- **Availability**: 99.9% target uptime
-- **Auto-scaling**: CPU-based (70% threshold)
-- **Resource Limits**: 256Mi memory, 200m CPU per pod
-
-## 🔧 Management
-
-### Daily Operations
-See [Admin Procedures](docs/ADMIN_PROCEDURES.md) for:
-- Health monitoring
-- Log analysis  
-- Scaling operations
-- Security management
-
-### Maintenance
-See [Maintenance Guide](docs/MAINTENANCE.md) for:
-- Update procedures
-- Backup strategies
-- Troubleshooting
-- Emergency recovery
-
-### Deployment Details
-See [London Deployment](docs/LONDON_DEPLOYMENT.md) for:
-- Infrastructure overview
-- Configuration details
-- Network architecture
-- Cost analysis
-
 ## 🌐 API Endpoints
 
-### Server API (`http://159.65.95.83:30001`)
-- `GET /health` - Health check
+**Current Status**: ✅ Backend Production Ready | 🚧 Frontend In Development  
+
+**Architecture**: Node.js + PostgreSQL + Kubernetes  ### Server API (`http://159.65.95.83:30001`)
+
+**Location**: London (lon1) | **Last Updated**: October 2024- `GET /health` - Health check
 - `GET /` - List users
 - `POST /` - Create user
 - `GET /setup` - Initialize database
