@@ -36,6 +36,7 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-123456}
       DATABASE_NAME: ${DATABASE_NAME:-backstage}
       DATABASE_PORT: 5432
+      DATABASE_SSL: 'false'
       ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-default_jwt_secret_change_in_production}
       REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-default_refresh_secret_change_in_production}
     restart: unless-stopped
@@ -57,6 +58,7 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-123456}
       DATABASE_NAME: ${DATABASE_NAME:-backstage}
       DATABASE_PORT: 5432
+      DATABASE_SSL: 'false'
       ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-default_jwt_secret_change_in_production}
       REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-default_refresh_secret_change_in_production}
     restart: unless-stopped
