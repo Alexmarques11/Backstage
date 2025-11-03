@@ -50,7 +50,7 @@ log_info "Starting Minikube..."
 if minikube status | grep -q "Running"; then
     log_warning "Minikube is already running"
 else
-    minikube start --driver=docker --memory=4096 --cpus=2
+    minikube start --driver=docker --memory=3072 --cpus=2
     log_success "Minikube started"
 fi
 
@@ -108,7 +108,7 @@ if kubectl get namespace backstage &> /dev/null; then
         log_success "Port forwards active"
         
         echo ""
-        log_success "✅ Backstage is ready!"
+        log_success "Backstage is ready!"
         echo ""
         echo "Access URLs:"
         echo "  - Server: http://localhost:8080"
@@ -211,20 +211,20 @@ fi
 # Step 12: Show status
 echo ""
 echo "================================================"
-log_success "✅ Backstage Kubernetes Deployment Complete!"
+log_success "Backstage Kubernetes Deployment Complete!"
 echo "================================================"
 echo ""
-echo "📋 Access Information:"
+echo "Access Information:"
 echo "   - Server API:  http://localhost:8080"
 echo "   - Auth API:    http://localhost:8081"
 echo "   - Via Ingress: http://backstage.local"
 echo ""
-echo "🔧 Useful Commands:"
+echo "Useful Commands:"
 echo "   - View pods:        kubectl get pods -n backstage"
 echo "   - View logs:        kubectl logs -f deployment/backstage-server -n backstage"
 echo "   - Dashboard:        minikube dashboard"
 echo "   - Stop Minikube:    minikube stop"
 echo ""
-echo "📝 Database Setup:"
+echo "Database Setup:"
 echo "   Run: curl http://localhost:8080/setup"
 echo ""
