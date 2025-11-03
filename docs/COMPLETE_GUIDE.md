@@ -2,7 +2,7 @@
 
 Welcome! This is the **complete guide** for the Backstage application. Everything you need to know about developing, integrating, and managing this full-stack application is in this one document.
 
-## 🚀 What is Backstage?
+##  What is Backstage?
 
 Backstage is a **full-stack application** consisting of:
 - **Backend**: Production-ready Node.js APIs with PostgreSQL database
@@ -10,8 +10,8 @@ Backstage is a **full-stack application** consisting of:
 - **Infrastructure**: Auto-scaling Kubernetes deployment in London
 
 **Current Status:**
-- ✅ **Backend**: Fully deployed and operational in London
-- 🚧 **Frontend**: Android app under development (`backstage_frontend/`)
+-  **Backend**: Fully deployed and operational in London
+-  **Frontend**: Android app under development (`backstage_frontend/`)
 
 **Think of the architecture:**
 - **Backend APIs** = The engine (user management, authentication)
@@ -19,7 +19,7 @@ Backstage is a **full-stack application** consisting of:
 - **Android App** = The interface (users will interact with this)
 - **Kubernetes** = The foundation (infrastructure hosting everything)
 
-**Currently serving from London**: http://159.65.95.83:30001 🇬🇧
+**Currently serving from London**: http://159.65.95.83:30001 
 
 ---
 
@@ -61,12 +61,12 @@ kubectl rollout restart deployment/backstage-server deployment/backstage-auth -n
 
 ## 👥 Choose Your Path
 
-### 🆕 I'm New Here → [Jump to Getting Started](#getting-started)
-### 👩‍💻 I'm Developing the Backend → [Jump to Backend Development](#backend-development)  
-### 📱 I'm Building the Android App → [Jump to Frontend Development](#frontend-development)
-### 👩‍🏭 I'm an Admin → [Jump to Administration](#administration)
-### 🚨 Something is Broken → [Jump to Troubleshooting](#troubleshooting)
-### 🏗️ I Need to Deploy → [Jump to Deployment](#deployment)
+###  I'm New Here → [Jump to Getting Started](#getting-started)
+###  I'm Developing the Backend → [Jump to Backend Development](#backend-development)  
+###  I'm Building the Android App → [Jump to Frontend Development](#frontend-development)
+###  I'm an Admin → [Jump to Administration](#administration)
+###  Something is Broken → [Jump to Troubleshooting](#troubleshooting)
+###  I Need to Deploy → [Jump to Deployment](#deployment)
 
 ---
 
@@ -78,7 +78,7 @@ Backstage is a **full-stack application** with two main parts:
 
 ```
 [Android App] → [Internet] → [London Backend] → [Database]
-   (Building)      🌐        (✅ Running)       (✅ Ready)
+   (Building)              ( Running)       ( Ready)
 ```
 
 1. **Android App**: Mobile interface users will interact with (*in development*)
@@ -92,7 +92,7 @@ Backstage is a **full-stack application** with two main parts:
 - **Authentication**: http://159.65.95.83:30002 (login, registration, JWT tokens)
 - **Database**: PostgreSQL in London (user data, secure storage)
 - **Location**: DigitalOcean London data center
-- **Status**: ✅ Production ready, waiting for Android app
+- **Status**:  Production ready, waiting for Android app
 
 ## Frontend Development Status
 
@@ -222,8 +222,8 @@ Open in Android Studio to run on device/emulator.
 
 ```bash
 # Morning health check
-curl http://159.65.95.83:30001/health && echo " ✅ Server OK"
-curl http://159.65.95.83:30002/health && echo " ✅ Auth OK"
+curl http://159.65.95.83:30001/health && echo "  Server OK"
+curl http://159.65.95.83:30002/health && echo "  Auth OK"
 
 # Check pod status
 kubectl get pods -n backstage
@@ -319,7 +319,7 @@ kubectl get hpa -n backstage
 
 # Troubleshooting
 
-## 🔴 Complete Outage
+##  Complete Outage
 
 **Symptoms:** Health checks fail, users can't access app
 
@@ -337,7 +337,7 @@ kubectl get pods -n backstage
 kubectl describe pod <failing-pod> -n backstage
 ```
 
-## 🟡 App is Slow
+##  App is Slow
 
 **Symptoms:** Long response times, timeouts
 
@@ -353,7 +353,7 @@ kubectl scale deployment backstage-server --replicas=2 -n backstage
 doctl databases get backstage-london-db
 ```
 
-## 🔴 Users Can't Log In
+##  Users Can't Log In
 
 **Symptoms:** Login fails, authentication errors
 
@@ -372,7 +372,7 @@ curl -X POST http://159.65.95.83:30002/auth/login \
   -d '{"email":"test@example.com","password":"password123"}'
 ```
 
-## 🟡 Database Issues
+##  Database Issues
 
 **Symptoms:** 500 errors, "cannot connect to database"
 
@@ -681,4 +681,4 @@ backstage/
 
 ---
 
-**Last Updated**: October 2024 | **Status**: ✅ Production Ready | **Location**: London
+**Last Updated**: October 2024 | **Status**:  Production Ready | **Location**: London

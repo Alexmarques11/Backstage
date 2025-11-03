@@ -7,7 +7,7 @@
 - At least 2GB of disk space
 - Linux/Ubuntu system (tested configuration)
 
-## 🚀 Minikube Installation
+##  Minikube Installation
 
 ### Ubuntu/Debian Installation:
 ```bash
@@ -29,7 +29,7 @@ sudo apt update && sudo apt install -y minikube
 sudo snap install kubectl --classic
 ```
 
-## 🔧 Initial Configuration
+##  Initial Configuration
 
 ### 1. Start Minikube (Tested Configuration):
 ```bash
@@ -62,7 +62,7 @@ eval $(minikube docker-env)
 docker ps
 ```
 
-## 🚀 Deploy Backstage Application
+##  Deploy Backstage Application
 
 ### Option 1: Backstage Manager (Recommended)
 ```bash
@@ -76,12 +76,12 @@ docker ps
 ./test-autoscaling.sh
 ```
 **Features:**
-- ✅ Complete Minikube setup and configuration
-- ✅ Docker image building and tagging
-- ✅ Kubernetes deployment with health checks
-- ✅ Auto-scaling configuration (HPA)
-- ✅ External access setup
-- ✅ Data preservation on restart
+-  Complete Minikube setup and configuration
+-  Docker image building and tagging
+-  Kubernetes deployment with health checks
+-  Auto-scaling configuration (HPA)
+-  External access setup
+-  Data preservation on restart
 
 ### Option 2: Automated Deployment Script
 ```bash
@@ -114,7 +114,7 @@ kubectl autoscale deployment backstage-server --cpu-percent=70 --min=2 --max=5 -
 kubectl autoscale deployment backstage-auth --cpu-percent=70 --min=2 --max=3 -n backstage
 ```
 
-## 🌐 External Access Setup
+##  External Access Setup
 
 ### Get Network Information:
 ```bash
@@ -141,7 +141,7 @@ kubectl port-forward --address 0.0.0.0 service/backstage-auth-service 8081:4000 
 - Main Server: `http://YOUR_HOST_IP:8080/`
 - Auth Server: `http://YOUR_HOST_IP:8081/`
 
-## 🔍 Verification and Testing
+##  Verification and Testing
 
 ### Quick Status Check:
 ```bash
@@ -193,7 +193,7 @@ minikube addons enable ingress
 minikube addons enable metrics-server
 ```
 
-## 🌐 Acessar Dashboard
+##  Acessar Dashboard
 
 ```bash
 # Abrir dashboard no navegador
@@ -203,7 +203,7 @@ minikube dashboard
 minikube dashboard --url
 ```
 
-## 📦 Configurar Registry Local (Opcional)
+##  Configurar Registry Local (Opcional)
 
 ```bash
 # Habilitar registry addon
@@ -213,7 +213,7 @@ minikube addons enable registry
 eval $(minikube docker-env)
 ```
 
-## 🔍 Comandos Úteis
+##  Comandos Úteis
 
 ```bash
 # Ver logs do minikube
@@ -235,7 +235,7 @@ minikube delete
 minikube addons list
 ```
 
-## ⚠️ Troubleshooting
+##  Troubleshooting
 
 ### Problema: Minikube não inicia
 ```bash
@@ -262,7 +262,7 @@ minikube ssh "df -h"
 minikube start --driver=docker --subnet=192.168.59.0/24
 ```
 
-## 🎯 Próximos Passos
+## Próximos Passos
 
 Após a instalação bem-sucedida:
 
@@ -286,7 +286,7 @@ Após a instalação bem-sucedida:
 3. Configure ingress para acesso externo
 4. Implemente monitoramento e logs
 
-## 📝 Configuração para o Projeto Backstage
+##  Configuração para o Projeto Backstage
 
 ### Manager Environment:
 ```bash

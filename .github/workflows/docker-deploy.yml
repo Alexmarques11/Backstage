@@ -60,9 +60,9 @@ jobs:
 
     - name: Server image pushed successfully
       run: |
-        echo "✅ Server Docker image pushed successfully!"
-        echo "🐳 Docker Hub: https://hub.docker.com/r/${{ env.DOCKER_USER }}/backstage-server"
-        echo "📦 Pull command: docker pull ${{ env.DOCKER_USER }}/backstage-server:latest"
+        echo " Server Docker image pushed successfully!"
+        echo " Docker Hub: https://hub.docker.com/r/${{ env.DOCKER_USER }}/backstage-server"
+        echo " Pull command: docker pull ${{ env.DOCKER_USER }}/backstage-server:latest"
 
   build-and-push-auth:
     runs-on: ubuntu-latest
@@ -107,9 +107,9 @@ jobs:
 
     - name: Auth Server image pushed successfully
       run: |
-        echo "✅ Auth Server Docker image pushed successfully!"
-        echo "🐳 Docker Hub: https://hub.docker.com/r/${{ env.DOCKER_USER }}/backstage-auth"
-        echo "📦 Pull command: docker pull ${{ env.DOCKER_USER }}/backstage-auth:latest"
+        echo " Auth Server Docker image pushed successfully!"
+        echo " Docker Hub: https://hub.docker.com/r/${{ env.DOCKER_USER }}/backstage-auth"
+        echo " Pull command: docker pull ${{ env.DOCKER_USER }}/backstage-auth:latest"
 
   test-docker-images:
     runs-on: ubuntu-latest
@@ -182,11 +182,11 @@ jobs:
     steps:
     - name: Deployment notification
       run: |
-        echo "✅ Docker images successfully built and pushed!"
-        echo "🐳 Images available on Docker Hub:"
-        echo "📦 Server: ${{ env.DOCKER_USER }}/backstage-server:latest"
-        echo "📦 Auth Server: ${{ env.DOCKER_USER }}/backstage-auth:latest"
+        echo " Docker images successfully built and pushed!"
+        echo " Images available on Docker Hub:"
+        echo " Server: ${{ env.DOCKER_USER }}/backstage-server:latest"
+        echo " Auth Server: ${{ env.DOCKER_USER }}/backstage-auth:latest"
         echo ""
-        echo "🚀 Ready for deployment with:"
+        echo " Ready for deployment with:"
         echo "docker pull ${{ env.DOCKER_USER }}/backstage-server:latest"
         echo "docker pull ${{ env.DOCKER_USER }}/backstage-auth:latest"

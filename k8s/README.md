@@ -2,7 +2,7 @@
 
 This directory contains Kubernetes manifests for deploying the Backstage application on **Minikube**. This is a working, tested deployment that includes external access configuration and auto-scaling.
 
-## 🎛️ Backstage Manager (Recommended)
+## 🎛 Backstage Manager (Recommended)
 
 ### Quick Management
 ```bash
@@ -23,15 +23,15 @@ cd .. && ./backstage-manager.sh start
 ```
 
 **Manager Features:**
-- ✅ Complete Minikube setup and configuration
-- ✅ Docker image building and tagging  
-- ✅ Kubernetes deployment with health checks
-- ✅ Auto-scaling configuration (HPA)
-- ✅ External access setup
-- ✅ Data preservation on normal operations
-- ✅ Comprehensive status monitoring
+-  Complete Minikube setup and configuration
+-  Docker image building and tagging  
+-  Kubernetes deployment with health checks
+-  Auto-scaling configuration (HPA)
+-  External access setup
+-  Data preservation on normal operations
+-  Comprehensive status monitoring
 
-## 🏗️ Architecture
+##  Architecture
 
 ```
 External Machine → Host Network → Port Forward/Relay → Minikube → Kubernetes Services → Pods
@@ -45,7 +45,7 @@ External Machine → Host Network → Port Forward/Relay → Minikube → Kubern
 - **Auto-scaling**: HPA based on 70% CPU threshold
 - **Monitoring**: Metrics-server for resource monitoring
 
-## 📁 File Structure
+##  File Structure
 
 ```
 k8s/
@@ -63,7 +63,7 @@ k8s/
 ../test-autoscaling.sh    # Auto-scaling testing
 ```
 
-## 🚀 Quick Deployment
+##  Quick Deployment
 
 ### Option 1: Backstage Manager (Recommended)
 ```bash
@@ -86,13 +86,13 @@ cd k8s
 ### Option 3: Manual Deployment
 Follow the steps in `SECURITY.md` for manual deployment.
 
-## 🔐 Security Notice
+## Security Notice
 
 **NO SECRETS IN GIT** - This project generates secrets dynamically during deployment. See `SECURITY.md` for details on secure secret management.
 
 ```bash├── deploy.sh             # Script de deployment automatizado
 
-## 🌐 External Access Methods
+##  External Access Methods
 
 The deployment includes multiple tested methods for external access:
 
@@ -117,7 +117,7 @@ minikube service backstage-auth-nodeport -n backstage --url
 ### Method 3: Additional Relay Methods
 For enhanced connectivity, additional relay methods (socat, Python proxy) can be configured. See the main project README for details.
 
-## 🔍 Monitoring and Health Checks
+##  Monitoring and Health Checks
 
 ### Quick Status Check
 ```bash
@@ -155,7 +155,7 @@ kubectl get hpa -n backstage -w
 kubectl top pods -n backstage
 ```
 
-## 🛠️ Troubleshooting
+##  Troubleshooting
 
 ### Quick Diagnostics with Manager
 ```bash
@@ -194,7 +194,7 @@ kubectl rollout restart deployment/backstage-server -n backstage
 4. **Auto-scaling not working**: Verify metrics-server addon is enabled
 5. **Port forwarding broken**: Use manager to re-establish connections
 
-## 📊 Scaling and Updates
+##  Scaling and Updates
 
 ### Auto-scaling (Managed Automatically)
 The manager automatically configures:

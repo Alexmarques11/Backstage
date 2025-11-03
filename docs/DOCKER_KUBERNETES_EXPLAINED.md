@@ -19,7 +19,7 @@ Think of our Backstage application like a restaurant:
 
 ---
 
-## 🐳 What is Docker?
+##  What is Docker?
 
 **Docker = Portable Containers for Your Code**
 
@@ -39,7 +39,7 @@ Think of our Backstage application like a restaurant:
 ```bash
 # Everything is packaged in a container
 docker run backstage-server
-# ✅ Works exactly the same everywhere!
+#  Works exactly the same everywhere!
 ```
 
 ### How We Use Docker in Backstage
@@ -91,7 +91,7 @@ docker run backstage-server
 
 ---
 
-## ☸️ What is Kubernetes?
+##  What is Kubernetes?
 
 **Kubernetes = Smart Management System for Docker Containers**
 
@@ -196,7 +196,7 @@ docker run backstage-server
 
 ---
 
-## 🛠️ Why We Use Docker & Kubernetes
+##  Why We Use Docker & Kubernetes
 
 ### Problems Before Docker & Kubernetes
 
@@ -217,15 +217,15 @@ Money: *disappears into the cloud*
 
 ### Benefits With Docker & Kubernetes
 
-**✅ Consistency:**
+** Consistency:**
 ```bash
 # Same environment everywhere
-Developer laptop: ✅ Works
-Test server: ✅ Works  
-Production: ✅ Works
+Developer laptop:  Works
+Test server:  Works  
+Production:  Works
 ```
 
-**✅ Auto-scaling:**
+** Auto-scaling:**
 ```bash
 # Kubernetes watches and scales automatically
 Normal traffic: 1 pod running
@@ -233,13 +233,13 @@ High traffic: 3 pods running
 Low traffic: Back to 1 pod
 ```
 
-**✅ Self-healing:**
+** Self-healing:**
 ```bash
 # If something crashes, Kubernetes restarts it
 Pod crashes → Kubernetes detects → Starts new pod → Service continues
 ```
 
-**✅ Easy updates:**
+** Easy updates:**
 ```bash
 # Rolling updates with zero downtime
 ./london-deploy.sh update
@@ -248,7 +248,7 @@ Pod crashes → Kubernetes detects → Starts new pod → Service continues
 
 ---
 
-## 🚀 Real Examples from Our Backstage Project
+##  Real Examples from Our Backstage Project
 
 ### 1. Building Our Docker Images
 
@@ -319,7 +319,7 @@ backstage-server-ghi789           1/1     Running   0          10s
 
 ---
 
-## 🏗️ Our Project Structure Explained
+##  Our Project Structure Explained
 
 ### File Organization
 ```
@@ -384,7 +384,7 @@ spec:
 
 ---
 
-## 🎯 Key Concepts Summary
+##  Key Concepts Summary
 
 ### Docker Concepts
 
@@ -407,7 +407,7 @@ spec:
 
 ---
 
-## 🛠️ Common Commands Explained
+##  Common Commands Explained
 
 ### Docker Commands
 ```bash
@@ -457,7 +457,7 @@ kubectl scale deployment backstage-server --replicas=2 -n backstage
 
 ---
 
-## 🔍 Troubleshooting Guide
+##  Troubleshooting Guide
 
 ### When Something Goes Wrong
 
@@ -500,7 +500,7 @@ kubectl scale deployment backstage-server --replicas=2 -n backstage
 
 ---
 
-## 🎓 Learning Path
+##  Learning Path
 
 ### For Your Friend (Docker & Kubernetes Beginner)
 
@@ -529,7 +529,7 @@ kubectl top pods -n backstage
 
 ---
 
-## 🚀 Why This Matters for Android Development
+##  Why This Matters for Android Development
 
 **For the Android app you're building:**
 
@@ -543,7 +543,7 @@ kubectl top pods -n backstage
 - `http://159.65.95.83:30001` (User management API)
 - `http://159.65.95.83:30002` (Authentication API)
 
-These are powered by Docker containers managed by Kubernetes! 🎉
+These are powered by Docker containers managed by Kubernetes! 
 
 ---
 

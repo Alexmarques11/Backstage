@@ -11,7 +11,7 @@ const pool = new Pool({
 
 // Validate required environment variables
 if (!process.env.DATABASE_USER || !process.env.DATABASE_PASSWORD) {
-  console.error("❌ SECURITY ERROR: DATABASE_USER and DATABASE_PASSWORD environment variables are required!");
+  console.error(" SECURITY ERROR: DATABASE_USER and DATABASE_PASSWORD environment variables are required!");
   console.error("   Never use hardcoded credentials in production.");
   console.error("   Set these environment variables before starting the application.");
   process.exit(1);

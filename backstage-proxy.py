@@ -76,7 +76,7 @@ if __name__ == "__main__":
     PORT = 9090
     try:
         with socketserver.TCPServer(("0.0.0.0", PORT), BackstageProxy) as httpd:
-            print(f"🔗 Backstage Proxy serving on http://0.0.0.0:{PORT}")
+            print(f" Backstage Proxy serving on http://0.0.0.0:{PORT}")
             print(f"   Main Server: http://{HOST_IP}:{PORT}/")
             print(f"   Auth Server: http://{HOST_IP}:{PORT}/auth")
             print(f"   Health Check: http://{HOST_IP}:{PORT}/health")

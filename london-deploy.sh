@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🇬🇧 BACKSTAGE LONDON DEPLOYMENT SCRIPT"
+echo " BACKSTAGE LONDON DEPLOYMENT SCRIPT"
 echo "======================================"
 echo ""
 
@@ -19,10 +19,10 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Utility functions
-log_info() { echo -e "${BLUE}ℹ️  $1${NC}"; }
-log_success() { echo -e "${GREEN}✅ $1${NC}"; }
-log_warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
-log_error() { echo -e "${RED}❌ $1${NC}"; }
+log_info() { echo -e "${BLUE}ℹ  $1${NC}"; }
+log_success() { echo -e "${GREEN} $1${NC}"; }
+log_warning() { echo -e "${YELLOW}  $1${NC}"; }
+log_error() { echo -e "${RED} $1${NC}"; }
 
 # Check prerequisites
 check_prerequisites() {
@@ -131,12 +131,12 @@ show_access_info() {
     echo ""
     log_success "BACKSTAGE LONDON DEPLOYMENT READY!"
     echo ""
-    echo "🌐 Access URLs:"
+    echo " Access URLs:"
     echo "   Server API:  http://$EXTERNAL_IP:30001"
     echo "   Auth API:    http://$EXTERNAL_IP:30002"
     echo "   Health:      http://$EXTERNAL_IP:30001/health"
     echo ""
-    echo "🔧 Management Commands:"
+    echo " Management Commands:"
     echo "   Status:      kubectl get pods -n $NAMESPACE"
     echo "   Logs:        kubectl logs -f deployment/backstage-server -n $NAMESPACE"
     echo "   Scale:       kubectl scale deployment backstage-server --replicas=2 -n $NAMESPACE"

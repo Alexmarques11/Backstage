@@ -1,10 +1,10 @@
-# 🔐 Backstage Minikube Security Guide
+#  Backstage Minikube Security Guide
 
-## ⚠️ SECURITY NOTICE
+##  SECURITY NOTICE
 
 **SECRETS ARE NEVER STORED IN GIT!** This guide shows how the deployment script automatically creates secure secrets, and how to manage them manually if needed.
 
-## 🚀 Automated Secure Deployment
+##  Automated Secure Deployment
 
 ### Using deploy.sh (Recommended)
 The `deploy.sh` script automatically handles secure secret generation:
@@ -21,7 +21,7 @@ cd k8s
 4. Sets up external access methods
 5. Verifies deployment success
 
-## 🔧 Manual Secret Management
+##  Manual Secret Management
 
 If you need to create secrets manually, follow these steps:
 
@@ -71,7 +71,7 @@ kubectl describe secret backstage-secrets -n backstage
 kubectl describe secret postgres-secret -n backstage
 ```
 
-## 🔍 Security Features
+##  Security Features
 
 ### Database Security
 - **Isolated Network**: PostgreSQL only accessible within Kubernetes cluster
@@ -91,7 +91,7 @@ kubectl describe secret postgres-secret -n backstage
 - **Non-root User**: Containers run with non-privileged users where possible
 - **Read-only Root**: Containers use read-only root filesystems where possible
 
-## 🔄 Secret Rotation
+##  Secret Rotation
 
 To rotate secrets without downtime:
 
@@ -118,7 +118,7 @@ kubectl rollout restart deployment/backstage-server -n backstage
 kubectl rollout restart deployment/backstage-auth -n backstage
 ```
 
-## 🛡️ Security Best Practices
+## 🛡 Security Best Practices
 
 ### Network Security
 - **Firewall**: Only necessary ports (8080, 8081) exposed to external networks
@@ -141,7 +141,7 @@ kubectl rollout restart deployment/backstage-auth -n backstage
 - **Network Policies**: Implement Kubernetes network policies for micro-segmentation
 - **Regular Updates**: Keep all components updated with security patches
 
-## 🔧 Troubleshooting Security Issues
+##  Troubleshooting Security Issues
 
 ### Check Secret Values
 ```bash
@@ -195,7 +195,7 @@ curl http://localhost:13000/setup
 kill %1
 ```
 
-## 📋 Manual Security Best Practices
+##  Manual Security Best Practices
 
 1. **Generate secrets manually** - Always use `openssl rand` for strong randomness
 2. **Never save secrets to files** - Create directly in Kubernetes with `kubectl create secret`
@@ -203,21 +203,21 @@ kill %1
 4. **Rotate secrets regularly** - Delete and recreate secrets periodically
 5. **Store passwords securely** - Use a password manager for the generated values
 
-## 🔧 Available Scripts
+##  Available Scripts
 
 - `generate-secrets.sh` - Generate and apply secure secrets
 - `deploy.sh` - Deploy application (checks for secrets first)
 - `cleanup.sh` - Remove deployment
 - `monitor.sh` - Monitor deployment status
 
-## 🎯 Next Steps
+##  Next Steps
 
 1. **Change default Docker username** in `deploy.sh` if needed
 2. **Review ConfigMap values** in `01-configmap.yaml`
 3. **Configure ingress domain** in `06-ingress.yaml`
 4. **Set up monitoring** with `./monitor.sh`
 
-## 🔧 Manual Verification Commands
+##  Manual Verification Commands
 
 Check deployment status:
 ```bash
@@ -235,7 +235,7 @@ kubectl logs -f deployment/backstage-server -n backstage
 kubectl logs -f deployment/backstage-auth -n backstage
 ```
 
-## 🌐 Manual Access Setup
+##  Manual Access Setup
 
 ### Option 1: Port Forwarding (Development)
 ```bash
@@ -259,7 +259,7 @@ minikube ip
 ### Option 3: Ingress (Production)
 Configure your domain to point to the ingress controller.
 
-## 🆘 Manual Troubleshooting
+##  Manual Troubleshooting
 
 ### If secrets are missing:
 ```bash
