@@ -54,7 +54,7 @@ check_prerequisites() {
     # Verificar se minikube está rodando
     if ! minikube status | grep -q "Running"; then
         log_warning "Minikube não está rodando. Iniciando..."
-        minikube start --driver=docker --memory=4096 --cpus=2
+        minikube start --driver=docker --memory=3700 --cpus=2
     fi
     
     log_success "Pré-requisitos verificados"

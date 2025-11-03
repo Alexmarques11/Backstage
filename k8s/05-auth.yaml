@@ -51,6 +51,8 @@ spec:
             configMapKeyRef:
               name: backstage-config
               key: DATABASE_NAME
+        - name: DATABASE_SSL
+          value: "false"
         
         # Configurações sensíveis do Secret
         - name: DATABASE_USER

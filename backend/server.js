@@ -200,6 +200,6 @@ app.patch('/users/preferences', async (req, res) => {
   }
 });
 
-app.listen(port, () =>
-  console.log(`Server running on port http://localhost:${port}`)
+app.listen(port, '0.0.0.0', () =>
+  console.log(`Server running on port http://0.0.0.0:${port}`)
 );

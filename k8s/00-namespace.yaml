@@ -1,4 +1,3 @@
-# Namespace para isolar os recursos do Backstage
 apiVersion: v1
 kind: Namespace
 metadata:
