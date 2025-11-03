@@ -1,26 +1,18 @@
 # Backstage Application# Backstage Application
 
-
-
 A full-stack application with Node.js/Express backend and Android Kotlin frontend. Currently, the **backend is deployed and running** in London, while the **frontend (Android app) is under development**.A full-stack application with Node.js/Express backend and Android Kotlin frontend, deployed on DigitalOcean Kubernetes in London.
-
-
 
 ## 🌍 Current Status## � Current Deployment
 
-
-
 ### ✅ Backend (Production Ready)**✅ Production**: London Region (lon1) - Optimized for European users
 
-- **User Management API**: http://159.65.95.83:30001 ([Health](http://159.65.95.83:30001/health))
+- **User Management API**: <http://159.65.95.83:30001> ([Health](http://159.65.95.83:30001/health))
 
-- **Authentication API**: http://159.65.95.83:30002 ([Health](http://159.65.95.83:30002/health))- **Server API**: `http://159.65.95.83:30001`
+- **Authentication API**: <http://159.65.95.83:30002> ([Health](http://159.65.95.83:30002/health))- **Server API**: `http://159.65.95.83:30001`
 
 - **Database**: PostgreSQL 15 with SSL (London region)- **Auth API**: `http://159.65.95.83:30002`
 
 - **Infrastructure**: DigitalOcean Kubernetes with auto-scaling- **Health Check**: `http://159.65.95.83:30001/health`
-
-
 
 ### 🚧 Frontend (In Development)## 🚀 Quick Start
 
@@ -34,8 +26,6 @@ A full-stack application with Node.js/Express backend and Android Kotlin fronten
 
 ## 🔌 Backend API Testing./london-deploy.sh status
 
-
-
 **Test the live backend (ready for frontend integration):**# Deploy latest changes
 
 ./london-deploy.sh update
@@ -47,7 +37,6 @@ A full-stack application with Node.js/Express backend and Android Kotlin fronten
 curl http://159.65.95.83:30001/health./london-deploy.sh test
 
 curl http://159.65.95.83:30002/health```
-
 
 
 # Register a test user### For Developers
@@ -72,7 +61,7 @@ curl -X POST http://159.65.95.83:30002/auth/login \
 
 # Access protected endpoint (use JWT from login response)
 
-curl http://159.65.95.83:30001/posts \## 🏗️ Architecture
+curl <http://159.65.95.83:30001/posts> \## 🏗️ Architecture
 
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 
@@ -230,15 +219,13 @@ curl http://localhost:4000/health- Daily operations
 
 # Android app development# Check backend health
 
-cd backstage_frontendcurl http://159.65.95.83:30001/health
+cd backstage_frontendcurl <http://159.65.95.83:30001/health>
 
-./gradlew build      # Compile Android appcurl http://159.65.95.83:30002/health
-
-
+./gradlew build      # Compile Android appcurl <http://159.65.95.83:30002/health>
 
 # Open in Android Studio for development# Deploy infrastructure changes  
 
-# Configure API endpoints to point to: http://159.65.95.83:30001/30002./london-deploy.sh update
+# Configure API endpoints to point to: <http://159.65.95.83:30001/30002./london-deploy.sh> update
 
 ```
 
@@ -406,6 +393,7 @@ cd backstage_frontend
 ```
 
 ### Testing
+
 ```bash
 # Health checks
 curl http://159.65.95.83:30001/health
@@ -418,6 +406,7 @@ curl -X POST http://159.65.95.83:30002/auth/register \
 ```
 
 ### Deployment
+
 ```bash
 # Update deployment
 ./london-deploy.sh update
@@ -429,11 +418,13 @@ curl -X POST http://159.65.95.83:30002/auth/register \
 ## 💰 Cost Optimization
 
 **Current Monthly Costs**: ~$44
+
 - DOKS Cluster: $24/month
 - PostgreSQL DB: $15/month  
 - Container Registry: $5/month
 
 **Optimization Opportunities**:
+
 - Scale down during low usage
 - Use smaller database if sufficient
 - Regular resource monitoring
@@ -441,16 +432,19 @@ curl -X POST http://159.65.95.83:30002/auth/register \
 ## 📈 Monitoring
 
 ### Health Monitoring
+
 - Automated health checks every hour
 - Resource usage tracking
 - Application log analysis
 
 ### Performance Metrics
+
 - Response time monitoring
 - Auto-scaling triggers
 - Database performance
 
 ### Alerts
+
 - Service downtime
 - High resource usage
 - Database connectivity issues
@@ -458,12 +452,14 @@ curl -X POST http://159.65.95.83:30002/auth/register \
 ## 🔐 Security
 
 ### Current Measures
+
 - SSL-enabled database connections
 - JWT token authentication
 - Secrets management via Kubernetes
 - Private container registry
 
 ### Regular Security Tasks
+
 - Monthly JWT secret rotation
 - Weekly container image updates
 - Security patch monitoring
@@ -473,18 +469,21 @@ curl -X POST http://159.65.95.83:30002/auth/register \
 **New to Backstage?** → Start with [Getting Started Guide](docs/GETTING_STARTED.md)
 
 ### User Guides
+
 - **[👋 Getting Started](docs/GETTING_STARTED.md)** - Complete introduction for newcomers
 - **[👩‍💻 Developer Guide](docs/DEVELOPER_GUIDE.md)** - Coding, testing, and development workflows  
 - **[👩‍🏭 Administrator Guide](docs/ADMIN_GUIDE.md)** - Daily operations and system management
 - **[🏗️ Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - Setting up new environments and migrations
 
 ### Troubleshooting & Reference
+
 - **[🔧 Troubleshooting Guide](docs/TROUBLESHOOTING.md)** - Diagnose and fix common issues
 - **[📖 Technical Reference](docs/TECHNICAL_REFERENCE.md)** - Commands, APIs, and configurations
 
 ### Quick Reference
-- **Server API**: http://159.65.95.83:30001 ([Health Check](http://159.65.95.83:30001/health))
-- **Auth API**: http://159.65.95.83:30002 ([Health Check](http://159.65.95.83:30002/health))
+
+- **Server API**: <http://159.65.95.83:30001> ([Health Check](http://159.65.95.83:30001/health))
+- **Auth API**: <http://159.65.95.83:30002> ([Health Check](http://159.65.95.83:30002/health))
 - **Main Deployment Script**: `./london-deploy.sh status|update|test`
 
 ---
@@ -494,6 +493,7 @@ curl -X POST http://159.65.95.83:30002/auth/register \
 ## 📋 API Endpoints
 
 ### Main Server (Port 3000/8080)
+
 - `GET /` - List all users
 - `POST /` - Create new user
 - `GET /health` - Health check
@@ -503,6 +503,7 @@ curl -X POST http://159.65.95.83:30002/auth/register \
 - `PATCH /users/profile` - Update user profile
 
 ### Auth Server (Port 4000/8081)
+
 - `POST /auth/register` - User registration
 - `POST /auth/login` - User authentication
 - `POST /auth/token` - Refresh access token
@@ -514,12 +515,14 @@ curl -X POST http://159.65.95.83:30002/auth/register \
 The project includes automated GitHub Actions workflows:
 
 ### Backend CI Pipeline
+
 - **Triggers**: On pushes to `main`/`develop`, PRs to `main`
 - **Tests**: API endpoints, database integration, Docker builds
 - **Environment**: PostgreSQL 15 + Node.js 22
 - **Validation**: Complete user workflow testing
 
 ### Docker Deployment Pipeline
+
 - **Triggers**: On pushes to `main`, GitHub releases
 - **Builds**: Multi-platform Docker images
 - **Publishes**: Images to Docker Hub automatically
@@ -530,6 +533,7 @@ See [GitHub Workflows Documentation](./GITHUB_WORKFLOWS.md) for detailed pipelin
 ## �🛠️ Development
 
 ### Backend Development
+
 ```bash
 cd backend
 npm install
@@ -537,12 +541,14 @@ npm run dev
 ```
 
 ### Android Development
+
 ```bash
 cd backstage_frontend
 ./gradlew build
 ```
 
 ### Testing API
+
 Use the REST client file at `backend/test.rest` for API testing.
 
 ## 📁 Project Structure
@@ -566,6 +572,7 @@ Use the REST client file at `backend/test.rest` for API testing.
 ## 🔍 Troubleshooting
 
 ### Quick Diagnostics
+
 ```bash
 # Check overall status
 ./backstage-manager.sh status
@@ -576,6 +583,7 @@ curl http://YOUR_HOST_IP:8081/health
 ```
 
 ### Detailed Debugging
+
 ```bash
 kubectl get pods -n backstage
 kubectl get services -n backstage
@@ -583,6 +591,7 @@ kubectl logs -f deployment/backstage-server -n backstage
 ```
 
 ### Auto-scaling Monitoring
+
 ```bash
 # Check auto-scaling status
 kubectl get hpa -n backstage
@@ -595,6 +604,7 @@ kubectl top pods -n backstage
 ```
 
 ### External Access Issues
+
 ```bash
 # Re-setup port forwarding
 ./backstage-manager.sh port-forward
@@ -604,6 +614,7 @@ kubectl top pods -n backstage
 ```
 
 ### Common Issues
+
 - **Network connectivity**: Ensure firewall allows traffic on ports 8080, 8081, 9090, 9300, 9301
 - **Minikube not accessible**: Use host-based URLs instead of direct Minikube IPs
 - **Pod failures**: Check logs with `kubectl logs -n backstage <pod-name>`
