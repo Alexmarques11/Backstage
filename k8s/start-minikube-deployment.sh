@@ -132,7 +132,7 @@ kubectl apply -f 01-configmap.yaml
 
 # Check if secrets exist
 if ! kubectl get secret backstage-secrets -n backstage &> /dev/null; then
-    log_info "Creating secrets..."
+    log_info "Creating application secrets..."
     
     # Generate random secrets
     DB_USER="backstageuser"
@@ -147,13 +147,63 @@ if ! kubectl get secret backstage-secrets -n backstage &> /dev/null; then
         --from-literal=REFRESH_TOKEN_SECRET=$REFRESH_TOKEN \
         -n backstage
     
-    log_success "Secrets created"
+    log_success "Application secrets created"
 else
-    log_warning "Secrets already exist"
+    log_warning "Application secrets already exist"
+    # Extract existing credentials to use for postgres-secret
+    DB_USER=$(kubectl get secret backstage-secrets -n backstage -o jsonpath='{.data.DATABASE_USER}' | base64 -d)
+    DB_PASSWORD=$(kubectl get secret backstage-secrets -n backstage -o jsonpath='{.data.DATABASE_PASSWORD}' | base64 -d)
+fi
+
+# Create PostgreSQL secret (using same credentials)
+if ! kubectl get secret postgres-secret -n backstage &> /dev/null; then
+    log_info "Creating PostgreSQL secret..."
+    
+    kubectl create secret generic postgres-secret \
+        --from-literal=POSTGRES_USER=$DB_USER \
+        --from-literal=POSTGRES_PASSWORD=$DB_PASSWORD \
+        --from-literal=POSTGRES_DB=backstage \
+        -n backstage
+    
+    log_success "PostgreSQL secret created"
+else
+    log_warning "PostgreSQL secret already exists"
 fi
 
 # Deploy database
 log_info "Deploying PostgreSQL..."
+
+# Check if postgres deployment exists
+if kubectl get deployment postgres -n backstage &> /dev/null; then
+    log_info "PostgreSQL deployment already exists"
+    
+    # Check if secrets were just created (new deployment scenario)
+    if [ ! -z "$DB_PASSWORD" ]; then
+        log_warning "New secrets detected but PostgreSQL data exists - cleaning database..."
+        
+        # Delete postgres to force fresh initialization
+        kubectl delete deployment postgres -n backstage
+        kubectl delete pvc postgres-pvc -n backstage 2>/dev/null || true
+        kubectl delete pv postgres-pv 2>/dev/null || true
+        
+        # Clean the hostPath data
+        log_info "Cleaning PostgreSQL data directory..."
+        minikube ssh 'sudo rm -rf /data/postgres/*' 2>/dev/null || true
+        
+        sleep 2
+        log_success "PostgreSQL data cleaned"
+    fi
+else
+    log_info "PostgreSQL deployment does not exist, will create new one"
+fi
+
+# Check if PV exists and is in Released state
+if kubectl get pv postgres-pv 2>/dev/null | grep -q "Released"; then
+    log_warning "PersistentVolume is in Released state, recreating..."
+    kubectl delete pv postgres-pv
+    sleep 2
+fi
+
 kubectl apply -f 03-postgres.yaml
 
 # Wait for PostgreSQL to be ready
@@ -175,6 +225,12 @@ kubectl wait --for=condition=available deployment/backstage-auth -n backstage --
 # Deploy ingress
 log_info "Deploying Ingress..."
 kubectl apply -f 06-ingress.yaml
+
+# Deploy auto-scaling (HPA)
+log_info "Configuring auto-scaling (HPA)..."
+kubectl apply -f 07-server-hpa.yaml
+kubectl apply -f 08-auth-hpa.yaml
+log_success "Auto-scaling configured"
 
 # Step 9: Configure /etc/hosts
 MINIKUBE_IP=$(minikube ip)
@@ -222,8 +278,14 @@ echo ""
 echo "Useful Commands:"
 echo "   - View pods:        kubectl get pods -n backstage"
 echo "   - View logs:        kubectl logs -f deployment/backstage-server -n backstage"
+echo "   - View HPA:         kubectl get hpa -n backstage"
 echo "   - Dashboard:        minikube dashboard"
 echo "   - Stop Minikube:    minikube stop"
+echo ""
+echo "Auto-scaling:"
+echo "   - Test scaling:     ../test-autoscaling.sh"
+echo "   - Monitor HPA:      kubectl get hpa -n backstage -w"
+echo "   - Resource usage:   kubectl top pods -n backstage"
 echo ""
 echo "Database Setup:"
 echo "   Run: curl http://localhost:8080/setup"
