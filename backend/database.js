@@ -8,7 +8,7 @@ const pool = new Pool({
   database: process.env.DATABASE_NAME || "backstage",
   ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false },
 });
-
+//type shit
 // Validate required environment variables
 if (!process.env.DATABASE_USER || !process.env.DATABASE_PASSWORD) {
   console.error(" SECURITY ERROR: DATABASE_USER and DATABASE_PASSWORD environment variables are required!");
