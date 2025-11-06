@@ -1,0 +1,166 @@
+name: Deploy to DigitalOcean Kubernetes
+
+on:
+  workflow_run:
+    workflows: ["Docker Hub Deploy"]
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip deployment tests'
+        required: false
+        default: 'false'
+
+env:
+  CLUSTER_NAME: backstage-cluster
+  NAMESPACE: backstage
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install doctl (DigitalOcean CLI)
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+    - name: Authenticate with DigitalOcean Container Registry
+      run: |
+        doctl registry login
+
+    - name: Save kubeconfig for cluster
+      run: |
+        doctl kubernetes cluster kubeconfig save ${{ secrets.DIGITALOCEAN_CLUSTER_ID }}
+
+    - name: Verify cluster connection
+      run: |
+        kubectl cluster-info
+        kubectl get nodes
+
+    - name: Create namespace if not exists
+      run: |
+        kubectl apply -f k8s/digitalocean/01-namespace.yaml
+
+    - name: Create/Update secrets
+      run: |
+        # Delete existing secret if it exists to update it
+        kubectl delete secret backstage-secrets -n $NAMESPACE --ignore-not-found=true
+        
+        # Create secret with all required values
+        kubectl create secret generic backstage-secrets \
+          --from-literal=DATABASE_HOST=${{ secrets.DO_DATABASE_HOST }} \
+          --from-literal=DATABASE_PORT=${{ secrets.DO_DATABASE_PORT }} \
+          --from-literal=DATABASE_USER=${{ secrets.DO_DATABASE_USER }} \
+          --from-literal=DATABASE_PASSWORD=${{ secrets.DO_DATABASE_PASSWORD }} \
+          --from-literal=DATABASE_NAME=${{ secrets.DO_DATABASE_NAME }} \
+          --from-literal=ACCESS_TOKEN_SECRET=${{ secrets.DO_ACCESS_TOKEN_SECRET }} \
+          --from-literal=REFRESH_TOKEN_SECRET=${{ secrets.DO_REFRESH_TOKEN_SECRET }} \
+          -n $NAMESPACE
+
+    - name: Create/Update registry pull secret
+      run: |
+        # Delete existing secret if it exists
+        kubectl delete secret registry-backstage-registry-1761508031 -n $NAMESPACE --ignore-not-found=true
+        
+        # Create registry pull secret
+        kubectl create secret docker-registry registry-backstage-registry-1761508031 \
+          --docker-server=registry.digitalocean.com \
+          --docker-username=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} \
+          --docker-password=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} \
+          -n $NAMESPACE
+
+    - name: Apply ConfigMap
+      run: |
+        kubectl apply -f k8s/digitalocean/03-configmap.yaml
+
+    - name: Deploy Server
+      run: |
+        kubectl apply -f k8s/digitalocean/04-server-deployment.yaml
+        kubectl rollout status deployment/backstage-server -n $NAMESPACE --timeout=5m
+
+    - name: Deploy Auth
+      run: |
+        kubectl apply -f k8s/digitalocean/05-auth-deployment.yaml
+        kubectl rollout status deployment/backstage-auth -n $NAMESPACE --timeout=5m
+
+    - name: Apply Services
+      run: |
+        kubectl apply -f k8s/digitalocean/06-services-nodeport.yaml
+
+    - name: Apply HPA (Auto-scaling)
+      run: |
+        kubectl apply -f k8s/digitalocean/07-hpa.yaml
+
+    - name: Wait for pods to be ready
+      run: |
+        echo "Waiting for all pods to be ready..."
+        kubectl wait --for=condition=ready pod -l app=backstage-server -n $NAMESPACE --timeout=3m
+        kubectl wait --for=condition=ready pod -l app=backstage-auth -n $NAMESPACE --timeout=3m
+
+    - name: Get deployment status
+      run: |
+        echo "=========================================="
+        echo "Deployment Status"
+        echo "=========================================="
+        kubectl get all -n $NAMESPACE
+        echo ""
+        echo "=========================================="
+        echo "HPA Status"
+        echo "=========================================="
+        kubectl get hpa -n $NAMESPACE
+
+    - name: Run deployment tests
+      if: ${{ github.event.inputs.skip_tests != 'true' }}
+      run: |
+        cd k8s/digitalocean
+        chmod +x test-deployment.sh
+        ./test-deployment.sh
+
+    - name: Get access information
+      if: success()
+      run: |
+        NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}')
+        if [ -z "$NODE_IP" ]; then
+          NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')
+        fi
+        
+        SERVER_NODEPORT=$(kubectl get service backstage-server-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
+        AUTH_NODEPORT=$(kubectl get service backstage-auth-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
+        
+        echo "=========================================="
+        echo "Deployment Successful!"
+        echo "=========================================="
+        echo ""
+        echo "Access your services at:"
+        echo "  Server API: http://$NODE_IP:$SERVER_NODEPORT"
+        echo "  Auth API:   http://$NODE_IP:$AUTH_NODEPORT"
+        echo ""
+        echo "Health checks:"
+        echo "  curl http://$NODE_IP:$SERVER_NODEPORT/health"
+        echo "  curl http://$NODE_IP:$AUTH_NODEPORT/health"
+
+    - name: Deployment failed - Show logs
+      if: failure()
+      run: |
+        echo "=========================================="
+        echo "Deployment failed. Showing pod logs..."
+        echo "=========================================="
+        
+        echo "Server logs:"
+        kubectl logs -l app=backstage-server -n $NAMESPACE --tail=50 || true
+        
+        echo ""
+        echo "Auth logs:"
+        kubectl logs -l app=backstage-auth -n $NAMESPACE --tail=50 || true
+        
+        echo ""
+        echo "Recent events:"
+        kubectl get events -n $NAMESPACE --sort-by='.lastTimestamp' | tail -20
