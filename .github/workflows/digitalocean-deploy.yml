@@ -99,11 +99,29 @@ jobs:
       run: |
         kubectl apply -f k8s/digitalocean/07-hpa.yaml
 
+    - name: Check pod status
+      run: |
+        echo "Current pod status:"
+        kubectl get pods -n $NAMESPACE
+        echo ""
+        echo "Checking for any issues:"
+        kubectl describe pods -n $NAMESPACE | grep -A 10 "Events:" || true
+
     - name: Wait for pods to be ready
       run: |
         echo "Waiting for all pods to be ready..."
-        kubectl wait --for=condition=ready pod -l app=backstage-server -n $NAMESPACE --timeout=3m
-        kubectl wait --for=condition=ready pod -l app=backstage-auth -n $NAMESPACE --timeout=3m
+        kubectl wait --for=condition=ready pod -l app=backstage-server -n $NAMESPACE --timeout=5m || {
+          echo "Server pods failed to become ready. Checking status:"
+          kubectl get pods -l app=backstage-server -n $NAMESPACE
+          kubectl describe pods -l app=backstage-server -n $NAMESPACE
+          exit 1
+        }
+        kubectl wait --for=condition=ready pod -l app=backstage-auth -n $NAMESPACE --timeout=5m || {
+          echo "Auth pods failed to become ready. Checking status:"
+          kubectl get pods -l app=backstage-auth -n $NAMESPACE
+          kubectl describe pods -l app=backstage-auth -n $NAMESPACE
+          exit 1
+        }
 
     - name: Get deployment status
       run: |
