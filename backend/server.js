@@ -40,13 +40,17 @@ app.post('/', async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await pool.query(
+    const result = await pool.query(
       `INSERT INTO users (name, lastname, username, email, password)
-       VALUES ($1, $2, $3, $4, $5)`,
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id`,
       [name, lastname, username, email, hashedPassword]
     );
 
-    res.status(201).json({ message: 'User created' });
+    res.status(201).json({ 
+      message: 'User created',
+      id: result.rows[0].id
+    });
   } catch (err) {
     console.error('Error creating user:', err);
     
