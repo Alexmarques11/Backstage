@@ -3,7 +3,8 @@
 # DigitalOcean Kubernetes Deployment Test Script
 # Tests all components of the Backstage deployment
 
-set -e
+# NOTE: Do not use 'set -e' - we want to continue running tests even if some fail
+# and show a complete summary at the end
 
 # Colors for output
 RED='\033[0;31m'
@@ -41,12 +42,21 @@ run_test() {
     echo ""
     log_info "Testing: $test_name"
     
-    if eval "$test_command"; then
+    # Run command and capture both output and exit code
+    local output
+    local exit_code
+    output=$(eval "$test_command" 2>&1) || exit_code=$?
+    exit_code=${exit_code:-0}
+    
+    if [ $exit_code -eq 0 ]; then
         log_success "$test_name - PASSED"
         ((TESTS_PASSED++))
         return 0
     else
         log_error "$test_name - FAILED"
+        if [ -n "$output" ]; then
+            echo "  Error: $output" | head -3
+        fi
         ((TESTS_FAILED++))
         return 1
     fi
@@ -83,13 +93,13 @@ echo "  1. Infrastructure Tests"
 echo "========================================"
 
 run_test "Namespace exists" \
-    "kubectl get namespace backstage -o name"
+    "kubectl get namespace backstage -o name 2>/dev/null"
 
 run_test "Secrets exist" \
-    "kubectl get secret backstage-secrets -o name"
+    "kubectl get secret backstage-secrets -o name 2>/dev/null"
 
 run_test "ConfigMap exists" \
-    "kubectl get configmap backstage-config -o name"
+    "kubectl get configmap backstage-config -o name 2>/dev/null"
 
 echo ""
 echo "========================================"
@@ -97,20 +107,20 @@ echo "  2. Deployment Tests"
 echo "========================================"
 
 run_test "Server deployment exists" \
-    "kubectl get deployment backstage-server -o name"
+    "kubectl get deployment backstage-server -o name 2>/dev/null"
 
 run_test "Auth deployment exists" \
-    "kubectl get deployment backstage-auth -o name"
+    "kubectl get deployment backstage-auth -o name 2>/dev/null"
 
 run_test "Server pods are ready" \
-    "kubectl wait --for=condition=ready pod -l app=backstage-server --timeout=60s"
+    "kubectl wait --for=condition=ready pod -l app=backstage-server --timeout=60s 2>/dev/null"
 
 run_test "Auth pods are ready" \
-    "kubectl wait --for=condition=ready pod -l app=backstage-auth --timeout=60s"
+    "kubectl wait --for=condition=ready pod -l app=backstage-auth --timeout=60s 2>/dev/null"
 
 # Get pod counts
-SERVER_REPLICAS=$(kubectl get deployment backstage-server -o jsonpath='{.status.replicas}')
-AUTH_REPLICAS=$(kubectl get deployment backstage-auth -o jsonpath='{.status.replicas}')
+SERVER_REPLICAS=$(kubectl get deployment backstage-server -o jsonpath='{.status.replicas}' 2>/dev/null || echo "0")
+AUTH_REPLICAS=$(kubectl get deployment backstage-auth -o jsonpath='{.status.replicas}' 2>/dev/null || echo "0")
 log_info "Server replicas: $SERVER_REPLICAS"
 log_info "Auth replicas: $AUTH_REPLICAS"
 
@@ -120,13 +130,16 @@ echo "  3. Service Tests"
 echo "========================================"
 
 run_test "Server service exists" \
-    "kubectl get service backstage-server-service -o name"
+    "kubectl get service backstage-server-service -o name 2>/dev/null"
 
 run_test "Auth service exists" \
-    "kubectl get service backstage-auth-service -o name"
+    "kubectl get service backstage-auth-service -o name 2>/dev/null"
 
 run_test "Server NodePort service exists" \
-    "kubectl get service backstage-server-nodeport -o name"
+    "kubectl get service backstage-server-nodeport -o name 2>/dev/null"
+
+run_test "Auth NodePort service exists" \
+    "kubectl get service backstage-auth-nodeport -o name 2>/dev/null"
 
 run_test "Auth NodePort service exists" \
     "kubectl get service backstage-auth-nodeport -o name"
