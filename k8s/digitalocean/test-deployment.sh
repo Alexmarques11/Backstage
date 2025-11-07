@@ -62,7 +62,7 @@ log_info "Checking kubectl connection..."
 CURRENT_CONTEXT=$(kubectl config current-context)
 echo "Current context: $CURRENT_CONTEXT"
 
-if [[ ! "$CURRENT_CONTEXT" =~ do-.*-backstage-cluster.* ]]; then
+if [[ ! "$CURRENT_CONTEXT" =~ ^do-.* ]]; then
     log_warning "Not connected to DigitalOcean cluster"
     echo "Current context: $CURRENT_CONTEXT"
     read -p "Continue anyway? (y/n) " -n 1 -r
@@ -70,6 +70,8 @@ if [[ ! "$CURRENT_CONTEXT" =~ do-.*-backstage-cluster.* ]]; then
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         exit 1
     fi
+else
+    log_success "Connected to DigitalOcean cluster: $CURRENT_CONTEXT"
 fi
 
 # Set namespace
