@@ -48,8 +48,20 @@ app.post('/', async (req, res) => {
 
     res.status(201).json({ message: 'User created' });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error creating user' });
+    console.error('Error creating user:', err);
+    
+    // Check for unique constraint violation (PostgreSQL error code 23505)
+    if (err.code === '23505') {
+      if (err.constraint === 'users_username_key') {
+        return res.status(409).json({ message: 'Username already exists' });
+      }
+      if (err.constraint === 'users_email_key') {
+        return res.status(409).json({ message: 'Email already exists' });
+      }
+      return res.status(409).json({ message: 'User already exists' });
+    }
+    
+    res.status(500).json({ message: 'Error creating user', error: err.message });
   }
 });
 
