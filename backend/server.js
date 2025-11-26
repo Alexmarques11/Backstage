@@ -2,7 +2,8 @@ require('dotenv').config();
 
 const express = require('express');
 const bcrypt = require('bcrypt');
-const pool = require('./database');
+const publicationPool = require('./publicationDb');
+const authPool = require('./authDb'); // Still need auth DB for user-related queries
 const port = 3000;
 
 const jwt = require('jsonwebtoken');
@@ -22,7 +23,7 @@ app.get('/health', (req, res) => {
 
 app.get('/', async (req, res) => {
   try {
-    const data = await pool.query(`SELECT * FROM users`);
+    const data = await authPool.query(`SELECT * FROM users`);
     res.status(200).send(data.rows);
   } catch (err) {
     console.error(err);
@@ -40,7 +41,7 @@ app.post('/', async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const result = await pool.query(
+    const result = await authPool.query(
       `INSERT INTO users (name, lastname, username, email, password)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING id`,
@@ -91,7 +92,7 @@ app.get('/setup', async (req, res) => {
       );`;
 
   try {
-    await pool.query(createTablesQuery);
+    await authPool.query(createTablesQuery);
     res.status(200).send({ message: 'Table created' });
   } catch (err) {
     console.error(err);
@@ -103,7 +104,7 @@ app.get('/posts', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const result = await pool.query(
+    const result = await authPool.query(
       `SELECT id, name, lastname, age, username, email, musical_genre
        FROM users
        WHERE id = $1`,
@@ -140,7 +141,7 @@ app.get('/users/profile', async (req, res) => {
   try {
     const { username } = req.body;
 
-    const result = await pool.query(
+    const result = await authPool.query(
       `SELECT name, lastname, age, username, musical_genre
       FROM users
       WHERE username = $1`,
@@ -162,7 +163,7 @@ app.patch('/users/profile', async (req, res) => {
   try {
     const { username, name, lastname, age } = req.body;
 
-    const result = await pool.query(
+    const result = await authPool.query(
       `UPDATE users
       SET name = $2, lastname = $3, age = $4
       WHERE username = $1`,
@@ -180,7 +181,7 @@ app.get('/users/preferences', async (req, res) => {
   try {
     const { username } = req.body;
 
-    const result = await pool.query(
+    const result = await authPool.query(
       `SELECT musical_genre
       FROM users
       WHERE username = $1`,
@@ -202,7 +203,7 @@ app.patch('/users/preferences', async (req, res) => {
   try {
     const { username, musical_genre } = req.body;
 
-    const result = await pool.query(
+    const result = await authPool.query(
       `UPDATE users
       SET musical_genre = $2
       WHERE username = $1`,

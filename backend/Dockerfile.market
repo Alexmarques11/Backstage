@@ -1,0 +1,14 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci --only=production
+
+COPY marketServer.js ./
+COPY marketDb.js ./
+
+EXPOSE 6000
+
+CMD ["node", "marketServer.js"]

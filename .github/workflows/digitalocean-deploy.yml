@@ -54,13 +54,33 @@ jobs:
         # Delete existing secret if it exists to update it
         kubectl delete secret backstage-secrets -n $NAMESPACE --ignore-not-found=true
         
-        # Create secret with all required values
+        # Create secret with all 5 database configurations
         kubectl create secret generic backstage-secrets \
-          --from-literal=DATABASE_HOST=${{ secrets.DO_DATABASE_HOST }} \
-          --from-literal=DATABASE_PORT=${{ secrets.DO_DATABASE_PORT }} \
-          --from-literal=DATABASE_USER=${{ secrets.DO_DATABASE_USER }} \
-          --from-literal=DATABASE_PASSWORD=${{ secrets.DO_DATABASE_PASSWORD }} \
-          --from-literal=DATABASE_NAME=${{ secrets.DO_DATABASE_NAME }} \
+          --from-literal=PUBLICATION_DB_HOST=${{ secrets.DO_PUBLICATION_DB_HOST }} \
+          --from-literal=PUBLICATION_DB_PORT=${{ secrets.DO_PUBLICATION_DB_PORT }} \
+          --from-literal=PUBLICATION_DB_USER=${{ secrets.DO_PUBLICATION_DB_USER }} \
+          --from-literal=PUBLICATION_DB_PASSWORD=${{ secrets.DO_PUBLICATION_DB_PASSWORD }} \
+          --from-literal=PUBLICATION_DB_NAME=${{ secrets.DO_PUBLICATION_DB_NAME }} \
+          --from-literal=AUTH_DB_HOST=${{ secrets.DO_AUTH_DB_HOST }} \
+          --from-literal=AUTH_DB_PORT=${{ secrets.DO_AUTH_DB_PORT }} \
+          --from-literal=AUTH_DB_USER=${{ secrets.DO_AUTH_DB_USER }} \
+          --from-literal=AUTH_DB_PASSWORD=${{ secrets.DO_AUTH_DB_PASSWORD }} \
+          --from-literal=AUTH_DB_NAME=${{ secrets.DO_AUTH_DB_NAME }} \
+          --from-literal=PASSPORT_DB_HOST=${{ secrets.DO_PASSPORT_DB_HOST }} \
+          --from-literal=PASSPORT_DB_PORT=${{ secrets.DO_PASSPORT_DB_PORT }} \
+          --from-literal=PASSPORT_DB_USER=${{ secrets.DO_PASSPORT_DB_USER }} \
+          --from-literal=PASSPORT_DB_PASSWORD=${{ secrets.DO_PASSPORT_DB_PASSWORD }} \
+          --from-literal=PASSPORT_DB_NAME=${{ secrets.DO_PASSPORT_DB_NAME }} \
+          --from-literal=MARKET_DB_HOST=${{ secrets.DO_MARKET_DB_HOST }} \
+          --from-literal=MARKET_DB_PORT=${{ secrets.DO_MARKET_DB_PORT }} \
+          --from-literal=MARKET_DB_USER=${{ secrets.DO_MARKET_DB_USER }} \
+          --from-literal=MARKET_DB_PASSWORD=${{ secrets.DO_MARKET_DB_PASSWORD }} \
+          --from-literal=MARKET_DB_NAME=${{ secrets.DO_MARKET_DB_NAME }} \
+          --from-literal=EVENTS_DB_HOST=${{ secrets.DO_EVENTS_DB_HOST }} \
+          --from-literal=EVENTS_DB_PORT=${{ secrets.DO_EVENTS_DB_PORT }} \
+          --from-literal=EVENTS_DB_USER=${{ secrets.DO_EVENTS_DB_USER }} \
+          --from-literal=EVENTS_DB_PASSWORD=${{ secrets.DO_EVENTS_DB_PASSWORD }} \
+          --from-literal=EVENTS_DB_NAME=${{ secrets.DO_EVENTS_DB_NAME }} \
           --from-literal=ACCESS_TOKEN_SECRET=${{ secrets.DO_ACCESS_TOKEN_SECRET }} \
           --from-literal=REFRESH_TOKEN_SECRET=${{ secrets.DO_REFRESH_TOKEN_SECRET }} \
           -n $NAMESPACE
@@ -90,6 +110,21 @@ jobs:
       run: |
         kubectl apply -f k8s/digitalocean/05-auth-deployment.yaml
         kubectl rollout status deployment/backstage-auth -n $NAMESPACE --timeout=5m
+
+    - name: Deploy Passport
+      run: |
+        kubectl apply -f k8s/digitalocean/08-passport-deployment.yaml
+        kubectl rollout status deployment/backstage-passport -n $NAMESPACE --timeout=5m
+
+    - name: Deploy Market
+      run: |
+        kubectl apply -f k8s/digitalocean/09-market-deployment.yaml
+        kubectl rollout status deployment/backstage-market -n $NAMESPACE --timeout=5m
+
+    - name: Deploy Events
+      run: |
+        kubectl apply -f k8s/digitalocean/10-events-deployment.yaml
+        kubectl rollout status deployment/backstage-events -n $NAMESPACE --timeout=5m
 
     - name: Apply Services
       run: |
@@ -122,6 +157,24 @@ jobs:
           kubectl describe pods -l app=backstage-auth -n $NAMESPACE
           exit 1
         }
+        kubectl wait --for=condition=ready pod -l app=backstage-passport -n $NAMESPACE --timeout=5m || {
+          echo "Passport pods failed to become ready. Checking status:"
+          kubectl get pods -l app=backstage-passport -n $NAMESPACE
+          kubectl describe pods -l app=backstage-passport -n $NAMESPACE
+          exit 1
+        }
+        kubectl wait --for=condition=ready pod -l app=backstage-market -n $NAMESPACE --timeout=5m || {
+          echo "Market pods failed to become ready. Checking status:"
+          kubectl get pods -l app=backstage-market -n $NAMESPACE
+          kubectl describe pods -l app=backstage-market -n $NAMESPACE
+          exit 1
+        }
+        kubectl wait --for=condition=ready pod -l app=backstage-events -n $NAMESPACE --timeout=5m || {
+          echo "Events pods failed to become ready. Checking status:"
+          kubectl get pods -l app=backstage-events -n $NAMESPACE
+          kubectl describe pods -l app=backstage-events -n $NAMESPACE
+          exit 1
+        }
 
     - name: Get deployment status
       run: |
@@ -152,18 +205,27 @@ jobs:
         
         SERVER_NODEPORT=$(kubectl get service backstage-server-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
         AUTH_NODEPORT=$(kubectl get service backstage-auth-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
+        PASSPORT_NODEPORT=$(kubectl get service backstage-passport-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
+        MARKET_NODEPORT=$(kubectl get service backstage-market-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
+        EVENTS_NODEPORT=$(kubectl get service backstage-events-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
         
         echo "=========================================="
         echo "Deployment Successful!"
         echo "=========================================="
         echo ""
         echo "Access your services at:"
-        echo "  Server API: http://$NODE_IP:$SERVER_NODEPORT"
-        echo "  Auth API:   http://$NODE_IP:$AUTH_NODEPORT"
+        echo "  Server API:   http://$NODE_IP:$SERVER_NODEPORT"
+        echo "  Auth API:     http://$NODE_IP:$AUTH_NODEPORT"
+        echo "  Passport API: http://$NODE_IP:$PASSPORT_NODEPORT"
+        echo "  Market API:   http://$NODE_IP:$MARKET_NODEPORT"
+        echo "  Events API:   http://$NODE_IP:$EVENTS_NODEPORT"
         echo ""
         echo "Health checks:"
         echo "  curl http://$NODE_IP:$SERVER_NODEPORT/health"
         echo "  curl http://$NODE_IP:$AUTH_NODEPORT/health"
+        echo "  curl http://$NODE_IP:$PASSPORT_NODEPORT/health"
+        echo "  curl http://$NODE_IP:$MARKET_NODEPORT/health"
+        echo "  curl http://$NODE_IP:$EVENTS_NODEPORT/health"
 
     - name: Deployment failed - Show logs
       if: failure()
@@ -178,6 +240,18 @@ jobs:
         echo ""
         echo "Auth logs:"
         kubectl logs -l app=backstage-auth -n $NAMESPACE --tail=50 || true
+        
+        echo ""
+        echo "Passport logs:"
+        kubectl logs -l app=backstage-passport -n $NAMESPACE --tail=20 || true
+        
+        echo ""
+        echo "Market logs:"
+        kubectl logs -l app=backstage-market -n $NAMESPACE --tail=20 || true
+        
+        echo ""
+        echo "Events logs:"
+        kubectl logs -l app=backstage-events -n $NAMESPACE --tail=20 || true
         
         echo ""
         echo "Recent events:"

@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 const express = require("express");
-const pool = require("./database");
+const authPool = require("./authDb");
 const port = 4000;
 
 const jwt = require("jsonwebtoken");
@@ -53,7 +53,7 @@ app.post("/auth/register", async (req, res) => {
     req.body;
 
   try {
-    const existingUser = await pool.query(
+    const existingUser = await authPool.query(
       "SELECT * FROM users WHERE username = $1 OR email = $2",
       [username, email]
     );
@@ -66,7 +66,7 @@ app.post("/auth/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await pool.query(
+    await authPool.query(
       `INSERT INTO users 
         (name, lastname, age, username, email, password, musical_genre) 
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
@@ -92,7 +92,7 @@ app.post("/auth/login", async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
-    const userResult = await pool.query(
+    const userResult = await authPool.query(
       "SELECT * FROM users WHERE username = $1 OR email = $2",
       [username, email]
     );

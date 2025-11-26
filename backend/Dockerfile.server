@@ -9,7 +9,8 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 # Copy source code
-COPY database.js ./
+COPY publicationDb.js ./
+COPY authDb.js ./
 COPY server.js ./
 
 # Create non-root user for security
