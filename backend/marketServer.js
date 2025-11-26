@@ -31,20 +31,14 @@ app.get('/', (req, res) => {
 // Setup route to create market tables
 app.get('/setup', async (req, res) => {
   let createTablesQuery = `
-    CREATE TABLE IF NOT EXISTS ticket_listings (
+    CREATE TABLE IF NOT EXISTS market_place (
       id SERIAL PRIMARY KEY,
-      seller_id INT NOT NULL,
-      concert_id INT NOT NULL,
-      concert_name VARCHAR(255) NOT NULL,
-      concert_date TIMESTAMP NOT NULL,
-      ticket_type VARCHAR(100),
-      price DECIMAL(10,2) NOT NULL,
-      quantity INT NOT NULL DEFAULT 1,
-      available_quantity INT NOT NULL DEFAULT 1,
-      description TEXT,
-      status VARCHAR(50) DEFAULT 'active' CHECK (status IN ('active', 'sold', 'cancelled')),
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      user_id INT NOT NULL,
+      ticket_description TEXT,
+      suggested_price DECIMAL(10,2),
+      ticket_quantity INT NOT NULL CHECK (ticket_quantity > 0),
+      status INT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     
     CREATE TABLE IF NOT EXISTS ticket_transactions (
@@ -58,7 +52,7 @@ app.get('/setup', async (req, res) => {
       payment_method VARCHAR(100),
       transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       completed_at TIMESTAMP,
-      FOREIGN KEY (listing_id) REFERENCES ticket_listings(id) ON DELETE CASCADE
+      FOREIGN KEY (listing_id) REFERENCES market_place(id) ON DELETE CASCADE
     );
     
     CREATE TABLE IF NOT EXISTS marketplace_reviews (
@@ -72,9 +66,8 @@ app.get('/setup', async (req, res) => {
       FOREIGN KEY (transaction_id) REFERENCES ticket_transactions(id) ON DELETE CASCADE
     );
     
-    CREATE INDEX IF NOT EXISTS idx_listings_seller ON ticket_listings(seller_id);
-    CREATE INDEX IF NOT EXISTS idx_listings_concert ON ticket_listings(concert_id);
-    CREATE INDEX IF NOT EXISTS idx_listings_status ON ticket_listings(status);
+    CREATE INDEX IF NOT EXISTS idx_market_user ON market_place(user_id);
+    CREATE INDEX IF NOT EXISTS idx_market_status ON market_place(status);
     CREATE INDEX IF NOT EXISTS idx_transactions_buyer ON ticket_transactions(buyer_id);
     CREATE INDEX IF NOT EXISTS idx_transactions_seller ON ticket_transactions(seller_id);
   `;

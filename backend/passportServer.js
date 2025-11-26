@@ -31,14 +31,24 @@ app.get('/', (req, res) => {
 // Setup route to create passport tables
 app.get('/setup', async (req, res) => {
   let createTablesQuery = `
-    CREATE TABLE IF NOT EXISTS concert_passports (
+    CREATE TABLE IF NOT EXISTS passport_posts (
       id SERIAL PRIMARY KEY,
       user_id INT NOT NULL,
       concert_id INT NOT NULL,
-      attended_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      artist VARCHAR(200),
+      description TEXT,
       rating INT CHECK (rating >= 1 AND rating <= 5),
-      review TEXT,
+      location_id INT,
+      photos TEXT[],
+      videos TEXT[],
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    
+    CREATE TABLE IF NOT EXISTS passport_genres (
+      passport_post_id INT NOT NULL,
+      genre_id INT NOT NULL,
+      PRIMARY KEY (passport_post_id, genre_id),
+      FOREIGN KEY (passport_post_id) REFERENCES passport_posts(id) ON DELETE CASCADE
     );
     
     CREATE TABLE IF NOT EXISTS user_statistics (
@@ -52,8 +62,9 @@ app.get('/setup', async (req, res) => {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     
-    CREATE INDEX IF NOT EXISTS idx_passport_user ON concert_passports(user_id);
-    CREATE INDEX IF NOT EXISTS idx_passport_concert ON concert_passports(concert_id);
+    CREATE INDEX IF NOT EXISTS idx_passport_posts_user ON passport_posts(user_id);
+    CREATE INDEX IF NOT EXISTS idx_passport_posts_concert ON passport_posts(concert_id);
+    CREATE INDEX IF NOT EXISTS idx_passport_posts_location ON passport_posts(location_id);
   `;
 
   try {

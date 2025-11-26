@@ -65,9 +65,8 @@ spec:
             secretKeyRef:
               name: backstage-secrets
               key: REFRESH_TOKEN_SECRET
-        envFrom:
-        - configMapRef:
-            name: backstage-config
+        - name: NODE_ENV
+          value: "production"
         resources:
           requests:
             memory: "128Mi"

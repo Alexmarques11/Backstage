@@ -48,3 +48,4 @@ k8s/cloud/deployment-checklist.md
 k8s/cloud/gcp-deployment.md
 k8s/cloud/azure-deployment.md
 k8s/cloud/README.md
+.vscode/database-connections.json

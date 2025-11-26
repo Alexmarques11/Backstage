@@ -31,23 +31,22 @@ app.get('/', (req, res) => {
 // Setup route to create events tables
 app.get('/setup', async (req, res) => {
   let createTablesQuery = `
-    CREATE TABLE IF NOT EXISTS external_events (
+    CREATE TABLE IF NOT EXISTS events (
       id SERIAL PRIMARY KEY,
-      external_id VARCHAR(255) UNIQUE NOT NULL,
-      source VARCHAR(100) NOT NULL,
-      event_name VARCHAR(255) NOT NULL,
-      artist_name VARCHAR(255),
-      venue_name VARCHAR(255),
-      venue_location VARCHAR(255),
-      event_date TIMESTAMP NOT NULL,
+      title VARCHAR(200) NOT NULL,
       description TEXT,
-      price_range VARCHAR(100),
-      ticket_url TEXT,
-      image_url TEXT,
-      genre VARCHAR(100),
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      last_synced TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      datetime TIMESTAMP NOT NULL,
+      price DECIMAL(10,2),
+      tickets_available INT,
+      purchase_url VARCHAR(250),
+      location_id INT
+    );
+    
+    CREATE TABLE IF NOT EXISTS concerts_genres (
+      concert_id INT NOT NULL,
+      genre_id INT NOT NULL,
+      PRIMARY KEY (concert_id, genre_id),
+      FOREIGN KEY (concert_id) REFERENCES events(id) ON DELETE CASCADE
     );
     
     CREATE TABLE IF NOT EXISTS event_sources (
@@ -62,21 +61,8 @@ app.get('/setup', async (req, res) => {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     
-    CREATE TABLE IF NOT EXISTS user_event_interests (
-      id SERIAL PRIMARY KEY,
-      user_id INT NOT NULL,
-      event_id INT NOT NULL,
-      interest_type VARCHAR(50) CHECK (interest_type IN ('interested', 'going', 'notified')),
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (event_id) REFERENCES external_events(id) ON DELETE CASCADE,
-      UNIQUE(user_id, event_id)
-    );
-    
-    CREATE INDEX IF NOT EXISTS idx_events_date ON external_events(event_date);
-    CREATE INDEX IF NOT EXISTS idx_events_source ON external_events(source);
-    CREATE INDEX IF NOT EXISTS idx_events_genre ON external_events(genre);
-    CREATE INDEX IF NOT EXISTS idx_events_location ON external_events(venue_location);
-    CREATE INDEX IF NOT EXISTS idx_user_interests ON user_event_interests(user_id);
+    CREATE INDEX IF NOT EXISTS idx_events_datetime ON events(datetime);
+    CREATE INDEX IF NOT EXISTS idx_events_location ON events(location_id);
   `;
 
   try {
