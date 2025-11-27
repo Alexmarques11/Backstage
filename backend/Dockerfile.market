@@ -6,12 +6,8 @@ COPY package*.json ./
 
 RUN npm ci --only=production
 
-COPY market/marketServer.js ./
-COPY market/marketDb.js ./
-COPY market/controllers ./market/controllers
-COPY market/routes ./market/routes
-COPY market/model ./market/model
+COPY market/ ./
 
 EXPOSE 6000
 
-CMD ["node", "market/marketServer.js"]
+CMD ["node", "marketServer.js"]

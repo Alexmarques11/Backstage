@@ -6,12 +6,8 @@ COPY package*.json ./
 
 RUN npm ci --only=production
 
-COPY events/eventsServer.js ./
-COPY events/eventsDb.js ./
-COPY events/controllers ./events/controllers
-COPY events/routes ./events/routes
-COPY events/model ./events/model
+COPY events/ ./
 
 EXPOSE 7000
 
-CMD ["node", "events/eventsServer.js"]
+CMD ["node", "eventsServer.js"]
