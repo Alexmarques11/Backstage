@@ -1,0 +1,96 @@
+### 1. Register a new user
+POST http://localhost:14000/auth/register
+Content-Type: application/json
+
+{
+  "name": "Gonçalo",
+  "lastname": "Gaspar",
+  "age": 22,
+  "username": "doutorgaspar",
+  "email": "doutorgaspar@gmail.com",
+  "password": "12345678",
+  "musical_genre": ["pimba"]
+}
+
+###
+
+### 2. Login with email and password
+POST http://localhost:14000/auth/login
+Content-Type: application/json
+
+{
+  "email": "doutorgaspar@gmail.com",
+  "password": "12345678"
+}
+
+###
+
+### 3. Get access token using refresh token
+### First, get the refreshToken from login response and paste below
+POST http://localhost:14000/auth/token
+Content-Type: application/json
+
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJkb3V0b3JnYXNwYXIiLCJlbWFpbCI6ImRvdXRvcmdhc3BhckBnbWFpbC5jb20iLCJpYXQiOjE3NjQyNTE4OTR9.9fkJrcd4OdPtwBXCwczGMpotIxYb1KahVmTkrhS71kY"
+}
+
+###
+
+### 4. Get user profile (by username)
+GET http://localhost:14000/users/profile
+Content-Type: application/json
+
+{
+  "username": "doutorgaspar"
+}
+
+###
+
+### 5. Get user posts (requires valid access token)
+### First, get the accessToken from login/token response and paste below
+GET http://localhost:14000/users/posts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJkb3V0b3JnYXNwYXIiLCJlbWFpbCI6ImRvdXRvcmdhc3BhckBnbWFpbC5jb20iLCJpYXQiOjE3NjQyNTE5MTMsImV4cCI6MTc2NDI1MTkyOH0.NMNj2PzY_tVK7djqHB6l-ToCTP8kkrRoDtdXyf7EFR0
+
+###
+
+### 6. Update user profile
+PATCH http://localhost:14000/users/profile
+Content-Type: application/json
+
+{
+  "username": "doutorgaspar",
+  "name": "Gonçalo Updated",
+  "lastname": "Gaspar Updated",
+  "age": 23
+}
+
+###
+
+### 7. Get user preferences (musical genres)
+GET http://localhost:14000/users/preferences
+Content-Type: application/json
+
+{
+  "username": "doutorgaspar"
+}
+
+###
+
+### 8. Update user preferences
+PATCH http://localhost:14000/users/preferences
+Content-Type: application/json
+
+{
+  "username": "doutorgaspar",
+  "musical_genre": ["pimba", "rock", "jazz"]
+}
+
+###
+
+### 9. Logout
+POST http://localhost:14000/auth/logout
+Content-Type: application/json
+
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJkb3V0b3JnYXNwYXIiLCJlbWFpbCI6ImRvdXRvcmdhc3BhckBnbWFpbC5jb20iLCJpYXQiOjE3NjQyNTE4OTR9.9fkJrcd4OdPtwBXCwczGMpotIxYb1KahVmTkrhS71kY"
+}

@@ -7,19 +7,27 @@ const authPool = new Pool({
   user: process.env.AUTH_DB_USER || process.env.DATABASE_USER,
   password: process.env.AUTH_DB_PASSWORD || process.env.DATABASE_PASSWORD,
   database: process.env.AUTH_DB_NAME || process.env.DATABASE_NAME || "auth_db",
-  ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false },
+  ssl: false,
 });
 
 // Validate required environment variables
 if (!process.env.AUTH_DB_USER && !process.env.DATABASE_USER) {
-  console.error("⚠️  SECURITY ERROR: AUTH_DB_USER (or DATABASE_USER) is required!");
-  console.error("   Set these environment variables before starting the application.");
+  console.error(
+    "⚠️  SECURITY ERROR: AUTH_DB_USER (or DATABASE_USER) is required!"
+  );
+  console.error(
+    "   Set these environment variables before starting the application."
+  );
   process.exit(1);
 }
 
 if (!process.env.AUTH_DB_PASSWORD && !process.env.DATABASE_PASSWORD) {
-  console.error("⚠️  SECURITY ERROR: AUTH_DB_PASSWORD (or DATABASE_PASSWORD) is required!");
-  console.error("   Set these environment variables before starting the application.");
+  console.error(
+    "⚠️  SECURITY ERROR: AUTH_DB_PASSWORD (or DATABASE_PASSWORD) is required!"
+  );
+  console.error(
+    "   Set these environment variables before starting the application."
+  );
   process.exit(1);
 }
 

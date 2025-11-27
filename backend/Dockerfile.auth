@@ -9,8 +9,10 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 # Copy source code
-COPY authDb.js ./
-COPY authserver.js ./
+COPY authentication/authserver.js ./authentication/authserver.js
+COPY authentication/controllers ./authentication/controllers
+COPY authentication/routes ./authentication/routes
+COPY authentication/model ./authentication/model
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
@@ -35,4 +37,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   req.end();"
 
 # Start the auth server
-CMD ["node", "authserver.js"]
+CMD ["node", "authentication/authserver.js"]

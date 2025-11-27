@@ -9,9 +9,11 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 # Copy source code
-COPY publicationDb.js ./
-COPY authDb.js ./
-COPY server.js ./
+COPY publications/publicationDb.js ./
+COPY publications/server.js ./
+COPY publications/controllers ./publications/controllers
+COPY publications/routes ./publications/routes
+COPY publications/model ./publications/model
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
@@ -35,4 +37,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   req.end();"
 
 # Start the server
-CMD ["node", "server.js"]
+CMD ["node", "publications/server.js"]
