@@ -4,8 +4,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node server.js",
-    "devAuth": "node authserver.js"
+    "dev": "node publications/server.js",
+    "devAuth": "node authentication/authserver.js",
+    "devPassport": "node passport/passportServer.js",
+    "devMarket": "node market/marketServer.js",
+    "devEvents": "node events/eventsServer.js"
   },
   "keywords": [],
   "author": "",

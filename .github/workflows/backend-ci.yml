@@ -73,17 +73,26 @@ jobs:
         done
       env:
         NODE_ENV: test
-        DATABASE_HOST: localhost
-        DATABASE_USER: user123
-        DATABASE_PASSWORD: 123456
-        DATABASE_NAME: backstage
+        PUBLICATION_DB_HOST: localhost
+        PUBLICATION_DB_PORT: 5432
+        PUBLICATION_DB_USER: user123
+        PUBLICATION_DB_PASSWORD: 123456
+        PUBLICATION_DB_NAME: backstage
+        AUTH_DB_HOST: localhost
+        AUTH_DB_PORT: 5432
+        AUTH_DB_USER: user123
+        AUTH_DB_PASSWORD: 123456
+        AUTH_DB_NAME: backstage
         DATABASE_SSL: 'false'
         ACCESS_TOKEN_SECRET: test_jwt_secret_for_github_actions
+        REFRESH_TOKEN_SECRET: test_refresh_secret_for_github_actions
     
     - name: Setup database
       run: |
         echo "Setting up database tables..."
         curl -f http://localhost:3000/setup || exit 1
+        echo "Setting up publications tables..."
+        curl -f http://localhost:3000/setup-publications || exit 1
     
     - name: Test API endpoints
       run: |
