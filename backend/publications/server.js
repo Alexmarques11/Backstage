@@ -3,7 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcrypt');
 const publicationPool = require('./publicationDb');
-const authPool = require('./authDb'); // Still need auth DB for user-related queries
+const authPool = require('../authentication/authDb'); // Auth DB from authentication directory
 const port = 3000;
 
 const jwt = require('jsonwebtoken');
