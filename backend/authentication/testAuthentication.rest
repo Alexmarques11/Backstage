@@ -1,96 +1,70 @@
-### 1. Register a new user
-POST http://localhost:14000/auth/register
+### Register user
+POST http://localhost:4000/users/auth/register
 Content-Type: application/json
 
 {
-  "name": "Gonçalo",
-  "lastname": "Gaspar",
-  "age": 22,
-  "username": "doutorgaspar",
-  "email": "doutorgaspar@gmail.com",
+  "name": "João",
+  "lastname": "Silva",
+  "birthdate": "1990-05-10",
+  "username": "joaosilva",
+  "email": "joao@example.com",
   "password": "12345678",
-  "musical_genre": ["pimba"]
+  "genres": ["Rock", "Jazz"]
 }
 
-###
-
-### 2. Login with email and password
-POST http://localhost:14000/auth/login
+### Login user
+POST http://localhost:4000/users/auth/login
 Content-Type: application/json
 
 {
-  "email": "doutorgaspar@gmail.com",
-  "password": "12345678"
+  "username": "joaotest",
+  "password": "123456"
 }
 
-###
-
-### 3. Get access token using refresh token
-### First, get the refreshToken from login response and paste below
-POST http://localhost:14000/auth/token
+### Refresh token
+POST http://localhost:4000/users/auth/token
 Content-Type: application/json
 
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJkb3V0b3JnYXNwYXIiLCJlbWFpbCI6ImRvdXRvcmdhc3BhckBnbWFpbC5jb20iLCJpYXQiOjE3NjQyNTE4OTR9.9fkJrcd4OdPtwBXCwczGMpotIxYb1KahVmTkrhS71kY"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJqb2Fvc2lsdmEiLCJlbWFpbCI6ImpvYW9AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjQ0MzYyODJ9.0-56iGJQXMAlm8gQQA5ZGOgTfsM7wnnbkaF9SUuvSJE"
 }
 
-###
-
-### 4. Get user profile (by username)
-GET http://localhost:14000/users/profile
+### Logout user
+POST http://localhost:4000/users/auth/logout
 Content-Type: application/json
 
 {
-  "username": "doutorgaspar"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJqb2FvdGVzdCIsImVtYWlsIjoiam9hb0BtYWlsLmNvbSIsImlhdCI6MTc2NDQzNjgxOH0.Q7XxLQWjkwe7NOG4LniZPdSCUiZHMaQjiS3yKzxRJ-Y"
 }
 
-###
+### Get user profile (authenticated)
+GET http://localhost:4000/users/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJqb2Fvc2lsdmEiLCJlbWFpbCI6ImpvYW9AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjQ0MzY4MDEsImV4cCI6MTc2NDQzNzcwMX0.HLhyurEOgp80-ToJ6UbrHVler1VuKBXpPMHBn6Uuk84
 
-### 5. Get user posts (requires valid access token)
-### First, get the accessToken from login/token response and paste below
-GET http://localhost:14000/users/posts
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJkb3V0b3JnYXNwYXIiLCJlbWFpbCI6ImRvdXRvcmdhc3BhckBnbWFpbC5jb20iLCJpYXQiOjE3NjQyNTE5MTMsImV4cCI6MTc2NDI1MTkyOH0.NMNj2PzY_tVK7djqHB6l-ToCTP8kkrRoDtdXyf7EFR0
-
-###
-
-### 6. Update user profile
-PATCH http://localhost:14000/users/profile
+### Update user profile (authenticated)
+PATCH http://localhost:4000/users/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJqb2Fvc2lsdmEiLCJlbWFpbCI6ImpvYW9AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjQ0MzY4MDEsImV4cCI6MTc2NDQzNzcwMX0.HLhyurEOgp80-ToJ6UbrHVler1VuKBXpPMHBn6Uuk84
 Content-Type: application/json
 
 {
-  "username": "doutorgaspar",
-  "name": "Gonçalo Updated",
-  "lastname": "Gaspar Updated",
-  "age": 23
+  "name": "João Carlos",
+  "lastname": "Neto Silva",
+  "birthdate": "1990-05-10"
 }
 
-###
+### Get user preferences (authenticated)
+GET http://localhost:4000/users/userpreferences
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJqb2Fvc2lsdmEiLCJlbWFpbCI6ImpvYW9AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjQ0MzY4MDEsImV4cCI6MTc2NDQzNzcwMX0.HLhyurEOgp80-ToJ6UbrHVler1VuKBXpPMHBn6Uuk84
 
-### 7. Get user preferences (musical genres)
-GET http://localhost:14000/users/preferences
+### Update user preferences (authenticated)
+PATCH http://localhost:4000/users/userpreferences
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJqb2Fvc2lsdmEiLCJlbWFpbCI6ImpvYW9AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjQ0MzY4MDEsImV4cCI6MTc2NDQzNzcwMX0.HLhyurEOgp80-ToJ6UbrHVler1VuKBXpPMHBn6Uuk84
 Content-Type: application/json
 
 {
-  "username": "doutorgaspar"
+  "genres": ["Rock", "Electronic"]
 }
 
-###
-
-### 8. Update user preferences
-PATCH http://localhost:14000/users/preferences
-Content-Type: application/json
-
-{
-  "username": "doutorgaspar",
-  "musical_genre": ["pimba", "rock", "jazz"]
-}
-
-###
-
-### 9. Logout
-POST http://localhost:14000/auth/logout
-Content-Type: application/json
-
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJkb3V0b3JnYXNwYXIiLCJlbWFpbCI6ImRvdXRvcmdhc3BhckBnbWFpbC5jb20iLCJpYXQiOjE3NjQyNTE4OTR9.9fkJrcd4OdPtwBXCwczGMpotIxYb1KahVmTkrhS71kY"
-}
+### Get user posts (authenticated)
+GET http://localhost:4000/users/posts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJqb2Fvc2lsdmEiLCJlbWFpbCI6ImpvYW9AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjQ0MzY4MDEsImV4cCI6MTc2NDQzNzcwMX0.HLhyurEOgp80-ToJ6UbrHVler1VuKBXpPMHBn6Uuk84

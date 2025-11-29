@@ -4,10 +4,10 @@ const authPool = require("../authDb");
 
 require("dotenv").config();
 
-let refreshTokens = [];
-
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15s" });
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "15min",
+  });
 }
 
 exports.authenticateToken = (req, res, next) => {
@@ -24,37 +24,64 @@ exports.authenticateToken = (req, res, next) => {
 
 // Register a new user
 exports.registerUser = async (req, res) => {
-  const { name, lastname, age, username, email, password, musical_genre } =
+  const { name, lastname, birthdate, username, email, password, genres } =
     req.body;
 
   try {
-    const existingUser = await authPool.query(
-      "SELECT * FROM users WHERE username = $1 OR email = $2",
-      [username, email]
+    // Verificar se o email já existe
+    const emailExists = await authPool.query(
+      "SELECT 1 FROM users WHERE email = $1",
+      [email]
     );
+    if (emailExists.rows.length > 0) {
+      return res.status(400).json({ message: "Email already in use" });
+    }
 
-    if (existingUser.rows.length > 0) {
+    // Verificar se o username já existe
+    const usernameExists = await authPool.query(
+      "SELECT 1 FROM users WHERE username = $1",
+      [username]
+    );
+    if (usernameExists.rows.length > 0) {
+      return res.status(400).json({ message: "Username already in use" });
+    }
+
+    // Validar senha
+    if (password.length < 8) {
       return res
         .status(400)
-        .json({ message: "Username or email already registered" });
+        .json({ message: "Password must be at least 8 characters" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await authPool.query(
-      `INSERT INTO users 
-        (name, lastname, age, username, email, password, musical_genre) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [
-        name,
-        lastname,
-        age,
-        username,
-        email,
-        hashedPassword,
-        musical_genre || [],
-      ]
+    // Inserir usuário
+    const userResult = await authPool.query(
+      `INSERT INTO users (name, lastname, birthdate, username, email, password)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id`,
+      [name, lastname, birthdate, username, email, hashedPassword]
     );
+
+    const userId = userResult.rows[0].id;
+
+    // Inserir gêneros musicais
+    if (genres && Array.isArray(genres)) {
+      const genreResult = await authPool.query(
+        `SELECT id FROM music_genres WHERE name = ANY($1)`,
+        [genres]
+      );
+
+      const genreIds = genreResult.rows.map((g) => g.id);
+
+      for (const genreId of genreIds) {
+        await authPool.query(
+          `INSERT INTO users_genres (user_id, genre_id)
+           VALUES ($1, $2)`,
+          [userId, genreId]
+        );
+      }
+    }
 
     res.status(201).json({ message: "User registered successfully!" });
   } catch (err) {
@@ -83,18 +110,24 @@ exports.loginUser = async (req, res) => {
       return res.status(400).json({ message: "Incorrect password" });
     }
 
-    const accessToken = generateAccessToken({
+    const userPayload = {
       id: user.id,
       username: user.username,
       email: user.email,
-    });
-
+    };
+    const accessToken = generateAccessToken(userPayload);
     const refreshToken = jwt.sign(
-      { id: user.id, username: user.username, email: user.email },
+      userPayload,
       process.env.REFRESH_TOKEN_SECRET
     );
 
-    refreshTokens.push(refreshToken);
+    // Hash do refresh token antes de guardar
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+
+    await authPool.query(
+      `INSERT INTO refresh_tokens (user_id, token) VALUES ($1, $2)`,
+      [user.id, hashedRefreshToken]
+    );
 
     res.json({ accessToken, refreshToken });
   } catch (err) {
@@ -103,38 +136,111 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-exports.tokenUser = (req, res) => {
+exports.tokenUser = async (req, res) => {
   const { token: refreshToken } = req.body;
   if (!refreshToken) return res.sendStatus(401);
-  if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
 
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    const accessToken = generateAccessToken({
-      id: user.id,
-      username: user.username,
+  try {
+    // Buscar todos os refresh tokens do utilizador
+    const tokensResult = await authPool.query(`SELECT * FROM refresh_tokens`);
+    const matched = tokensResult.rows.find((rt) =>
+      bcrypt.compareSync(refreshToken, rt.token)
+    );
+
+    if (!matched) {
+      return res.status(403).json({ message: "Refresh token not found" });
+    }
+
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+      if (err) return res.sendStatus(403);
+
+      const accessToken = generateAccessToken({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      });
+      res.json({ accessToken });
     });
-    res.json({ accessToken });
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error validating token" });
+  }
 };
 
-exports.logoutUser = (req, res) => {
+exports.logoutUser = async (req, res) => {
   const { token } = req.body;
-
-  if (!token) {
+  if (!token)
     return res.status(400).json({ message: "Refresh token is required" });
+
+  try {
+    const tokensResult = await authPool.query(`SELECT * FROM refresh_tokens`);
+
+    let matched = null;
+    for (const rt of tokensResult.rows) {
+      if (await bcrypt.compare(token, rt.token)) {
+        matched = rt;
+        break;
+      }
+    }
+
+    if (!matched)
+      return res
+        .status(400)
+        .json({ message: "Invalid or already removed refresh token" });
+
+    await authPool.query(`DELETE FROM refresh_tokens WHERE id = $1`, [
+      matched.id,
+    ]);
+
+    res.status(200).json({ message: "Logout successful" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error during logout" });
   }
+};
 
-  const beforeCount = refreshTokens.length;
-  refreshTokens = refreshTokens.filter((t) => t !== token);
+exports.changePassword = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body;
 
-  if (refreshTokens.length === beforeCount) {
-    return res
-      .status(400)
-      .json({ message: "Invalid or already removed token" });
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Both passwords are required" });
+    }
+
+    if (newPassword.length < 8) {
+      return res
+        .status(400)
+        .json({ message: "New password must be at least 8 characters" });
+    }
+
+    const userResult = await authPool.query(
+      "SELECT password FROM users WHERE id = $1",
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const user = userResult.rows[0];
+
+    const validPassword = await bcrypt.compare(currentPassword, user.password);
+    if (!validPassword) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await authPool.query("UPDATE users SET password = $1 WHERE id = $2", [
+      hashedPassword,
+      userId,
+    ]);
+
+    res.json({ message: "Password changed successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error changing password" });
   }
-
-  return res.status(200).json({ message: "Logout successful" });
 };
 
 exports.getPosts = async (req, res) => {
@@ -142,9 +248,9 @@ exports.getPosts = async (req, res) => {
     const userId = req.user.id;
 
     const result = await authPool.query(
-      `SELECT id, name, lastname, age, username, email, musical_genre
-       FROM users
-       WHERE id = $1`,
+      `SELECT id, name, lastname, birthdate, username, email
+FROM users
+WHERE id = $1`,
       [userId]
     );
 
@@ -159,42 +265,43 @@ exports.getPosts = async (req, res) => {
   }
 };
 
-exports.getUsers = async (req, res) => {
+// GET /users/profile
+exports.getUserProfile = async (req, res) => {
   try {
-    const { username } = req.body;
+    const userId = req.user.id; // vem do authenticateToken
 
     const result = await authPool.query(
-      `SELECT name, lastname, age, username, musical_genre
-      FROM users
-      WHERE username = $1`,
-      [username]
+      `SELECT id, name, lastname, birthdate, username, email
+       FROM users WHERE id = $1`,
+      [userId]
     );
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: "user not found" });
-    }
+    if (result.rows.length === 0)
+      return res.status(404).json({ message: "User not found" });
 
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error fetching user data" });
+    res.status(500).json({ message: "Error fetching user profile" });
   }
 };
 
+// PUT /users/profile
 exports.updateUserProfile = async (req, res) => {
   try {
-    const { username, name, lastname, age } = req.body;
+    const userId = req.user.id; // autenticação obrigatória
+    const { name, lastname, birthdate } = req.body;
 
     await authPool.query(
       `UPDATE users
-      SET name = $2, lastname = $3, age = $4
-      WHERE username = $1`,
-      [username, name, lastname, age]
+       SET name = $1, lastname = $2, birthdate = $3
+       WHERE id = $4`,
+      [name, lastname, birthdate, userId]
     );
 
     const result = await authPool.query(
-      `SELECT name, lastname, age, username FROM users WHERE username = $1`,
-      [username]
+      `SELECT id, name, lastname, birthdate, username, email FROM users WHERE id = $1`,
+      [userId]
     );
 
     res.json(result.rows[0]);
@@ -206,43 +313,52 @@ exports.updateUserProfile = async (req, res) => {
 
 exports.getUserPreferences = async (req, res) => {
   try {
-    const { username } = req.body;
+    const userId = req.user.id;
 
     const result = await authPool.query(
-      `SELECT musical_genre
-      FROM users
-      WHERE username = $1`,
-      [username]
+      `SELECT mg.name
+       FROM users_genres ug
+       JOIN music_genres mg ON ug.genre_id = mg.id
+       WHERE ug.user_id = $1`,
+      [userId]
     );
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: "user not found" });
-    }
-
-    res.json(result.rows[0]);
+    res.json(result.rows.map((r) => r.name));
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error fetching user preferences" });
   }
 };
 
+// PUT /users/preferences
 exports.updateUserPreferences = async (req, res) => {
   try {
-    const { username, musical_genre } = req.body;
+    const userId = req.user.id;
+    const { genres } = req.body; // array de nomes de géneros
 
-    await authPool.query(
-      `UPDATE users
-      SET musical_genre = $2
-      WHERE username = $1`,
-      [username, musical_genre]
+    if (!Array.isArray(genres))
+      return res.status(400).json({ message: "Genres must be an array" });
+
+    // Limpar as preferências antigas
+    await authPool.query(`DELETE FROM users_genres WHERE user_id = $1`, [
+      userId,
+    ]);
+
+    // Inserir os novos géneros
+    const genreResult = await authPool.query(
+      `SELECT id FROM music_genres WHERE name = ANY($1)`,
+      [genres]
     );
 
-    const result = await authPool.query(
-      `SELECT musical_genre FROM users WHERE username = $1`,
-      [username]
-    );
+    const genreIds = genreResult.rows.map((g) => g.id);
+    for (const genreId of genreIds) {
+      await authPool.query(
+        `INSERT INTO users_genres (user_id, genre_id) VALUES ($1, $2)`,
+        [userId, genreId]
+      );
+    }
 
-    res.json(result.rows[0]);
+    res.json({ message: "Preferences updated successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error updating user preferences" });
