@@ -1,12 +1,11 @@
 require("dotenv").config();
 
 const express = require("express");
-const bcrypt = require("bcrypt");
 const publicationPool = require("./publicationDb");
 const authPool = require("../authentication/db/authDb"); // Auth DB from authentication directory
+const notificationRouter = require("./routes/notificationRoute");
+const postRouter = require("./routes/postRoute");
 const port = 3000;
-
-const jwt = require("jsonwebtoken");
 
 const app = express();
 
@@ -21,56 +20,9 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.get("/", async (req, res) => {
-  try {
-    const data = await authPool.query(`SELECT * FROM users`);
-    res.status(200).send(data.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error retrieving users");
-  }
-});
-
-app.post("/", async (req, res) => {
-  const { name, lastname, username, email, password } = req.body;
-
-  if (!name || !lastname || !username || !email || !password) {
-    return res.status(400).json({ error: "Missing required fields" });
-  }
-
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const result = await authPool.query(
-      `INSERT INTO users (name, lastname, username, email, password)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id`,
-      [name, lastname, username, email, hashedPassword]
-    );
-
-    res.status(201).json({
-      message: "User created",
-      id: result.rows[0].id,
-    });
-  } catch (err) {
-    console.error("Error creating user:", err);
-
-    // Check for unique constraint violation (PostgreSQL error code 23505)
-    if (err.code === "23505") {
-      if (err.constraint === "users_username_key") {
-        return res.status(409).json({ message: "Username already exists" });
-      }
-      if (err.constraint === "users_email_key") {
-        return res.status(409).json({ message: "Email already exists" });
-      }
-      return res.status(409).json({ message: "User already exists" });
-    }
-
-    res
-      .status(500)
-      .json({ message: "Error creating user", error: err.message });
-  }
-});
+// Routes
+app.use("/notifications", notificationRouter);
+app.use("/posts", postRouter);
 
 //Setup route for auth database (users, genres, locations)
 app.get("/setup", async (req, res) => {
@@ -192,11 +144,26 @@ app.get("/setup-publications", async (req, res) => {
       FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
     );
     
+    CREATE TABLE IF NOT EXISTS notifications (
+      id SERIAL PRIMARY KEY,
+      user_id INT NOT NULL,
+      type VARCHAR(50) NOT NULL CHECK (type IN ('like', 'comment', 'event', 'system', 'ticket_purchase', 'event_reminder')),
+      title VARCHAR(200) NOT NULL,
+      message TEXT NOT NULL,
+      related_id INT,
+      related_type VARCHAR(50) CHECK (related_type IN ('post', 'comment', 'event', 'ticket')),
+      is_read BOOLEAN DEFAULT false,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    
     CREATE INDEX IF NOT EXISTS idx_posts_user ON posts(user_id);
     CREATE INDEX IF NOT EXISTS idx_posts_event_date ON posts(event_date);
     CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
     CREATE INDEX IF NOT EXISTS idx_post_likes_post ON post_likes(post_id);
     CREATE INDEX IF NOT EXISTS idx_post_comments_post ON post_comments(post_id);
+    CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+    CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(is_read);
+    CREATE INDEX IF NOT EXISTS idx_notifications_created ON notifications(created_at);
   `;
 
   try {
@@ -209,123 +176,6 @@ app.get("/setup-publications", async (req, res) => {
     res
       .status(500)
       .json({ message: "Error creating tables", error: err.message });
-  }
-});
-
-app.get("/posts", authenticateToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    const result = await authPool.query(
-      `SELECT id, name, lastname, age, username, email, musical_genre
-       FROM users
-       WHERE id = $1`,
-      [userId]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error fetching user data" });
-  }
-});
-
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-
-  if (token == null) return res.sendStatus(401);
-
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
-}
-
-//? Users
-
-app.get("/users/profile", async (req, res) => {
-  try {
-    const { username } = req.body;
-
-    const result = await authPool.query(
-      `SELECT name, lastname, age, username, musical_genre
-      FROM users
-      WHERE username = $1`,
-      [username]
-    );
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: "user not found" });
-    }
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error fetching user data" });
-  }
-});
-
-app.patch("/users/profile", async (req, res) => {
-  try {
-    const { username, name, lastname, age } = req.body;
-
-    const result = await authPool.query(
-      `UPDATE users
-      SET name = $2, lastname = $3, age = $4
-      WHERE username = $1`,
-      [username, name, lastname, age]
-    );
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error fetching user data" });
-  }
-});
-
-app.get("/users/preferences", async (req, res) => {
-  try {
-    const { username } = req.body;
-
-    const result = await authPool.query(
-      `SELECT musical_genre
-      FROM users
-      WHERE username = $1`,
-      [username]
-    );
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: "user not found" });
-    }
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error fetching user data" });
-  }
-});
-
-app.patch("/users/preferences", async (req, res) => {
-  try {
-    const { username, musical_genre } = req.body;
-
-    const result = await authPool.query(
-      `UPDATE users
-      SET musical_genre = $2
-      WHERE username = $1`,
-      [username, musical_genre]
-    );
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error fetching user data" });
   }
 });
 

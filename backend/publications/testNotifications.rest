@@ -1,0 +1,90 @@
+### Test Notifications Endpoints
+
+### Variables
+@baseUrl = http://localhost:3000
+@userId = 1
+@notificationId = 1
+
+### Get all notifications for a user
+GET {{baseUrl}}/notifications/{{userId}}
+
+### Get only unread notifications
+GET {{baseUrl}}/notifications/{{userId}}?unread_only=true
+
+### Get unread notification count
+GET {{baseUrl}}/notifications/{{userId}}/unread-count
+
+### Create a new notification - Like
+POST {{baseUrl}}/notifications
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "type": "like",
+  "title": "New Like",
+  "message": "Someone liked your post",
+  "related_id": 5,
+  "related_type": "post"
+}
+
+### Create a new notification - Comment
+POST {{baseUrl}}/notifications
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "type": "comment",
+  "title": "New Comment",
+  "message": "John Doe commented on your post: 'Great event!'",
+  "related_id": 5,
+  "related_type": "post"
+}
+
+### Create a new notification - Event Reminder
+POST {{baseUrl}}/notifications
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "type": "event_reminder",
+  "title": "Event Tomorrow",
+  "message": "Your event 'Rock Concert' starts tomorrow at 8 PM",
+  "related_id": 12,
+  "related_type": "event"
+}
+
+### Create a new notification - Ticket Purchase
+POST {{baseUrl}}/notifications
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "type": "ticket_purchase",
+  "title": "Ticket Purchase Confirmed",
+  "message": "You successfully purchased 2 tickets for 'Jazz Night'",
+  "related_id": 8,
+  "related_type": "ticket"
+}
+
+### Create a new notification - System
+POST {{baseUrl}}/notifications
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "type": "system",
+  "title": "Welcome to Backstage",
+  "message": "Thank you for joining our platform!"
+}
+
+### Mark notification as read
+PATCH {{baseUrl}}/notifications/{{notificationId}}/read
+
+### Mark all notifications as read for a user
+PATCH {{baseUrl}}/notifications/{{userId}}/read-all
+
+### Delete a specific notification
+DELETE {{baseUrl}}/notifications/{{notificationId}}
+
+### Clear all read notifications for a user
+DELETE {{baseUrl}}/notifications/{{userId}}/clear-read

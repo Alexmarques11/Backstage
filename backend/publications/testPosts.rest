@@ -1,0 +1,103 @@
+### Test Posts Endpoints
+
+### Variables
+@baseUrl = http://localhost:3000
+@postId = 1
+@userId = 1
+
+### Get all posts
+GET {{baseUrl}}/posts
+
+### Get post by ID
+GET {{baseUrl}}/posts/{{postId}}
+
+### Create a new post
+POST {{baseUrl}}/posts
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "title": "Rock Concert at Downtown Arena",
+  "description": "Amazing rock concert featuring local bands",
+  "content": "Join us for an unforgettable night of rock music! This event features three amazing local bands performing their latest hits.",
+  "event_date": "2025-12-15T20:00:00Z",
+  "location_id": 1,
+  "price": 25.00,
+  "tickets_available": 500,
+  "image_url": "https://example.com/images/rock-concert.jpg"
+}
+
+### Create another post - Jazz Night
+POST {{baseUrl}}/posts
+Content-Type: application/json
+
+{
+  "user_id": 2,
+  "title": "Jazz Night at The Blue Note",
+  "description": "Smooth jazz evening with live performances",
+  "content": "Experience the best jazz musicians in town. Featuring special guest performers and a full dinner menu available.",
+  "event_date": "2025-12-20T19:00:00Z",
+  "location_id": 2,
+  "price": 35.00,
+  "tickets_available": 150,
+  "image_url": "https://example.com/images/jazz-night.jpg"
+}
+
+### Update a post
+PATCH {{baseUrl}}/posts/{{postId}}
+Content-Type: application/json
+
+{
+  "title": "Updated Rock Concert at Downtown Arena",
+  "description": "Amazing rock concert featuring international bands",
+  "price": 30.00,
+  "tickets_available": 450
+}
+
+### Update post status
+PATCH {{baseUrl}}/posts/{{postId}}
+Content-Type: application/json
+
+{
+  "status": "cancelled"
+}
+
+### Delete a post
+DELETE {{baseUrl}}/posts/{{postId}}
+
+### Like a post
+POST {{baseUrl}}/posts/{{postId}}/like
+Content-Type: application/json
+
+{
+  "user_id": 1
+}
+
+### Unlike a post
+DELETE {{baseUrl}}/posts/{{postId}}/like
+Content-Type: application/json
+
+{
+  "user_id": 1
+}
+
+### Add comment to post
+POST {{baseUrl}}/posts/{{postId}}/comments
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "comment": "This looks amazing! Can't wait to attend!"
+}
+
+### Add another comment
+POST {{baseUrl}}/posts/{{postId}}/comments
+Content-Type: application/json
+
+{
+  "user_id": 2,
+  "comment": "Great event! Just bought my tickets."
+}
+
+### Get comments for a post
+GET {{baseUrl}}/posts/{{postId}}/comments
