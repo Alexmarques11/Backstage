@@ -1,5 +1,6 @@
 const router = require("express").Router();
-const UserController = require("../controllers/UserController");
+const UserController = require("../controllers/userController");
+const { authenticateToken, isAdmin } = require("../middleware/authMiddleware");
 
 //Auth Routes
 
@@ -10,6 +11,8 @@ const UserController = require("../controllers/UserController");
  *     description: Authentication endpoints and token management
  *   - name: User
  *     description: User profile and preferences management
+ *   - name: Admin
+ *     description: Administrative user management
  */
 
 /**
@@ -195,15 +198,11 @@ router.post("/auth/logout", UserController.logoutUser);
  */
 router.patch(
   "/changepassword",
-  UserController.authenticateToken,
+  authenticateToken,
   UserController.changePassword
 );
 
-router.get(
-  "/profile",
-  UserController.authenticateToken,
-  UserController.getUserProfile
-);
+router.get("/profile", authenticateToken, UserController.getUserProfile);
 
 /**
  * @swagger
@@ -236,11 +235,7 @@ router.get(
  *       500:
  *         description: Server error
  */
-router.patch(
-  "/profile",
-  UserController.authenticateToken,
-  UserController.updateUserProfile
-);
+router.patch("/profile", authenticateToken, UserController.updateUserProfile);
 
 /**
  * @swagger
@@ -260,7 +255,7 @@ router.patch(
  */
 router.get(
   "/userpreferences",
-  UserController.authenticateToken,
+  authenticateToken,
   UserController.getUserPreferences
 );
 
@@ -295,7 +290,7 @@ router.get(
  */
 router.patch(
   "/userpreferences",
-  UserController.authenticateToken,
+  authenticateToken,
   UserController.updateUserPreferences
 );
 
@@ -315,6 +310,109 @@ router.patch(
  *       500:
  *         description: Server error
  */
-router.get("/posts", UserController.authenticateToken, UserController.getPosts);
+router.get("/posts", authenticateToken, UserController.getPosts);
+
+/**
+ * @swagger
+ * /admin/users:
+ *   get:
+ *     summary: List all users (Admin only)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all users
+ *       403:
+ *         description: Admins only
+ *       500:
+ *         description: Server error
+ */
+router.get(
+  "/admin/users",
+  authenticateToken,
+  isAdmin,
+  UserController.getAllUsers
+);
+
+/**
+ * @swagger
+ * /admin/users/{id}:
+ *   delete:
+ *     summary: Delete a user by ID (Admin only)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the user to delete
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       403:
+ *         description: Admins only
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.delete(
+  "/admin/users/:id",
+  authenticateToken,
+  isAdmin,
+  UserController.deleteUser
+);
+
+/**
+ * @swagger
+ * /admin/users/{id}/role:
+ *   patch:
+ *     summary: Update a user's role by ID (Admin only)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the user to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - role
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 enum: ["user", "admin"]
+ *                 description: New role for the user
+ *     responses:
+ *       200:
+ *         description: User role updated successfully
+ *       400:
+ *         description: Invalid role provided
+ *       403:
+ *         description: Admins only
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+
+router.patch(
+  "/admin/users/:id/role",
+  authenticateToken,
+  isAdmin,
+  UserController.updateUserRole
+);
 
 module.exports = router;

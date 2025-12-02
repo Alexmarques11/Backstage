@@ -1,26 +1,17 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const authPool = require("../authDb");
+const authPool = require("../db/authDb");
+const userModel = require("../model/userModel");
 
 require("dotenv").config();
 
 function generateAccessToken(user) {
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "15min",
+    expiresIn: "15m",
   });
 }
 
-exports.authenticateToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  if (!token) return res.sendStatus(401);
-
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
-};
+// ------------------------------AUTH CONTROLLERS------------------------------ //
 
 // Register a new user
 exports.registerUser = async (req, res) => {
@@ -28,56 +19,45 @@ exports.registerUser = async (req, res) => {
     req.body;
 
   try {
-    // Verificar se o email já existe
-    const emailExists = await authPool.query(
-      "SELECT 1 FROM users WHERE email = $1",
-      [email]
-    );
-    if (emailExists.rows.length > 0) {
+    // Verificar se o email ou username já existem
+    const emailExists = await userModel.findByEmail(email);
+    if (emailExists.rows.length > 0)
       return res.status(400).json({ message: "Email already in use" });
-    }
 
-    // Verificar se o username já existe
-    const usernameExists = await authPool.query(
-      "SELECT 1 FROM users WHERE username = $1",
-      [username]
-    );
-    if (usernameExists.rows.length > 0) {
+    const usernameExists = await userModel.findByUsername(username);
+    if (usernameExists.rows.length > 0)
       return res.status(400).json({ message: "Username already in use" });
-    }
 
     // Validar senha
-    if (password.length < 8) {
+    if (password.length < 8)
       return res
         .status(400)
         .json({ message: "Password must be at least 8 characters" });
-    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Inserir usuário
-    const userResult = await authPool.query(
-      `INSERT INTO users (name, lastname, birthdate, username, email, password)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id`,
-      [name, lastname, birthdate, username, email, hashedPassword]
-    );
-
+    // Criar usuário
+    const userResult = await userModel.createUser([
+      name,
+      lastname,
+      birthdate,
+      username,
+      email,
+      hashedPassword,
+    ]);
     const userId = userResult.rows[0].id;
 
-    // Inserir gêneros musicais
-    if (genres && Array.isArray(genres)) {
-      const genreResult = await authPool.query(
+    // Inserir gêneros musicais (se houver)
+    if (genres && Array.isArray(genres) && genres.length > 0) {
+      const genreIdsResult = await authPool.query(
         `SELECT id FROM music_genres WHERE name = ANY($1)`,
         [genres]
       );
-
-      const genreIds = genreResult.rows.map((g) => g.id);
+      const genreIds = genreIdsResult.rows.map((g) => g.id);
 
       for (const genreId of genreIds) {
         await authPool.query(
-          `INSERT INTO users_genres (user_id, genre_id)
-           VALUES ($1, $2)`,
+          `INSERT INTO users_genres (user_id, genre_id) VALUES ($1, $2)`,
           [userId, genreId]
         );
       }
@@ -94,39 +74,39 @@ exports.loginUser = async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
-    const userResult = await authPool.query(
-      "SELECT * FROM users WHERE username = $1 OR email = $2",
-      [username, email]
-    );
-
-    if (userResult.rows.length === 0) {
+    const userResult = await userModel.findByUsernameOrEmail(username, email);
+    if (userResult.rows.length === 0)
       return res.status(400).json({ message: "User not found" });
-    }
 
     const user = userResult.rows[0];
 
     const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
+    if (!validPassword)
       return res.status(400).json({ message: "Incorrect password" });
-    }
 
     const userPayload = {
       id: user.id,
       username: user.username,
       email: user.email,
+      role: user.role,
     };
+
     const accessToken = generateAccessToken(userPayload);
+
+    // Criar refresh token com expiração de 7 dias
     const refreshToken = jwt.sign(
       userPayload,
-      process.env.REFRESH_TOKEN_SECRET
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "7d" }
     );
 
-    // Hash do refresh token antes de guardar
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7); // 7 dias de validade
 
     await authPool.query(
-      `INSERT INTO refresh_tokens (user_id, token) VALUES ($1, $2)`,
-      [user.id, hashedRefreshToken]
+      `INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)`,
+      [user.id, hashedRefreshToken, expiresAt]
     );
 
     res.json({ accessToken, refreshToken });
@@ -141,15 +121,17 @@ exports.tokenUser = async (req, res) => {
   if (!refreshToken) return res.sendStatus(401);
 
   try {
-    // Buscar todos os refresh tokens do utilizador
     const tokensResult = await authPool.query(`SELECT * FROM refresh_tokens`);
-    const matched = tokensResult.rows.find((rt) =>
-      bcrypt.compareSync(refreshToken, rt.token)
+    const matched = tokensResult.rows.find(
+      (rt) =>
+        bcrypt.compareSync(refreshToken, rt.token) &&
+        new Date(rt.expires_at) > new Date()
     );
 
-    if (!matched) {
-      return res.status(403).json({ message: "Refresh token not found" });
-    }
+    if (!matched)
+      return res
+        .status(403)
+        .json({ message: "Refresh token not found or expired" });
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
       if (err) return res.sendStatus(403);
@@ -174,8 +156,8 @@ exports.logoutUser = async (req, res) => {
 
   try {
     const tokensResult = await authPool.query(`SELECT * FROM refresh_tokens`);
-
     let matched = null;
+
     for (const rt of tokensResult.rows) {
       if (await bcrypt.compare(token, rt.token)) {
         matched = rt;
@@ -188,10 +170,7 @@ exports.logoutUser = async (req, res) => {
         .status(400)
         .json({ message: "Invalid or already removed refresh token" });
 
-    await authPool.query(`DELETE FROM refresh_tokens WHERE id = $1`, [
-      matched.id,
-    ]);
-
+    await userModel.deleteTokenById(matched.id);
     res.status(200).json({ message: "Logout successful" });
   } catch (err) {
     console.error(err);
@@ -199,36 +178,29 @@ exports.logoutUser = async (req, res) => {
   }
 };
 
+// ------------------------------USER CONTROLLERS------------------------------ //
+
 exports.changePassword = async (req, res) => {
   try {
     const userId = req.user.id;
     const { currentPassword, newPassword } = req.body;
 
-    if (!currentPassword || !newPassword) {
+    if (!currentPassword || !newPassword)
       return res.status(400).json({ message: "Both passwords are required" });
-    }
 
-    if (newPassword.length < 8) {
+    if (newPassword.length < 8)
       return res
         .status(400)
         .json({ message: "New password must be at least 8 characters" });
-    }
 
-    const userResult = await authPool.query(
-      "SELECT password FROM users WHERE id = $1",
-      [userId]
-    );
-
-    if (userResult.rows.length === 0) {
+    const userResult = await userModel.findByEmail(req.user.email);
+    if (userResult.rows.length === 0)
       return res.status(404).json({ message: "User not found" });
-    }
 
     const user = userResult.rows[0];
-
     const validPassword = await bcrypt.compare(currentPassword, user.password);
-    if (!validPassword) {
+    if (!validPassword)
       return res.status(400).json({ message: "Current password is incorrect" });
-    }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await authPool.query("UPDATE users SET password = $1 WHERE id = $2", [
@@ -362,5 +334,73 @@ exports.updateUserPreferences = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error updating user preferences" });
+  }
+};
+
+// ------------------------------ADMIN CONTROLLERS------------------------------ //
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const result = await authPool.query(
+      `SELECT id, name, lastname, username, email, role, birthdate 
+       FROM users
+       ORDER BY id ASC`
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching users" });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const userResult = await authPool.query(
+      "SELECT id FROM users WHERE id=$1",
+      [userId]
+    );
+    if (userResult.rows.length === 0)
+      return res.status(404).json({ message: "User not found" });
+
+    await userModel.deleteTokensByUser(userId); // apaga todos tokens do utilizador
+    await authPool.query("DELETE FROM users_genres WHERE user_id=$1", [userId]);
+    await authPool.query("DELETE FROM users WHERE id=$1", [userId]);
+
+    res.json({ message: `User with ID ${userId} deleted successfully` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error deleting user" });
+  }
+};
+
+// PATCH /admin/users/:id/role
+exports.updateUserRole = async (req, res) => {
+  const userId = req.params.id;
+  const { role } = req.body;
+  const allowedRoles = ["user", "admin"];
+
+  if (!role) return res.status(400).json({ message: "Role is required" });
+  if (!allowedRoles.includes(role))
+    return res.status(400).json({ message: "Invalid role" });
+
+  try {
+    const userResult = await authPool.query(
+      "SELECT id FROM users WHERE id=$1",
+      [userId]
+    );
+    if (userResult.rows.length === 0)
+      return res.status(404).json({ message: "User not found" });
+
+    await authPool.query("UPDATE users SET role=$1 WHERE id=$2", [
+      role,
+      userId,
+    ]);
+    res.json({ message: `User role updated to ${role}` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error updating user role" });
   }
 };

@@ -3,22 +3,22 @@ POST http://localhost:4000/users/auth/register
 Content-Type: application/json
 
 {
-  "name": "João",
-  "lastname": "Silva",
-  "birthdate": "1990-05-10",
-  "username": "joaosilva",
-  "email": "joao@example.com",
+  "name": "Alexandre",
+  "lastname": "Marques",
+  "birthdate": "2003-05-29",
+  "username": "alexpm",
+  "email": "alexpm@example.com",
   "password": "12345678",
-  "genres": ["Rock", "Jazz"]
+  "genres": ["Rock", "Pop"]
 }
 
 ### Login user
-POST http://localhost:4000/users/auth/login
+POST http://localhost:14000/users/auth/login
 Content-Type: application/json
 
 {
-  "username": "joaotest",
-  "password": "123456"
+  "username": "alexpm",
+  "password": "12345678"
 }
 
 ### Refresh token
@@ -68,3 +68,20 @@ Content-Type: application/json
 ### Get user posts (authenticated)
 GET http://localhost:4000/users/posts
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJqb2Fvc2lsdmEiLCJlbWFpbCI6ImpvYW9AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjQ0MzY4MDEsImV4cCI6MTc2NDQzNzcwMX0.HLhyurEOgp80-ToJ6UbrHVler1VuKBXpPMHBn6Uuk84
+
+### Admin: Get all users (authenticated)
+GET http://localhost:14000/users/admin/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDY3NjgyNywiZXhwIjoxNzY0Njc3NzI3fQ.qjESiKDb2NqAs36pbWYBQRW4wwzbnxkrIjp4aJ6jT8U
+
+### Admin: Delete a user by ID (authenticated)
+DELETE http://localhost:14000/users/admin/users/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDY3OTYzMSwiZXhwIjoxNzY0NjgwNTMxfQ.v22KDlwB-WKSHrZMHBsL0huUDi5So3Qm887tfPO8H5s
+
+### Admin: Update a user's role by ID (authenticated)
+PATCH http://localhost:14000/users/admin/users/1/role
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDY3OTM5MCwiZXhwIjoxNzY0NjgwMjkwfQ.y3X0i0Zk8w2BE87lMH3IMLIo8qrJsEtmJnwiwxoMKuU
+Content-Type: application/json
+
+{
+  "role": "user"
+}
