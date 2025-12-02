@@ -1,41 +1,41 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const express = require('express');
-const bcrypt = require('bcrypt');
-const publicationPool = require('./publicationDb');
-const authPool = require('../authentication/authDb'); // Auth DB from authentication directory
+const express = require("express");
+const bcrypt = require("bcrypt");
+const publicationPool = require("./publicationDb");
+const authPool = require("../authentication/db/authDb"); // Auth DB from authentication directory
 const port = 3000;
 
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const app = express();
 
 app.use(express.json());
 
 // Health check endpoint for Kubernetes probes
-app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'healthy', 
-    service: 'backstage-server',
-    timestamp: new Date().toISOString()
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    service: "backstage-server",
+    timestamp: new Date().toISOString(),
   });
 });
 
-app.get('/', async (req, res) => {
+app.get("/", async (req, res) => {
   try {
     const data = await authPool.query(`SELECT * FROM users`);
     res.status(200).send(data.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).send('Error retrieving users');
+    res.status(500).send("Error retrieving users");
   }
 });
 
-app.post('/', async (req, res) => {
+app.post("/", async (req, res) => {
   const { name, lastname, username, email, password } = req.body;
 
   if (!name || !lastname || !username || !email || !password) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
@@ -48,30 +48,32 @@ app.post('/', async (req, res) => {
       [name, lastname, username, email, hashedPassword]
     );
 
-    res.status(201).json({ 
-      message: 'User created',
-      id: result.rows[0].id
+    res.status(201).json({
+      message: "User created",
+      id: result.rows[0].id,
     });
   } catch (err) {
-    console.error('Error creating user:', err);
-    
+    console.error("Error creating user:", err);
+
     // Check for unique constraint violation (PostgreSQL error code 23505)
-    if (err.code === '23505') {
-      if (err.constraint === 'users_username_key') {
-        return res.status(409).json({ message: 'Username already exists' });
+    if (err.code === "23505") {
+      if (err.constraint === "users_username_key") {
+        return res.status(409).json({ message: "Username already exists" });
       }
-      if (err.constraint === 'users_email_key') {
-        return res.status(409).json({ message: 'Email already exists' });
+      if (err.constraint === "users_email_key") {
+        return res.status(409).json({ message: "Email already exists" });
       }
-      return res.status(409).json({ message: 'User already exists' });
+      return res.status(409).json({ message: "User already exists" });
     }
-    
-    res.status(500).json({ message: 'Error creating user', error: err.message });
+
+    res
+      .status(500)
+      .json({ message: "Error creating user", error: err.message });
   }
 });
 
 //Setup route for auth database (users, genres, locations)
-app.get('/setup', async (req, res) => {
+app.get("/setup", async (req, res) => {
   let createTablesQuery = `
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -139,15 +141,15 @@ app.get('/setup', async (req, res) => {
 
   try {
     await authPool.query(createTablesQuery);
-    res.status(200).send({ message: 'Table created' });
+    res.status(200).send({ message: "Table created" });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Error creating table');
+    res.status(500).send("Error creating table");
   }
 });
 
 // Setup route for publication database (posts/content)
-app.get('/setup-publications', async (req, res) => {
+app.get("/setup-publications", async (req, res) => {
   let createTablesQuery = `
     CREATE TABLE IF NOT EXISTS posts (
       id SERIAL PRIMARY KEY,
@@ -199,14 +201,18 @@ app.get('/setup-publications', async (req, res) => {
 
   try {
     await publicationPool.query(createTablesQuery);
-    res.status(200).json({ message: 'Publication tables created successfully' });
+    res
+      .status(200)
+      .json({ message: "Publication tables created successfully" });
   } catch (err) {
-    console.error('Error creating publication tables:', err);
-    res.status(500).json({ message: 'Error creating tables', error: err.message });
+    console.error("Error creating publication tables:", err);
+    res
+      .status(500)
+      .json({ message: "Error creating tables", error: err.message });
   }
 });
 
-app.get('/posts', authenticateToken, async (req, res) => {
+app.get("/posts", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -218,19 +224,19 @@ app.get('/posts', authenticateToken, async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching user data' });
+    res.status(500).json({ message: "Error fetching user data" });
   }
 });
 
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
   if (token == null) return res.sendStatus(401);
 
@@ -243,7 +249,7 @@ function authenticateToken(req, res, next) {
 
 //? Users
 
-app.get('/users/profile', async (req, res) => {
+app.get("/users/profile", async (req, res) => {
   try {
     const { username } = req.body;
 
@@ -255,17 +261,17 @@ app.get('/users/profile', async (req, res) => {
     );
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'user not found' });
+      return res.status(404).json({ message: "user not found" });
     }
 
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching user data' });
+    res.status(500).json({ message: "Error fetching user data" });
   }
 });
 
-app.patch('/users/profile', async (req, res) => {
+app.patch("/users/profile", async (req, res) => {
   try {
     const { username, name, lastname, age } = req.body;
 
@@ -279,11 +285,11 @@ app.patch('/users/profile', async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching user data' });
+    res.status(500).json({ message: "Error fetching user data" });
   }
 });
 
-app.get('/users/preferences', async (req, res) => {
+app.get("/users/preferences", async (req, res) => {
   try {
     const { username } = req.body;
 
@@ -295,17 +301,17 @@ app.get('/users/preferences', async (req, res) => {
     );
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'user not found' });
+      return res.status(404).json({ message: "user not found" });
     }
 
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching user data' });
+    res.status(500).json({ message: "Error fetching user data" });
   }
 });
 
-app.patch('/users/preferences', async (req, res) => {
+app.patch("/users/preferences", async (req, res) => {
   try {
     const { username, musical_genre } = req.body;
 
@@ -319,10 +325,10 @@ app.patch('/users/preferences', async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching user data' });
+    res.status(500).json({ message: "Error fetching user data" });
   }
 });
 
-app.listen(port, '0.0.0.0', () =>
+app.listen(port, "0.0.0.0", () =>
   console.log(`Server running on port http://0.0.0.0:${port}`)
 );
