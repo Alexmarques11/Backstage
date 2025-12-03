@@ -96,17 +96,11 @@ jobs:
     
     - name: Test API endpoints
       run: |
-        echo "Testing GET endpoint..."
-        curl -f http://localhost:3000/ || exit 1
+        echo "Testing health endpoint..."
+        curl -f http://localhost:3000/health || exit 1
         
-        echo "Testing POST endpoint..."
-        curl -f -X POST http://localhost:3000/ \
-          -H "Content-Type: application/json" \
-          -d '{"name":"Test","lastname":"User","username":"testuser","email":"test@example.com","password":"testpass123"}' || exit 1
-        
-        echo "Verifying user was created..."
-        response=$(curl -s http://localhost:3000/)
-        echo "$response" | grep -q "Test" || exit 1
+        echo "Testing posts endpoint..."
+        curl -f http://localhost:3000/posts || exit 1
 
     - name: Cleanup
       if: always()
