@@ -1,4 +1,4 @@
-const publicationPool = require("../publicationDb");
+const notificationPool = require("../notificationDb");
 
 // Get all notifications for a user
 exports.getUserNotifications = async (req, res) => {
@@ -18,7 +18,7 @@ exports.getUserNotifications = async (req, res) => {
 
     query += ` ORDER BY created_at DESC`;
 
-    const result = await publicationPool.query(query, [userId]);
+    const result = await notificationPool.query(query, [userId]);
 
     res.json({
       count: result.rows.length,
@@ -35,7 +35,7 @@ exports.getUnreadCount = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const result = await publicationPool.query(
+    const result = await notificationPool.query(
       `SELECT COUNT(*) as count FROM notifications WHERE user_id = $1 AND is_read = false`,
       [userId]
     );
@@ -61,7 +61,7 @@ exports.createNotification = async (req, res) => {
       return res.status(400).json({ error: `Invalid type. Must be one of: ${validTypes.join(', ')}` });
     }
 
-    const result = await publicationPool.query(
+    const result = await notificationPool.query(
       `INSERT INTO notifications (user_id, type, title, message, related_id, related_type)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
@@ -83,7 +83,7 @@ exports.markAsRead = async (req, res) => {
   try {
     const { notificationId } = req.params;
 
-    const result = await publicationPool.query(
+    const result = await notificationPool.query(
       `UPDATE notifications
        SET is_read = true
        WHERE id = $1
@@ -110,7 +110,7 @@ exports.markAllAsRead = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const result = await publicationPool.query(
+    const result = await notificationPool.query(
       `UPDATE notifications
        SET is_read = true
        WHERE user_id = $1 AND is_read = false
@@ -133,7 +133,7 @@ exports.deleteNotification = async (req, res) => {
   try {
     const { notificationId } = req.params;
 
-    const result = await publicationPool.query(
+    const result = await notificationPool.query(
       `DELETE FROM notifications WHERE id = $1 RETURNING id`,
       [notificationId]
     );
@@ -154,7 +154,7 @@ exports.clearReadNotifications = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const result = await publicationPool.query(
+    const result = await notificationPool.query(
       `DELETE FROM notifications WHERE user_id = $1 AND is_read = true RETURNING id`,
       [userId]
     );

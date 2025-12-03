@@ -85,6 +85,23 @@ services:
       timeout: 5s
       retries: 5
 
+  notification-database:
+    image: postgres:15
+    container_name: postgres_notification
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-user123}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-123456}
+      POSTGRES_DB: notification_db
+    ports:
+      - "5437:5432"
+    volumes:
+      - notification_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-user123} -d notification_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   app:
     build:
       context: .
@@ -197,9 +214,29 @@ services:
       ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-default_jwt_secret_change_in_production}
       REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-default_refresh_secret_change_in_production}
 
+  notifications:
+    build:
+      context: .
+      dockerfile: Dockerfile.notifications
+    container_name: notifications_server
+    ports:
+      - "18000:3003"
+    depends_on:
+      notification-database:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      NOTIFICATION_DB_HOST: notification-database
+      NOTIFICATION_DB_USER: ${DATABASE_USER:-user123}
+      NOTIFICATION_DB_PASSWORD: ${DATABASE_PASSWORD:-123456}
+      NOTIFICATION_DB_NAME: notification_db
+      NOTIFICATION_DB_PORT: 5432
+      DATABASE_SSL: 'false'
+
 volumes:
   publication_data:
   auth_data:
   passport_data:
   market_data:
   events_data:
+  notification_data:

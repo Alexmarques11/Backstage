@@ -8,7 +8,8 @@
     "devAuth": "node authentication/authserver.js",
     "devPassport": "node passport/passportServer.js",
     "devMarket": "node market/marketServer.js",
-    "devEvents": "node events/eventsServer.js"
+    "devEvents": "node events/eventsServer.js",
+    "devNotifications": "node notifications/notificationServer.js"
   },
   "keywords": [],
   "author": "",

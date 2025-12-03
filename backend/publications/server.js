@@ -3,7 +3,6 @@ require("dotenv").config();
 const express = require("express");
 const publicationPool = require("./publicationDb");
 const authPool = require("../authentication/db/authDb"); // Auth DB from authentication directory
-const notificationRouter = require("./routes/notificationRoute");
 const postRouter = require("./routes/postRoute");
 const port = 3000;
 
@@ -21,7 +20,6 @@ app.get("/health", (req, res) => {
 });
 
 // Routes
-app.use("/notifications", notificationRouter);
 app.use("/posts", postRouter);
 
 //Setup route for auth database (users, genres, locations)
@@ -144,26 +142,11 @@ app.get("/setup-publications", async (req, res) => {
       FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
     );
     
-    CREATE TABLE IF NOT EXISTS notifications (
-      id SERIAL PRIMARY KEY,
-      user_id INT NOT NULL,
-      type VARCHAR(50) NOT NULL CHECK (type IN ('like', 'comment', 'event', 'system', 'ticket_purchase', 'event_reminder')),
-      title VARCHAR(200) NOT NULL,
-      message TEXT NOT NULL,
-      related_id INT,
-      related_type VARCHAR(50) CHECK (related_type IN ('post', 'comment', 'event', 'ticket')),
-      is_read BOOLEAN DEFAULT false,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-    
     CREATE INDEX IF NOT EXISTS idx_posts_user ON posts(user_id);
     CREATE INDEX IF NOT EXISTS idx_posts_event_date ON posts(event_date);
     CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
     CREATE INDEX IF NOT EXISTS idx_post_likes_post ON post_likes(post_id);
     CREATE INDEX IF NOT EXISTS idx_post_comments_post ON post_comments(post_id);
-    CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
-    CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(is_read);
-    CREATE INDEX IF NOT EXISTS idx_notifications_created ON notifications(created_at);
   `;
 
   try {
