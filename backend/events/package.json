@@ -1,0 +1,20 @@
+{
+  "name": "concerts",
+  "version": "1.0.0",
+  "main": "concertsServer.js",
+  "scripts": {
+    "start": "node concertsServer.js",
+    "dev": "nodemon concertsServer.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "Microserviço de eventos e concertos com integração Ticketmaster",
+  "dependencies": {
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
+    "nodemon": "^3.1.11"
+  }
+}

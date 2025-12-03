@@ -36,7 +36,7 @@ exports.registerUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Criar usuário
+    // Criar utilizador
     const userResult = await userModel.createUser([
       name,
       lastname,
@@ -402,5 +402,17 @@ exports.updateUserRole = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error updating user role" });
+  }
+};
+
+exports.getMusicGenres = async (req, res) => {
+  try {
+    const result = await authPool.query(
+      `SELECT id, name FROM music_genres ORDER BY name`
+    );
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error("Erro ao buscar géneros:", err.message);
+    res.status(500).json({ message: "Erro ao buscar géneros" });
   }
 };

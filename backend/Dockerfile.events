@@ -10,4 +10,4 @@ COPY events/ ./
 
 EXPOSE 7000
 
-CMD ["node", "eventsServer.js"]
+CMD ["node", "concertsServer.js"]

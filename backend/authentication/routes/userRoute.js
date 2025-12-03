@@ -13,6 +13,8 @@ const { authenticateToken, isAdmin } = require("../middleware/authMiddleware");
  *     description: User profile and preferences management
  *   - name: Admin
  *     description: Administrative user management
+ *   - name: Genres
+ *     description: Music genres management
  */
 
 /**
@@ -414,5 +416,34 @@ router.patch(
   isAdmin,
   UserController.updateUserRole
 );
+
+/**
+ * @swagger
+ * /genres:
+ *   get:
+ *     summary: Get all music genres
+ *     tags: [Genres]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all music genres
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   name:
+ *                     type: string
+ *       401:
+ *         description: Missing or invalid token
+ *       500:
+ *         description: Server error
+ */
+router.get("/", authenticateToken, UserController.getMusicGenres);
 
 module.exports = router;

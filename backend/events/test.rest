@@ -1,0 +1,47 @@
+### Listar todos os concertos (opcional: filtros artist e location)
+GET http://localhost:5001/concerts
+Accept: application/json
+
+###
+GET http://localhost:3000/concerts?artist=Coldplay&location=Lisbon
+Accept: application/json
+
+### Obter detalhes de um concerto específico
+GET http://localhost:3000/concerts/1
+Accept: application/json
+
+### Pesquisa genérica de concertos
+GET http://localhost:3000/concerts/search?query=rock
+Accept: application/json
+
+### Obter concertos de um artista específico
+GET http://localhost:3000/concerts/by-artist/123
+Accept: application/json
+
+### Obter concertos por localização (query param: city)
+GET http://localhost:3000/concerts/by-location?city=Lisbon
+Accept: application/json
+
+### Obter concertos por género musical
+GET http://localhost:3000/concerts/by-genre/rock
+Accept: application/json
+
+### Importar concertos do Ticketmaster
+POST http://localhost:5001/concerts/import-ticketmaster
+Content-Type: application/json
+
+{
+  "country": "GB"
+}
+
+### Sincronizar concertos do Ticketmaster
+GET http://localhost:5001/concerts/sync?country=GB&date=2025-12-03
+Accept: application/json
+
+###
+GET http://localhost:5001/concerts/sync
+Accept: application/json
+
+###
+GET http://localhost:5001/concerts/sync?country=US&size=50
+Accept: application/json
