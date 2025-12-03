@@ -51,6 +51,17 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    restart: unless-stopped
+
+  notifications:
+    # Uses server repository with notifications tag to avoid registry limit
+    image: registry.digitalocean.com/backstage-registry-1761508031/backstage-server:notifications
+    container_name: notifications_server_prod
+    ports:
+      - "18000:3003"
+    depends_on:
+      database:
+        condition: service_healthy
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       DATABASE_HOST: database
