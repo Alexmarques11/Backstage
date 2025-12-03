@@ -45,7 +45,7 @@ jobs:
     - name: Build and push Server image
       uses: docker/build-push-action@v5
       with:
-        context: ./backend/publications
+        context: ./backend
         file: ./backend/publications/Dockerfile
         push: true
         tags: ${{ env.SERVER_IMAGE }}:latest
@@ -56,7 +56,7 @@ jobs:
     - name: Build and push Auth image
       uses: docker/build-push-action@v5
       with:
-        context: ./backend/authentication
+        context: ./backend
         file: ./backend/authentication/Dockerfile
         push: true
         tags: ${{ env.AUTH_IMAGE }}:latest
@@ -67,7 +67,7 @@ jobs:
     - name: Build and push Passport image
       uses: docker/build-push-action@v5
       with:
-        context: ./backend/passport
+        context: ./backend
         file: ./backend/passport/Dockerfile
         push: true
         tags: ${{ env.PASSPORT_IMAGE }}:latest
@@ -78,7 +78,7 @@ jobs:
     - name: Build and push Market image
       uses: docker/build-push-action@v5
       with:
-        context: ./backend/market
+        context: ./backend
         file: ./backend/market/Dockerfile
         push: true
         tags: ${{ env.MARKET_IMAGE }}:latest
@@ -89,7 +89,7 @@ jobs:
     - name: Build and push Events image
       uses: docker/build-push-action@v5
       with:
-        context: ./backend/events
+        context: ./backend
         file: ./backend/events/Dockerfile
         push: true
         tags: ${{ env.EVENTS_IMAGE }}:latest
@@ -100,7 +100,7 @@ jobs:
     - name: Build and push Notifications image
       uses: docker/build-push-action@v5
       with:
-        context: ./backend/notifications
+        context: ./backend
         file: ./backend/notifications/Dockerfile
         push: true
         tags: ${{ env.NOTIFICATIONS_IMAGE }}:latest

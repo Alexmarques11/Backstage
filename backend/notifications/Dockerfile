@@ -2,11 +2,11 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY notifications/package*.json ./
 
 RUN npm install
 
-COPY . ./
+COPY notifications/ ./
 
 EXPOSE 3003
 

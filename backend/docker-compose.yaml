@@ -104,8 +104,8 @@ services:
 
   app:
     build:
-      context: ./publications
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: publications/Dockerfile
     container_name: backend_app
     ports:
       - "13000:3000"
@@ -132,8 +132,8 @@ services:
 
   auth:
     build:
-      context: ./authentication
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: authentication/Dockerfile
     container_name: auth_server
     ports:
       - "14000:4000"
@@ -153,8 +153,8 @@ services:
 
   passport:
     build:
-      context: ./passport
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: passport/Dockerfile
     container_name: passport_server
     ports:
       - "15000:5000"
@@ -174,8 +174,8 @@ services:
 
   market:
     build:
-      context: ./market
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: market/Dockerfile
     container_name: market_server
     ports:
       - "16000:6000"
@@ -195,8 +195,8 @@ services:
 
   events:
     build:
-      context: ./events
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: events/Dockerfile
     container_name: events_server
     ports:
       - "17000:7000"
@@ -216,8 +216,8 @@ services:
 
   notifications:
     build:
-      context: ./notifications
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: notifications/Dockerfile
     container_name: notifications_server
     ports:
       - "18000:3003"
