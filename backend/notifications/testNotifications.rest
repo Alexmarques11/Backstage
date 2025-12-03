@@ -1,7 +1,7 @@
 ### Test Notifications Endpoints
 
 ### Variables
-@baseUrl = http://localhost:3000
+@baseUrl = http://localhost:3003
 @userId = 1
 @notificationId = 1
 
