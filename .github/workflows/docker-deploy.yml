@@ -17,6 +17,7 @@ env:
   PASSPORT_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-passport
   MARKET_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-market
   EVENTS_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-events
+  NOTIFICATIONS_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-notifications
 
 jobs:
   build-and-push-images:
@@ -44,8 +45,8 @@ jobs:
     - name: Build and push Server image
       uses: docker/build-push-action@v5
       with:
-        context: ./backend
-        file: ./backend/Dockerfile.server
+        context: ./backend/publications
+        file: ./backend/publications/Dockerfile
         push: true
         tags: ${{ env.SERVER_IMAGE }}:latest
         cache-from: type=gha,scope=server
@@ -55,8 +56,8 @@ jobs:
     - name: Build and push Auth image
       uses: docker/build-push-action@v5
       with:
-        context: ./backend
-        file: ./backend/Dockerfile.auth
+        context: ./backend/authentication
+        file: ./backend/authentication/Dockerfile
         push: true
         tags: ${{ env.AUTH_IMAGE }}:latest
         cache-from: type=gha,scope=auth
@@ -66,8 +67,8 @@ jobs:
     - name: Build and push Passport image
       uses: docker/build-push-action@v5
       with:
-        context: ./backend
-        file: ./backend/Dockerfile.passport
+        context: ./backend/passport
+        file: ./backend/passport/Dockerfile
         push: true
         tags: ${{ env.PASSPORT_IMAGE }}:latest
         cache-from: type=gha,scope=passport
@@ -77,8 +78,8 @@ jobs:
     - name: Build and push Market image
       uses: docker/build-push-action@v5
       with:
-        context: ./backend
-        file: ./backend/Dockerfile.market
+        context: ./backend/market
+        file: ./backend/market/Dockerfile
         push: true
         tags: ${{ env.MARKET_IMAGE }}:latest
         cache-from: type=gha,scope=market
@@ -88,12 +89,23 @@ jobs:
     - name: Build and push Events image
       uses: docker/build-push-action@v5
       with:
-        context: ./backend
-        file: ./backend/Dockerfile.events
+        context: ./backend/events
+        file: ./backend/events/Dockerfile
         push: true
         tags: ${{ env.EVENTS_IMAGE }}:latest
         cache-from: type=gha,scope=events
         cache-to: type=gha,mode=max,scope=events
+
+    # Build and push Notifications
+    - name: Build and push Notifications image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend/notifications
+        file: ./backend/notifications/Dockerfile
+        push: true
+        tags: ${{ env.NOTIFICATIONS_IMAGE }}:latest
+        cache-from: type=gha,scope=notifications
+        cache-to: type=gha,mode=max,scope=notifications
 
     - name: Images pushed successfully
       run: |

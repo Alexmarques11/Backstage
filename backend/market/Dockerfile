@@ -6,8 +6,8 @@ COPY package*.json ./
 
 RUN npm ci --only=production
 
-COPY events/ ./
+COPY . ./
 
-EXPOSE 7000
+EXPOSE 6000
 
-CMD ["node", "concertsServer.js"]
+CMD ["node", "marketServer.js"]

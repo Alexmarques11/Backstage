@@ -6,7 +6,7 @@ COPY package*.json ./
 
 RUN npm ci --only=production
 
-COPY passport/ ./
+COPY . ./
 
 EXPOSE 5000
 
