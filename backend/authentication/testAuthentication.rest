@@ -18,7 +18,7 @@ Content-Type: application/json
 
 {
   "username": "alexpm",
-  "password": "12345678"
+  "password": "newpassword123"
 }
 
 ### Refresh token
@@ -26,7 +26,7 @@ POST http://localhost:4000/auth/token
 Content-Type: application/json
 
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDg1NTc2MywiZXhwIjoxNzY1NDYwNTYzfQ.gwmrC9DtwQvmW2qFnr7esjSCLLn7l-78f7d5MZHjhlw"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDg1NjI3MCwiZXhwIjoxNzY1NDYxMDcwfQ.ez87a1au2cg0vgFG3fTDA-KPqK1BiLw_mkpIgeATyrQ"
 }
 
 ### Logout user
@@ -39,11 +39,11 @@ Content-Type: application/json
 
 ### Get user profile (authenticated)
 GET http://localhost:4000/user/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NTc3MSwiZXhwIjoxNzY0ODU2NjcxfQ.dBMLLwVMbuckBo7geLEp9rsq4aa25-e7SOEOa5pcbOg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NjI4NywiZXhwIjoxNzY0ODU3MTg3fQ.zIQNbzXpWgtr3PfNwmrmxANjw70E_brc612tk6cZHBA
 
 ### Update user profile (authenticated)
 PATCH http://localhost:4000/user/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NTc3MSwiZXhwIjoxNzY0ODU2NjcxfQ.dBMLLwVMbuckBo7geLEp9rsq4aa25-e7SOEOa5pcbOg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NjI4NywiZXhwIjoxNzY0ODU3MTg3fQ.zIQNbzXpWgtr3PfNwmrmxANjw70E_brc612tk6cZHBA
 Content-Type: application/json
 
 {
@@ -54,7 +54,7 @@ Content-Type: application/json
 
 ### Change password (authenticated)
 PATCH http://localhost:4000/user/changepassword
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NTc3MSwiZXhwIjoxNzY0ODU2NjcxfQ.dBMLLwVMbuckBo7geLEp9rsq4aa25-e7SOEOa5pcbOg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NjI4NywiZXhwIjoxNzY0ODU3MTg3fQ.zIQNbzXpWgtr3PfNwmrmxANjw70E_brc612tk6cZHBA
 Content-Type: application/json
 
 {
@@ -64,11 +64,11 @@ Content-Type: application/json
 
 ### Get user preferences (authenticated)
 GET http://localhost:4000/user/preferences
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NTc3MSwiZXhwIjoxNzY0ODU2NjcxfQ.dBMLLwVMbuckBo7geLEp9rsq4aa25-e7SOEOa5pcbOg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NjI4NywiZXhwIjoxNzY0ODU3MTg3fQ.zIQNbzXpWgtr3PfNwmrmxANjw70E_brc612tk6cZHBA
 
 ### Update user preferences (authenticated)
 PATCH http://localhost:4000/user/preferences
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NTc3MSwiZXhwIjoxNzY0ODU2NjcxfQ.dBMLLwVMbuckBo7geLEp9rsq4aa25-e7SOEOa5pcbOg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NjI4NywiZXhwIjoxNzY0ODU3MTg3fQ.zIQNbzXpWgtr3PfNwmrmxANjw70E_brc612tk6cZHBA
 Content-Type: application/json
 
 {
@@ -77,11 +77,11 @@ Content-Type: application/json
 
 ### Get user posts (authenticated)
 GET http://localhost:4000/user/posts
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NTc3MSwiZXhwIjoxNzY0ODU2NjcxfQ.dBMLLwVMbuckBo7geLEp9rsq4aa25-e7SOEOa5pcbOg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NjI4NywiZXhwIjoxNzY0ODU3MTg3fQ.zIQNbzXpWgtr3PfNwmrmxANjw70E_brc612tk6cZHBA
 
 ### Admin: Get all users (authenticated)
 GET http://localhost:4000/admin/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDg1NTg2NCwiZXhwIjoxNzY0ODU2NzY0fQ.2rjk43Gw2Px84CORZrBThS1r_xviLwR0FaC_zNHU4gI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDg1NjM0OSwiZXhwIjoxNzY0ODU3MjQ5fQ.03zZC2QHBiBRHEUzXt2mdyWti7qqdVtbSK_xUqequog
 
 ### Admin: Delete a user by ID (authenticated)
 DELETE http://localhost:4000/admin/users/1
@@ -98,5 +98,5 @@ Content-Type: application/json
 
 ### Admin: Get all genres (authenticated)
 GET http://localhost:4000/admin/genres
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDg1NTg2NCwiZXhwIjoxNzY0ODU2NzY0fQ.2rjk43Gw2Px84CORZrBThS1r_xviLwR0FaC_zNHU4gI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDg1NjM0OSwiZXhwIjoxNzY0ODU3MjQ5fQ.03zZC2QHBiBRHEUzXt2mdyWti7qqdVtbSK_xUqequog
 
