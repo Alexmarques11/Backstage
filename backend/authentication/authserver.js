@@ -1,6 +1,8 @@
 require("dotenv").config();
 const express = require("express");
-const userRouter = require("./routes/userRoute");
+const authRoutes = require("./src/routes/authRoutes");
+const userRoutes = require("./src/routes/userRoutes");
+const adminRoutes = require("./src/routes/adminRoutes");
 const setupSwagger = require("./static/swagger");
 
 const app = express();
@@ -13,8 +15,14 @@ app.get("/health", (req, res) => {
   res.json({ status: "healthy", service: "backstage-auth" });
 });
 
-// Rotas de utilizadores
-app.use("/users", userRouter);
+// Rotas de autenticação
+app.use("/auth", authRoutes);
+
+// Rotas de utilizador
+app.use("/user", userRoutes);
+
+// Rotas de administrador
+app.use("/admin", adminRoutes);
 
 // Swagger
 setupSwagger(app);

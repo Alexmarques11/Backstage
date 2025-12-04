@@ -1,7 +1,7 @@
 const express = require("express");
 require("dotenv").config();
 
-const concertsRoutes = require("./routes/concertsRoutes");
+const concertsRoutes = require("./src/routes/concertsRoutes");
 
 const app = express();
 app.use(express.json());

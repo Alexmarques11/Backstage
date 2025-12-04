@@ -1,5 +1,5 @@
 ### Register user
-POST http://localhost:4000/users/auth/register
+POST http://localhost:4000/auth/register
 Content-Type: application/json
 
 {
@@ -13,7 +13,7 @@ Content-Type: application/json
 }
 
 ### Login user
-POST http://localhost:14000/users/auth/login
+POST http://localhost:4000/auth/login
 Content-Type: application/json
 
 {
@@ -22,43 +22,53 @@ Content-Type: application/json
 }
 
 ### Refresh token
-POST http://localhost:4000/users/auth/token
+POST http://localhost:4000/auth/token
 Content-Type: application/json
 
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJqb2Fvc2lsdmEiLCJlbWFpbCI6ImpvYW9AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjQ0MzYyODJ9.0-56iGJQXMAlm8gQQA5ZGOgTfsM7wnnbkaF9SUuvSJE"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDg1NTc2MywiZXhwIjoxNzY1NDYwNTYzfQ.gwmrC9DtwQvmW2qFnr7esjSCLLn7l-78f7d5MZHjhlw"
 }
 
 ### Logout user
-POST http://localhost:4000/users/auth/logout
+POST http://localhost:4000/auth/logout
 Content-Type: application/json
 
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJqb2FvdGVzdCIsImVtYWlsIjoiam9hb0BtYWlsLmNvbSIsImlhdCI6MTc2NDQzNjgxOH0.Q7XxLQWjkwe7NOG4LniZPdSCUiZHMaQjiS3yKzxRJ-Y"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDg1NTc2MywiZXhwIjoxNzY1NDYwNTYzfQ.gwmrC9DtwQvmW2qFnr7esjSCLLn7l-78f7d5MZHjhlw"
 }
 
 ### Get user profile (authenticated)
-GET http://localhost:4000/users/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJqb2Fvc2lsdmEiLCJlbWFpbCI6ImpvYW9AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjQ0MzY4MDEsImV4cCI6MTc2NDQzNzcwMX0.HLhyurEOgp80-ToJ6UbrHVler1VuKBXpPMHBn6Uuk84
+GET http://localhost:4000/user/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NTc3MSwiZXhwIjoxNzY0ODU2NjcxfQ.dBMLLwVMbuckBo7geLEp9rsq4aa25-e7SOEOa5pcbOg
 
 ### Update user profile (authenticated)
-PATCH http://localhost:4000/users/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJqb2Fvc2lsdmEiLCJlbWFpbCI6ImpvYW9AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjQ0MzY4MDEsImV4cCI6MTc2NDQzNzcwMX0.HLhyurEOgp80-ToJ6UbrHVler1VuKBXpPMHBn6Uuk84
+PATCH http://localhost:4000/user/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NTc3MSwiZXhwIjoxNzY0ODU2NjcxfQ.dBMLLwVMbuckBo7geLEp9rsq4aa25-e7SOEOa5pcbOg
 Content-Type: application/json
 
 {
-  "name": "João Carlos",
-  "lastname": "Neto Silva",
+  "name": "Alexandre",
+  "lastname": "Marques",
   "birthdate": "1990-05-10"
 }
 
+### Change password (authenticated)
+PATCH http://localhost:4000/user/changepassword
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NTc3MSwiZXhwIjoxNzY0ODU2NjcxfQ.dBMLLwVMbuckBo7geLEp9rsq4aa25-e7SOEOa5pcbOg
+Content-Type: application/json
+
+{
+  "currentPassword": "12345678",
+  "newPassword": "newpassword123"
+}
+
 ### Get user preferences (authenticated)
-GET http://localhost:4000/users/userpreferences
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJqb2Fvc2lsdmEiLCJlbWFpbCI6ImpvYW9AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjQ0MzY4MDEsImV4cCI6MTc2NDQzNzcwMX0.HLhyurEOgp80-ToJ6UbrHVler1VuKBXpPMHBn6Uuk84
+GET http://localhost:4000/user/preferences
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NTc3MSwiZXhwIjoxNzY0ODU2NjcxfQ.dBMLLwVMbuckBo7geLEp9rsq4aa25-e7SOEOa5pcbOg
 
 ### Update user preferences (authenticated)
-PATCH http://localhost:4000/users/userpreferences
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJqb2Fvc2lsdmEiLCJlbWFpbCI6ImpvYW9AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjQ0MzY4MDEsImV4cCI6MTc2NDQzNzcwMX0.HLhyurEOgp80-ToJ6UbrHVler1VuKBXpPMHBn6Uuk84
+PATCH http://localhost:4000/user/preferences
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NTc3MSwiZXhwIjoxNzY0ODU2NjcxfQ.dBMLLwVMbuckBo7geLEp9rsq4aa25-e7SOEOa5pcbOg
 Content-Type: application/json
 
 {
@@ -66,22 +76,27 @@ Content-Type: application/json
 }
 
 ### Get user posts (authenticated)
-GET http://localhost:4000/users/posts
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJqb2Fvc2lsdmEiLCJlbWFpbCI6ImpvYW9AZXhhbXBsZS5jb20iLCJpYXQiOjE3NjQ0MzY4MDEsImV4cCI6MTc2NDQzNzcwMX0.HLhyurEOgp80-ToJ6UbrHVler1VuKBXpPMHBn6Uuk84
+GET http://localhost:4000/user/posts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsImlhdCI6MTc2NDg1NTc3MSwiZXhwIjoxNzY0ODU2NjcxfQ.dBMLLwVMbuckBo7geLEp9rsq4aa25-e7SOEOa5pcbOg
 
 ### Admin: Get all users (authenticated)
-GET http://localhost:14000/users/admin/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDY3NjgyNywiZXhwIjoxNzY0Njc3NzI3fQ.qjESiKDb2NqAs36pbWYBQRW4wwzbnxkrIjp4aJ6jT8U
+GET http://localhost:4000/admin/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDg1NTg2NCwiZXhwIjoxNzY0ODU2NzY0fQ.2rjk43Gw2Px84CORZrBThS1r_xviLwR0FaC_zNHU4gI
 
 ### Admin: Delete a user by ID (authenticated)
-DELETE http://localhost:14000/users/admin/users/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDY3OTYzMSwiZXhwIjoxNzY0NjgwNTMxfQ.v22KDlwB-WKSHrZMHBsL0huUDi5So3Qm887tfPO8H5s
+DELETE http://localhost:4000/admin/users/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDg1NTg2NCwiZXhwIjoxNzY0ODU2NzY0fQ.2rjk43Gw2Px84CORZrBThS1r_xviLwR0FaC_zNHU4gI
 
 ### Admin: Update a user's role by ID (authenticated)
-PATCH http://localhost:14000/users/admin/users/1/role
+PATCH http://localhost:4000/admin/users/1/role
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDY3OTM5MCwiZXhwIjoxNzY0NjgwMjkwfQ.y3X0i0Zk8w2BE87lMH3IMLIo8qrJsEtmJnwiwxoMKuU
 Content-Type: application/json
 
 {
   "role": "user"
 }
+
+### Admin: Get all genres (authenticated)
+GET http://localhost:4000/admin/genres
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDg1NTg2NCwiZXhwIjoxNzY0ODU2NzY0fQ.2rjk43Gw2Px84CORZrBThS1r_xviLwR0FaC_zNHU4gI
+
