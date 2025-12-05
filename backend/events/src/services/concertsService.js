@@ -2,6 +2,19 @@ const { fetchConcerts } = require("./ticketMasterService");
 const concertsModel = require("../model/concertsModel");
 const axios = require("axios");
 
+// Helper: Enrich concerts with genres
+const enrichWithGenres = async (concerts) => {
+  if (!concerts || concerts.length === 0) return concerts;
+
+  const concertIds = concerts.map((c) => c.id);
+  const genres = await concertsModel.getGenresForConcertIds(concertIds);
+
+  return concerts.map((concert) => ({
+    ...concert,
+    generos: genres[concert.id] || [],
+  }));
+};
+
 //Synchronize concerts from Ticketmaster API
 exports.syncConcerts = async (filters) => {
   const { country = null, date = null, size = 20 } = filters;
@@ -153,6 +166,9 @@ exports.getConcerts = async (filters) => {
       concertos = await concertsModel.listConcerts(limit, offset);
     }
 
+    // Enrich with genres
+    concertos = await enrichWithGenres(concertos);
+
     return {
       total: concertos.length,
       concertos: concertos,
@@ -172,7 +188,9 @@ exports.getConcertById = async (concertId) => {
       throw new Error(`Concert with ID ${concertId} not found`);
     }
 
-    return concert;
+    // Enrich with genres
+    const enriched = await enrichWithGenres([concert]);
+    return enriched[0];
   } catch (err) {
     throw new Error(`Error fetching concert: ${err.message}`);
   }

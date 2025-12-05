@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const concertsRoutes = require("./src/routes/concertsRoutes");
+const concertsAdminRoutes = require("./src/routes/concertsAdminRoutes");
 const setupSwagger = require("./static/swagger");
 
 const app = express();
@@ -13,8 +14,11 @@ app.get("/health", (req, res) => {
   res.json({ status: "healthy", service: "backstage-events" });
 });
 
-// Concerts routes
+// Concerts public routes
 app.use("/concerts", concertsRoutes);
+
+// Concerts admin routes
+app.use("/concerts-admin", concertsAdminRoutes);
 
 // Swagger
 setupSwagger(app);

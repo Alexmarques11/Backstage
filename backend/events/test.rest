@@ -1,51 +1,55 @@
 ### Health check
-GET http://localhost:5001/health
+GET http://localhost:17000/health
 Accept: application/json
 
 ### List all concerts
-GET http://localhost:5001/concerts
+GET http://localhost:17000/concerts
 Accept: application/json
 
 ### List concerts with title filter
-GET http://localhost:5001/concerts?title=Christmas&limit=100
+GET http://localhost:17000/concerts?title=Christmas&limit=100
 Accept: application/json
 
 ### List concerts with location filter
-GET http://localhost:5001/concerts?genre=Rock&location=New York&limit=10
+GET http://localhost:17000/concerts?genre=Rock&location=New York&limit=10
 Accept: application/json
 
 ### List concerts with genre filter
-GET http://localhost:5001/concerts?genre=Rock&limit=100
+GET http://localhost:17000/concerts?genre=Rock&limit=100
 Accept: application/json
 
 ### List concerts with pagination
-GET http://localhost:5001/concerts?limit=5&offset=0
+GET http://localhost:17000/concerts?limit=5&offset=0
 Accept: application/json
 
 ### Get concert by ID
-GET http://localhost:5001/concerts/146
+GET http://localhost:17000/concerts/146
 Accept: application/json
 
 ### Sync concerts from Ticketmaster - default (US, today, 20 results)
-GET http://localhost:5001/concerts/sync
+GET http://localhost:17000/concerts/sync
 Accept: application/json
 
 ### Sync concerts from Ticketmaster - GB only
-GET http://localhost:5001/concerts/sync?country=GB
+GET http://localhost:17000/concerts/sync?country=GB
 Accept: application/json
 
 ### Sync concerts from Ticketmaster - specific date
-GET http://localhost:5001/concerts/sync?country=US&date=2025-12-30
+GET http://localhost:17000/concerts/sync?country=US&date=2025-12-30
 Accept: application/json
 
 ### Sync concerts from Ticketmaster - custom size
-GET http://localhost:5001/concerts/sync?country=US&size=50
+GET http://localhost:17000/concerts/sync?country=US&size=50
 Accept: application/json
 
 ### Sync concerts from Ticketmaster - all filters
-GET http://localhost:5001/concerts/sync?country=US&date=2025-12-20&size=30
+GET http://localhost:17000/concerts/sync?country=US&date=2025-12-20&size=30
 Accept: application/json
 
 ### API Documentation
-GET http://localhost:5001/api-docs
+GET http://localhost:17000/api-docs
+
+### Delete concert by ID (admin only) - REPLACE TOKEN AND ID
+DELETE http://localhost:17000/concerts-admin/146
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDkzNzYxMCwiZXhwIjoxNzY0OTM4NTEwfQ.uwDfzOgszJyiSPukUfGyeWQhzBhdIadnVHr7lLxF98U
 Accept: application/json
