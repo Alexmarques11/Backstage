@@ -1,47 +1,51 @@
-### Listar todos os concertos (opcional: filtros artist e location)
+### Health check
+GET http://localhost:5001/health
+Accept: application/json
+
+### List all concerts
 GET http://localhost:5001/concerts
 Accept: application/json
 
-###
-GET http://localhost:3000/concerts?artist=Coldplay&location=Lisbon
+### List concerts with title filter
+GET http://localhost:5001/concerts?title=Christmas&limit=100
 Accept: application/json
 
-### Obter detalhes de um concerto específico
-GET http://localhost:3000/concerts/1
+### List concerts with location filter
+GET http://localhost:5001/concerts?genre=Rock&location=New York&limit=10
 Accept: application/json
 
-### Pesquisa genérica de concertos
-GET http://localhost:3000/concerts/search?query=rock
+### List concerts with genre filter
+GET http://localhost:5001/concerts?genre=Rock&limit=100
 Accept: application/json
 
-### Obter concertos de um artista específico
-GET http://localhost:3000/concerts/by-artist/123
+### List concerts with pagination
+GET http://localhost:5001/concerts?limit=5&offset=0
 Accept: application/json
 
-### Obter concertos por localização (query param: city)
-GET http://localhost:3000/concerts/by-location?city=Lisbon
+### Get concert by ID
+GET http://localhost:5001/concerts/146
 Accept: application/json
 
-### Obter concertos por género musical
-GET http://localhost:3000/concerts/by-genre/rock
-Accept: application/json
-
-### Importar concertos do Ticketmaster
-POST http://localhost:5001/concerts/import-ticketmaster
-Content-Type: application/json
-
-{
-  "country": "GB"
-}
-
-### Sincronizar concertos do Ticketmaster
-GET http://localhost:5001/concerts/sync?country=GB&date=2025-12-03
-Accept: application/json
-
-###
+### Sync concerts from Ticketmaster - default (US, today, 20 results)
 GET http://localhost:5001/concerts/sync
 Accept: application/json
 
-###
+### Sync concerts from Ticketmaster - GB only
+GET http://localhost:5001/concerts/sync?country=GB
+Accept: application/json
+
+### Sync concerts from Ticketmaster - specific date
+GET http://localhost:5001/concerts/sync?country=US&date=2025-12-30
+Accept: application/json
+
+### Sync concerts from Ticketmaster - custom size
 GET http://localhost:5001/concerts/sync?country=US&size=50
+Accept: application/json
+
+### Sync concerts from Ticketmaster - all filters
+GET http://localhost:5001/concerts/sync?country=US&date=2025-12-20&size=30
+Accept: application/json
+
+### API Documentation
+GET http://localhost:5001/api-docs
 Accept: application/json
