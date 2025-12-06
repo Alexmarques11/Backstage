@@ -91,9 +91,6 @@ exports.deleteUser = async (req, res) => {
 //Valids Roles: 'user', 'admin'
 exports.updateUserRole = async (req, res) => {
   try {
-    if (!req.body || Object.keys(req.body).length === 0) {
-      return res.status(400).json({ message: "Request body is required" });
-    }
     const userId = req.params.id;
     const roleData = req.body;
     const result = await userService.updateUserRole(userId, roleData);

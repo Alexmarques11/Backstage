@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const concertsController = require("../controllers/concertsController");
+const { authenticateToken } = require("../middleware/authMiddleware");
+const { hasRole } = require("../middleware/roleMiddleware");
 
 /**
  * @swagger
@@ -104,6 +106,51 @@ router.get("/sync", concertsController.syncConcerts);
  *       500:
  *         description: Server error
  */
-router.get("/:id", concertsController.getConcertById);
+router.get("/getconcert/:id", concertsController.getConcertById);
+
+/**
+ * @swagger
+ * /deleteconcert/{id}:
+ *   delete:
+ *     summary: Delete concert by ID (admin only)
+ *     tags: [Concerts]
+ *     security:
+ *       - Bearer: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Concert ID
+ *     responses:
+ *       200:
+ *         description: Concert deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 deletedConcert:
+ *                   type: object
+ *       401:
+ *         description: Unauthorized - no token provided
+ *       403:
+ *         description: Forbidden - admin only
+ *       404:
+ *         description: Concert not found
+ *       500:
+ *         description: Server error
+ */
+router.delete(
+  "/deleteconcert/:id",
+  authenticateToken,
+  hasRole("admin"),
+  concertsController.deleteConcert
+);
 
 module.exports = router;

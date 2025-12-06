@@ -50,6 +50,6 @@ Accept: application/json
 GET http://localhost:17000/api-docs
 
 ### Delete concert by ID (admin only) - REPLACE TOKEN AND ID
-DELETE http://localhost:17000/concerts-admin/146
+DELETE http://localhost:7000/deleteconcert/146
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NDkzNzYxMCwiZXhwIjoxNzY0OTM4NTEwfQ.uwDfzOgszJyiSPukUfGyeWQhzBhdIadnVHr7lLxF98U
 Accept: application/json
