@@ -1,18 +1,25 @@
 ### Test Posts Endpoints
 
 ### Variables
-@baseUrl = http://localhost:3000
+@baseUrl = http://localhost:3003
 @postId = 1
 @userId = 1
 
 ### Get all posts
-GET {{baseUrl}}/posts
+GET {{baseUrl}}/publications
 
 ### Get post by ID
-GET {{baseUrl}}/posts/{{postId}}
+GET {{baseUrl}}/publications/{{postId}}
+
+### Get post with filter
+GET {{baseUrl}}/publications?title=Balls&location=Guimarães
+
+### Delete a post
+DELETE {{baseUrl}}/publications-admin/{{postId}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwidXNlcm5hbWUiOiJ6ZXNjb3BzZSIsImVtYWlsIjoiemVzY29wc2VAZXhhbXBsZS5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NjQ5NzE5NjIsImV4cCI6MTc2NDk3Mjg2Mn0.VsvUrto6XPVDKd3eSepTutJvpj9dUl-taYfF1bkRT_U
 
 ### Create a new post
-POST {{baseUrl}}/posts
+POST {{baseUrl}}/publications
 Content-Type: application/json
 
 {
@@ -23,8 +30,6 @@ Content-Type: application/json
   "event_date": "2025-12-15T20:00:00Z",
   "location_id": 1,
   "price": 25.00,
-  "tickets_available": 500,
-  "image_url": "https://example.com/images/rock-concert.jpg"
 }
 
 ### Create another post - Jazz Night

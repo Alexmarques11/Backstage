@@ -1,0 +1,31 @@
+### Health check
+GET http://localhost:5001/health
+Accept: application/json
+
+### List all concerts
+GET http://localhost:5001/concerts
+Accept: application/json
+
+### List concerts with title filter
+GET http://localhost:5001/concerts?title=Christmas&limit=100
+Accept: application/json
+
+### List concerts with location filter
+GET http://localhost:5001/concerts?genre=Rock&location=New York&limit=10
+Accept: application/json
+
+### List concerts with genre filter
+GET http://localhost:5001/concerts?genre=Rock&limit=100
+Accept: application/json
+
+### List concerts with pagination
+GET http://localhost:5001/concerts?limit=5&offset=0
+Accept: application/json
+
+### Get concert by ID
+GET http://localhost:5001/concerts/146
+Accept: application/json
+
+### API Documentation
+GET http://localhost:5001/api-docs
+Accept: application/json
