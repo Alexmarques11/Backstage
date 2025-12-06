@@ -34,10 +34,6 @@ const options = {
         name: "User",
         description: "User profile and preferences management",
       },
-      {
-        name: "Admin",
-        description: "Administrative user management",
-      },
     ],
   },
   apis: ["./src/routes/*.js"],

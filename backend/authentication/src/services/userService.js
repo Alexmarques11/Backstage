@@ -99,16 +99,73 @@ exports.updateUserPreferences = async (userId, preferencesData) => {
   return { message: "Preferences updated successfully" };
 };
 
-// Obter posts de utilizador
-exports.getPosts = async (userId) => {
+// Obter todos os utilizadores
+exports.getAllUsers = async () => {
   const result = await authPool.query(
-    `SELECT id, name, lastname, birthdate, username, email
+    `SELECT id, name, lastname, username, email, role, birthdate 
      FROM users
-     WHERE id = $1`,
+     ORDER BY id ASC`
+  );
+
+  return result.rows;
+};
+
+// Eliminar utilizador
+exports.deleteUser = async (userId) => {
+  const userResult = await authPool.query("SELECT id FROM users WHERE id=$1", [
+    userId,
+  ]);
+  if (userResult.rows.length === 0) throw new Error("User not found");
+
+  await userModel.deleteTokensByUser(userId); // apaga todos tokens do utilizador
+  await authPool.query("DELETE FROM users_genres WHERE user_id=$1", [userId]);
+  await authPool.query("DELETE FROM users WHERE id=$1", [userId]);
+
+  return { message: `User with ID ${userId} deleted successfully` };
+};
+
+// Atualizar role de utilizador
+exports.updateUserRole = async (userId, roleData) => {
+  const { role } = roleData;
+  const allowedRoles = ["user", "admin", "manager"];
+
+  if (!role) throw new Error("Role is required");
+  if (!allowedRoles.includes(role)) throw new Error("Invalid role");
+
+  const userResult = await authPool.query("SELECT id FROM users WHERE id=$1", [
+    userId,
+  ]);
+  if (userResult.rows.length === 0) throw new Error("User not found");
+
+  await authPool.query("UPDATE users SET role=$1 WHERE id=$2", [role, userId]);
+  return { message: `User role updated to ${role}` };
+};
+
+// Obter informações não sensíveis de um utilizador com géneros musicais
+exports.getUserPublicInfo = async (userId) => {
+  const userResult = await authPool.query(
+    `SELECT id, name, lastname, username, birthdate, role
+     FROM users WHERE id = $1`,
     [userId]
   );
 
-  if (result.rows.length === 0) throw new Error("User not found");
+  if (userResult.rows.length === 0) throw new Error("User not found");
 
-  return result.rows[0];
+  const user = userResult.rows[0];
+
+  // Buscar géneros musicais do utilizador
+  const genresResult = await authPool.query(
+    `SELECT mg.name
+     FROM users_genres ug
+     JOIN music_genres mg ON ug.genre_id = mg.id
+     WHERE ug.user_id = $1`,
+    [userId]
+  );
+
+  const genres = genresResult.rows.map((r) => r.name);
+
+  return {
+    ...user,
+    genres,
+  };
 };

@@ -1,12 +1,13 @@
 const router = require("express").Router();
 const profileController = require("../controllers/profileController");
 const { authenticateToken } = require("../middleware/authMiddleware");
+const { hasRole } = require("../middleware/roleMiddleware");
 
 /**
  * @swagger
  * tags:
  *   - name: User
- *     description: User profile and preferences management
+ *     description: User profile and users management
  */
 
 /**
@@ -162,20 +163,136 @@ router.patch(
 
 /**
  * @swagger
- * /user/posts:
+ * /user/allusers:
  *   get:
- *     summary: Get authenticated user's posts
+ *     summary: List all users (Admin only)
  *     tags: [User]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: User posts retrieved successfully
- *       401:
- *         description: Missing or invalid token
+ *         description: List of all users
+ *       403:
+ *         description: Admins only
  *       500:
  *         description: Server error
  */
-router.get("/posts", authenticateToken, profileController.getPosts);
+router.get(
+  "/allusers",
+  authenticateToken,
+  hasRole("admin"),
+  profileController.getAllUsers
+);
+
+/**
+ * @swagger
+ * /user/deleteuser/{id}:
+ *   delete:
+ *     summary: Delete a user by ID (Admin only)
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the user to delete
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       403:
+ *         description: Admins only
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.delete(
+  "/deleteuser/:id",
+  authenticateToken,
+  hasRole("admin"),
+  profileController.deleteUser
+);
+
+/**
+ * @swagger
+ * /users/{id}/role:
+ *   patch:
+ *     summary: Update a user's role by ID (Admin only)
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the user to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - role
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 enum: ["user", "admin"]
+ *                 description: New role for the user
+ *     responses:
+ *       200:
+ *         description: User role updated successfully
+ *       400:
+ *         description: Invalid role provided
+ *       403:
+ *         description: Admins only
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.patch(
+  "/:id/role",
+  authenticateToken,
+  hasRole("admin"),
+  profileController.updateUserRole
+);
+
+/**
+ * @swagger
+ * /users/{id}/info:
+ *   get:
+ *     summary: Get non-sensitive information of a user (Admin and Manager only)
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the user to retrieve
+ *     responses:
+ *       200:
+ *         description: User public information retrieved successfully
+ *       403:
+ *         description: Admins and Managers only
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.get(
+  "/:id/info",
+  authenticateToken,
+  hasRole("admin", "manager"),
+  profileController.getUserPublicInfo
+);
 
 module.exports = router;

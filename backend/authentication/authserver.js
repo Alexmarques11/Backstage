@@ -2,7 +2,6 @@ require("dotenv").config();
 const express = require("express");
 const authRoutes = require("./src/routes/authRoutes");
 const userRoutes = require("./src/routes/userRoutes");
-const adminRoutes = require("./src/routes/adminRoutes");
 const setupSwagger = require("./static/swagger");
 
 const app = express();
@@ -20,9 +19,6 @@ app.use("/auth", authRoutes);
 
 // Rotas de utilizador
 app.use("/user", userRoutes);
-
-// Rotas de administrador
-app.use("/admin", adminRoutes);
 
 // Swagger
 setupSwagger(app);

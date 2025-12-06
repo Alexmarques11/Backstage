@@ -13,11 +13,3 @@ exports.authenticateToken = (req, res, next) => {
     next();
   });
 };
-
-// Middleware para verificar se o user é admin
-exports.isAdmin = (req, res, next) => {
-  if (!req.user || req.user.role !== "admin") {
-    return res.status(403).json({ message: "Admins only" });
-  }
-  next();
-};
