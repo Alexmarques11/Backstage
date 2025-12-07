@@ -293,7 +293,7 @@ run_test "Server pods can reach auth pods" \
     "kubectl exec $SERVER_POD -- wget -q -O- http://backstage-auth-service/health | grep -q 'healthy'"
 
 run_test "Auth pods can respond to requests" \
-    "kubectl exec $AUTH_POD -- wget -q -O- http://localhost:4000/health | grep -q 'healthy'"
+    "kubectl exec $AUTH_POD -- wget -q -O- http://localhost/health | grep -q 'healthy'"
 
 echo ""
 echo "========================================"

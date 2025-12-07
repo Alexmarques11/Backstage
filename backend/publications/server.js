@@ -19,33 +19,23 @@ app.get("/health", (req, res) => {
 app.get("/setup", async (req, res) => {
   try {
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS posts (
+      CREATE TABLE IF NOT EXISTS user_concerts (
         id SERIAL PRIMARY KEY,
         user_id INTEGER NOT NULL,
-        content TEXT NOT NULL,
-        media_url TEXT,
+        title VARCHAR(200),
+        description TEXT,
+        date TIMESTAMP,
+        location_id INTEGER,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        image_url VARCHAR(250)
       )
     `);
     
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS comments (
-        id SERIAL PRIMARY KEY,
-        post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
-        user_id INTEGER NOT NULL,
-        content TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS likes (
-        id SERIAL PRIMARY KEY,
-        post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
-        user_id INTEGER NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(post_id, user_id)
+      CREATE TABLE IF NOT EXISTS user_concerts_genres (
+        user_concert_id INTEGER REFERENCES user_concerts(id) ON DELETE CASCADE,
+        genre_id INTEGER NOT NULL,
+        PRIMARY KEY (user_concert_id, genre_id)
       )
     `);
     

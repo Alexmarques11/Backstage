@@ -21,13 +21,39 @@ app.get("/setup", async (req, res) => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
-        username VARCHAR(255) UNIQUE NOT NULL,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        name VARCHAR(255),
-        lastname VARCHAR(255),
+        name VARCHAR(100),
+        lastname VARCHAR(100),
+        birthdate DATE,
+        username VARCHAR(100) UNIQUE NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
+        password VARCHAR(250) NOT NULL,
+        notifications_enabled BOOLEAN DEFAULT true,
+        role INTEGER,
+        avatar_url VARCHAR(250),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_roles (
+        id INTEGER PRIMARY KEY,
+        name VARCHAR(100) NOT NULL
+      )
+    `);
+    
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS music_genres (
+        id INTEGER PRIMARY KEY,
+        name VARCHAR(100) NOT NULL
+      )
+    `);
+    
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users_genres (
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        genre_id INTEGER REFERENCES music_genres(id) ON DELETE CASCADE,
+        PRIMARY KEY (user_id, genre_id)
       )
     `);
     
@@ -35,7 +61,7 @@ app.get("/setup", async (req, res) => {
       CREATE TABLE IF NOT EXISTS refresh_tokens (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        token TEXT NOT NULL,
+        token VARCHAR(500),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
