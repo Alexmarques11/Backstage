@@ -1,4 +1,16 @@
-const notificationPool = require("../notificationDb");
+const notificationCache = require("../notificationCache");
+const { v4: uuidv4 } = require('uuid');
+
+// Helper: Get user notifications key
+const getUserNotificationsKey = (userId) => `notifications:user:${userId}`;
+
+// Helper: Get notification key
+const getNotificationKey = (notificationId) => `notification:${notificationId}`;
+
+// Get all notification IDs for a user
+function getUserNotificationIds(userId) {
+  return notificationCache.get(getUserNotificationsKey(userId)) || [];
+}
 
 // Get all notifications for a user
 exports.getUserNotifications = async (req, res) => {
@@ -6,23 +18,26 @@ exports.getUserNotifications = async (req, res) => {
     const { userId } = req.params;
     const { unread_only } = req.query;
 
-    let query = `
-      SELECT id, user_id, type, title, message, related_id, related_type, is_read, created_at
-      FROM notifications
-      WHERE user_id = $1
-    `;
-
-    if (unread_only === "true") {
-      query += ` AND is_read = false`;
+    const notificationIds = getUserNotificationIds(userId);
+    
+    if (notificationIds.length === 0) {
+      return res.json({ count: 0, notifications: [] });
     }
 
-    query += ` ORDER BY created_at DESC`;
+    // Get all notifications from cache
+    const notifications = notificationIds
+      .map(id => notificationCache.get(getNotificationKey(id)))
+      .filter(n => n !== undefined);
 
-    const result = await notificationPool.query(query, [userId]);
+    // Apply unread filter if needed
+    let filtered = notifications;
+    if (unread_only === "true") {
+      filtered = notifications.filter(n => !n.is_read);
+    }
 
     res.json({
-      count: result.rows.length,
-      notifications: result.rows,
+      count: filtered.length,
+      notifications: filtered,
     });
   } catch (err) {
     console.error("Error fetching notifications:", err);
@@ -35,12 +50,17 @@ exports.getUnreadCount = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const result = await notificationPool.query(
-      `SELECT COUNT(*) as count FROM notifications WHERE user_id = $1 AND is_read = false`,
-      [userId]
-    );
+    const notificationIds = getUserNotificationIds(userId);
+    
+    let unreadCount = 0;
+    for (const id of notificationIds) {
+      const notification = notificationCache.get(getNotificationKey(id));
+      if (notification && !notification.is_read) {
+        unreadCount++;
+      }
+    }
 
-    res.json({ unread_count: parseInt(result.rows[0].count) });
+    res.json({ unread_count: unreadCount });
   } catch (err) {
     console.error("Error fetching unread count:", err);
     res.status(500).json({ message: "Error fetching unread count", error: err.message });
@@ -56,21 +76,37 @@ exports.createNotification = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields: user_id, type, title, message" });
     }
 
-    const validTypes = ['like', 'comment', 'event', 'system', 'ticket_purchase', 'event_reminder'];
+    const validTypes = ['event', 'system', 'ticket_purchase', 'event_reminder'];
     if (!validTypes.includes(type)) {
       return res.status(400).json({ error: `Invalid type. Must be one of: ${validTypes.join(', ')}` });
     }
 
-    const result = await notificationPool.query(
-      `INSERT INTO notifications (user_id, type, title, message, related_id, related_type)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING *`,
-      [user_id, type, title, message, related_id, related_type]
-    );
+    // Create notification object
+    const notification = {
+      id: uuidv4(),
+      user_id,
+      type,
+      title,
+      message,
+      related_id,
+      related_type,
+      is_read: false,
+      created_at: new Date().toISOString(),
+    };
+
+    // Store notification in cache (30 days TTL set in cache config)
+    const notificationKey = getNotificationKey(notification.id);
+    notificationCache.set(notificationKey, notification);
+
+    // Add to user's notification list
+    const userKey = getUserNotificationsKey(user_id);
+    const userNotifications = getUserNotificationIds(user_id);
+    userNotifications.unshift(notification.id); // Add to beginning
+    notificationCache.set(userKey, userNotifications);
 
     res.status(201).json({
       message: "Notification created",
-      notification: result.rows[0],
+      notification,
     });
   } catch (err) {
     console.error("Error creating notification:", err);
@@ -83,21 +119,18 @@ exports.markAsRead = async (req, res) => {
   try {
     const { notificationId } = req.params;
 
-    const result = await notificationPool.query(
-      `UPDATE notifications
-       SET is_read = true
-       WHERE id = $1
-       RETURNING *`,
-      [notificationId]
-    );
-
-    if (result.rows.length === 0) {
+    const notification = notificationCache.get(getNotificationKey(notificationId));
+    
+    if (!notification) {
       return res.status(404).json({ message: "Notification not found" });
     }
 
+    notification.is_read = true;
+    notificationCache.set(getNotificationKey(notificationId), notification);
+
     res.json({
       message: "Notification marked as read",
-      notification: result.rows[0],
+      notification,
     });
   } catch (err) {
     console.error("Error marking notification as read:", err);
@@ -110,17 +143,21 @@ exports.markAllAsRead = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const result = await notificationPool.query(
-      `UPDATE notifications
-       SET is_read = true
-       WHERE user_id = $1 AND is_read = false
-       RETURNING id`,
-      [userId]
-    );
+    const notificationIds = getUserNotificationIds(userId);
+    
+    let updatedCount = 0;
+    for (const id of notificationIds) {
+      const notification = notificationCache.get(getNotificationKey(id));
+      if (notification && !notification.is_read) {
+        notification.is_read = true;
+        notificationCache.set(getNotificationKey(id), notification);
+        updatedCount++;
+      }
+    }
 
     res.json({
       message: "All notifications marked as read",
-      updated_count: result.rows.length,
+      updated_count: updatedCount,
     });
   } catch (err) {
     console.error("Error marking all notifications as read:", err);
@@ -133,14 +170,19 @@ exports.deleteNotification = async (req, res) => {
   try {
     const { notificationId } = req.params;
 
-    const result = await notificationPool.query(
-      `DELETE FROM notifications WHERE id = $1 RETURNING id`,
-      [notificationId]
-    );
-
-    if (result.rows.length === 0) {
+    const notification = notificationCache.get(getNotificationKey(notificationId));
+    
+    if (!notification) {
       return res.status(404).json({ message: "Notification not found" });
     }
+
+    // Remove from user's list
+    const userNotifications = getUserNotificationIds(notification.user_id);
+    const filtered = userNotifications.filter(id => id !== notificationId);
+    notificationCache.set(getUserNotificationsKey(notification.user_id), filtered);
+
+    // Delete notification
+    notificationCache.del(getNotificationKey(notificationId));
 
     res.json({ message: "Notification deleted successfully" });
   } catch (err) {
@@ -154,14 +196,27 @@ exports.clearReadNotifications = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const result = await notificationPool.query(
-      `DELETE FROM notifications WHERE user_id = $1 AND is_read = true RETURNING id`,
-      [userId]
-    );
+    const notificationIds = getUserNotificationIds(userId);
+    
+    let deletedCount = 0;
+    const remainingIds = [];
+    
+    for (const id of notificationIds) {
+      const notification = notificationCache.get(getNotificationKey(id));
+      if (notification && notification.is_read) {
+        notificationCache.del(getNotificationKey(id));
+        deletedCount++;
+      } else if (notification) {
+        remainingIds.push(id);
+      }
+    }
+
+    // Update user's notification list
+    notificationCache.set(getUserNotificationsKey(userId), remainingIds);
 
     res.json({
       message: "Read notifications cleared",
-      deleted_count: result.rows.length,
+      deleted_count: deletedCount,
     });
   } catch (err) {
     console.error("Error clearing notifications:", err);

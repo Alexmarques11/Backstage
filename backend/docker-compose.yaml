@@ -85,21 +85,22 @@ services:
       timeout: 5s
       retries: 5
 
-  notification-database:
-    image: postgres:15
-    container_name: postgres_notification
+  # RabbitMQ message broker
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: backstage_rabbitmq
     environment:
-      POSTGRES_USER: ${DATABASE_USER:-user123}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-123456}
-      POSTGRES_DB: notification_db
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-backstage}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-rabbitmq123}
     ports:
-      - "5437:5432"
+      - "5672:5672"   # AMQP protocol
+      - "15672:15672" # Management UI
     volumes:
-      - notification_data:/var/lib/postgresql/data
+      - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-user123} -d notification_db"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
       retries: 5
 
   app:
@@ -214,29 +215,10 @@ services:
       ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-default_jwt_secret_change_in_production}
       REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-default_refresh_secret_change_in_production}
 
-  notifications:
-    build:
-      context: .
-      dockerfile: notifications/Dockerfile
-    container_name: notifications_server
-    ports:
-      - "18000:3003"
-    depends_on:
-      notification-database:
-        condition: service_healthy
-    environment:
-      NODE_ENV: ${NODE_ENV:-production}
-      NOTIFICATION_DB_HOST: notification-database
-      NOTIFICATION_DB_USER: ${DATABASE_USER:-user123}
-      NOTIFICATION_DB_PASSWORD: ${DATABASE_PASSWORD:-123456}
-      NOTIFICATION_DB_NAME: notification_db
-      NOTIFICATION_DB_PORT: 5432
-      DATABASE_SSL: 'false'
-
 volumes:
   publication_data:
   auth_data:
   passport_data:
   market_data:
   events_data:
-  notification_data:
+  rabbitmq_data:

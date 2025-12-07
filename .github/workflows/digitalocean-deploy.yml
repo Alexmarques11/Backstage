@@ -54,7 +54,7 @@ jobs:
         # Delete existing secret if it exists to update it
         kubectl delete secret backstage-secrets -n $NAMESPACE --ignore-not-found=true
         
-        # Create secret with all 5 database configurations
+        # Create secret with all 5 database configurations + RabbitMQ
         kubectl create secret generic backstage-secrets \
           --from-literal=PUBLICATION_DB_HOST=${{ secrets.DO_PUBLICATION_DB_HOST }} \
           --from-literal=PUBLICATION_DB_PORT=${{ secrets.DO_PUBLICATION_DB_PORT }} \
@@ -81,6 +81,7 @@ jobs:
           --from-literal=EVENTS_DB_USER=${{ secrets.DO_EVENTS_DB_USER }} \
           --from-literal=EVENTS_DB_PASSWORD=${{ secrets.DO_EVENTS_DB_PASSWORD }} \
           --from-literal=EVENTS_DB_NAME=${{ secrets.DO_EVENTS_DB_NAME }} \
+          --from-literal=RABBITMQ_PASSWORD=${{ secrets.DO_RABBITMQ_PASSWORD }} \
           --from-literal=ACCESS_TOKEN_SECRET=${{ secrets.DO_ACCESS_TOKEN_SECRET }} \
           --from-literal=REFRESH_TOKEN_SECRET=${{ secrets.DO_REFRESH_TOKEN_SECRET }} \
           -n $NAMESPACE
@@ -100,6 +101,11 @@ jobs:
     - name: Apply ConfigMap
       run: |
         kubectl apply -f k8s/digitalocean/03-configmap.yaml
+
+    - name: Deploy RabbitMQ
+      run: |
+        kubectl apply -f k8s/digitalocean/13-rabbitmq-deployment.yaml
+        kubectl rollout status deployment/backstage-rabbitmq -n $NAMESPACE --timeout=3m
 
     - name: Deploy Server
       run: |
@@ -125,6 +131,11 @@ jobs:
       run: |
         kubectl apply -f k8s/digitalocean/10-events-deployment.yaml
         kubectl rollout status deployment/backstage-events -n $NAMESPACE --timeout=5m
+
+    - name: Deploy Notifications
+      run: |
+        kubectl apply -f k8s/digitalocean/11-notifications-deployment.yaml
+        kubectl rollout status deployment/backstage-notifications -n $NAMESPACE --timeout=5m
 
     - name: Apply Services
       run: |
@@ -173,6 +184,18 @@ jobs:
           echo "Events pods failed to become ready. Checking status:"
           kubectl get pods -l app=backstage-events -n $NAMESPACE
           kubectl describe pods -l app=backstage-events -n $NAMESPACE
+          exit 1
+        }
+        kubectl wait --for=condition=ready pod -l app=backstage-rabbitmq -n $NAMESPACE --timeout=3m || {
+          echo "RabbitMQ pods failed to become ready. Checking status:"
+          kubectl get pods -l app=backstage-rabbitmq -n $NAMESPACE
+          kubectl describe pods -l app=backstage-rabbitmq -n $NAMESPACE
+          exit 1
+        }
+        kubectl wait --for=condition=ready pod -l app=backstage-notifications -n $NAMESPACE --timeout=5m || {
+          echo "Notifications pods failed to become ready. Checking status:"
+          kubectl get pods -l app=backstage-notifications -n $NAMESPACE
+          kubectl describe pods -l app=backstage-notifications -n $NAMESPACE
           exit 1
         }
 

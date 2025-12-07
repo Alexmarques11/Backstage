@@ -1,49 +1,41 @@
 require("dotenv").config();
 const express = require("express");
 const notificationRouter = require("./routes/notificationRoute");
-const notificationPool = require("./notificationDb");
+const notificationCache = require("./notificationCache");
+const { initializeEventBus } = require("./services/notificationEventHandler");
 
 const app = express();
 const port = process.env.NOTIFICATION_PORT || 3003;
 
 app.use(express.json());
 
+// Initialize event bus for receiving notification events
+initializeEventBus().catch(err => {
+  console.error("Failed to initialize event bus:", err);
+});
+
 // Health check
 app.get("/health", (req, res) => {
+  const stats = notificationCache.getStats();
   res.json({ 
     status: "healthy", 
     service: "backstage-notifications",
+    cache: "in-memory",
+    cache_keys: stats.keys,
+    cache_hits: stats.hits,
+    cache_misses: stats.misses,
     timestamp: new Date().toISOString()
   });
 });
 
-// Setup route for notifications database
-app.get("/setup", async (req, res) => {
-  const createTablesQuery = `
-    CREATE TABLE IF NOT EXISTS notifications (
-      id SERIAL PRIMARY KEY,
-      user_id INT NOT NULL,
-      type VARCHAR(50) NOT NULL CHECK (type IN ('like', 'comment', 'event', 'system', 'ticket_purchase', 'event_reminder')),
-      title VARCHAR(200) NOT NULL,
-      message TEXT NOT NULL,
-      related_id INT,
-      related_type VARCHAR(50) CHECK (related_type IN ('post', 'comment', 'event', 'ticket')),
-      is_read BOOLEAN DEFAULT false,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-    
-    CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
-    CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(is_read);
-    CREATE INDEX IF NOT EXISTS idx_notifications_created ON notifications(created_at);
-  `;
-
-  try {
-    await notificationPool.query(createTablesQuery);
-    res.status(200).json({ message: "Notification tables created successfully" });
-  } catch (err) {
-    console.error("Error creating notification tables:", err);
-    res.status(500).json({ message: "Error creating tables", error: err.message });
-  }
+// Setup route - no database needed, using in-memory cache
+app.get("/setup", (req, res) => {
+  const stats = notificationCache.getStats();
+  res.status(200).json({ 
+    message: "Notifications service ready (In-Memory Cache)",
+    cache_status: "active",
+    cache_stats: stats
+  });
 });
 
 // Notification routes

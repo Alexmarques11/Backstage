@@ -1,0 +1,9 @@
+{
+  "name": "backstage-shared",
+  "version": "1.0.0",
+  "description": "Shared utilities for Backstage microservices",
+  "main": "index.js",
+  "dependencies": {
+    "amqplib": "^0.10.3"
+  }
+}
