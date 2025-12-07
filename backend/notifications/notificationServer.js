@@ -20,6 +20,7 @@ app.get("/health", (req, res) => {
   res.json({ 
     status: "healthy", 
     service: "backstage-notifications",
+    version: "1.0.1",
     cache: "in-memory",
     cache_keys: stats.keys,
     cache_hits: stats.hits,
