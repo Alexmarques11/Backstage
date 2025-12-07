@@ -1,4 +1,4 @@
-const { eventBus, EventTypes } = require("../../shared/eventBus");
+const { eventBus, EventTypes } = require("../shared/eventBus");
 
 // Initialize event bus when notifications service starts
 async function initializeEventBus() {
