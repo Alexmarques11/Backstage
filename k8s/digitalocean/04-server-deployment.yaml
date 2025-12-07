@@ -55,6 +55,8 @@ spec:
             secretKeyRef:
               name: backstage-secrets
               key: PUBLICATION_DB_NAME
+        - name: DATABASE_SSL
+          value: "true"
         - name: AUTH_DB_HOST
           valueFrom:
             secretKeyRef:
