@@ -17,7 +17,7 @@ env:
   PASSPORT_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-passport
   MARKET_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-market
   EVENTS_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-events
-  NOTIFICATIONS_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-server
+  NOTIFICATIONS_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-notifications
 
 jobs:
   build-and-push-images:
@@ -96,14 +96,14 @@ jobs:
         cache-from: type=gha,scope=events
         cache-to: type=gha,mode=max,scope=events
 
-    # Build and push Notifications (using server repository with notifications tag)
+    # Build and push Notifications
     - name: Build and push Notifications image
       uses: docker/build-push-action@v5
       with:
         context: ./backend
         file: ./backend/notifications/Dockerfile
         push: true
-        tags: ${{ env.NOTIFICATIONS_IMAGE }}:notifications
+        tags: ${{ env.NOTIFICATIONS_IMAGE }}:latest
         cache-from: type=gha,scope=notifications
         cache-to: type=gha,mode=max,scope=notifications
 
