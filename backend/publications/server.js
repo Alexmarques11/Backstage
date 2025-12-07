@@ -19,6 +19,13 @@ app.get("/health", (req, res) => {
 app.get("/setup", async (req, res) => {
   try {
     await pool.query(`
+      CREATE TABLE IF NOT EXISTS music_genres (
+        id SERIAL PRIMARY KEY,
+        genre VARCHAR(50) NOT NULL UNIQUE
+      )
+    `);
+    
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS user_concerts (
         id SERIAL PRIMARY KEY,
         user_id INTEGER NOT NULL,
@@ -34,7 +41,7 @@ app.get("/setup", async (req, res) => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS user_concerts_genres (
         user_concert_id INTEGER REFERENCES user_concerts(id) ON DELETE CASCADE,
-        genre_id INTEGER NOT NULL,
+        genre_id INTEGER REFERENCES music_genres(id) ON DELETE CASCADE,
         PRIMARY KEY (user_concert_id, genre_id)
       )
     `);

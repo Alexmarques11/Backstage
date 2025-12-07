@@ -31,6 +31,11 @@ app.get('/', (req, res) => {
 // Setup route to create passport tables
 app.get('/setup', async (req, res) => {
   let createTablesQuery = `
+    CREATE TABLE IF NOT EXISTS music_genres (
+      id SERIAL PRIMARY KEY,
+      genre VARCHAR(50) NOT NULL UNIQUE
+    );
+    
     CREATE TABLE IF NOT EXISTS passport_posts (
       id SERIAL PRIMARY KEY,
       user_id INTEGER NOT NULL,
@@ -45,7 +50,7 @@ app.get('/setup', async (req, res) => {
     
     CREATE TABLE IF NOT EXISTS passport_genres (
       passport_post_id INTEGER REFERENCES passport_posts(id) ON DELETE CASCADE,
-      genre_id INTEGER NOT NULL,
+      genre_id INTEGER REFERENCES music_genres(id) ON DELETE CASCADE,
       PRIMARY KEY (passport_post_id, genre_id)
     );
     
