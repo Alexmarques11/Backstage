@@ -65,6 +65,8 @@ spec:
             secretKeyRef:
               name: backstage-secrets
               key: REFRESH_TOKEN_SECRET
+        - name: DATABASE_SSL
+          value: "true"
         - name: NODE_ENV
           value: "production"
         resources:
