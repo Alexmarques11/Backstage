@@ -18,9 +18,26 @@ app.get("/health", (req, res) => {
 // Setup database tables
 app.get("/setup", async (req, res) => {
   try {
+    // User roles table first (referenced by users)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_roles (
+        id INTEGER PRIMARY KEY,
+        name VARCHAR(100)
+      )
+    `);
+    
+    // Music genres table (shared reference data)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS music_genres (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100)
+      )
+    `);
+    
+    // Users table with composite primary key
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
+        id SERIAL,
         name VARCHAR(100),
         lastname VARCHAR(100),
         birthdate DATE,
@@ -28,40 +45,29 @@ app.get("/setup", async (req, res) => {
         email VARCHAR(100) UNIQUE NOT NULL,
         password VARCHAR(250) NOT NULL,
         notifications_enabled BOOLEAN DEFAULT true,
-        role INTEGER,
+        role INTEGER REFERENCES user_roles(id),
         avatar_url VARCHAR(250),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id, role)
       )
     `);
     
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS user_roles (
-        id INTEGER PRIMARY KEY,
-        name VARCHAR(100) NOT NULL
-      )
-    `);
-    
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS music_genres (
-        id INTEGER PRIMARY KEY,
-        name VARCHAR(100) NOT NULL
-      )
-    `);
-    
+    // Users genres junction table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users_genres (
-        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        genre_id INTEGER REFERENCES music_genres(id) ON DELETE CASCADE,
+        user_id INTEGER,
+        genre_id INTEGER REFERENCES music_genres(id),
         PRIMARY KEY (user_id, genre_id)
       )
     `);
     
+    // Refresh tokens
     await pool.query(`
       CREATE TABLE IF NOT EXISTS refresh_tokens (
         id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        token VARCHAR(500),
+        user_id INTEGER,
+        token VARCHAR(500) UNIQUE NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
