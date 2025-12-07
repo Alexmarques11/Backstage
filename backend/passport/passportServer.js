@@ -49,6 +49,13 @@ app.get('/setup', async (req, res) => {
       PRIMARY KEY (passport_post_id, genre_id)
     );
     
+    CREATE TABLE IF NOT EXISTS locations (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(150),
+      address VARCHAR(250),
+      geo_location VARCHAR(250)
+    );
+    
     CREATE INDEX IF NOT EXISTS idx_passport_posts_user ON passport_posts(user_id);
     CREATE INDEX IF NOT EXISTS idx_passport_posts_concert ON passport_posts(concert_id);
     CREATE INDEX IF NOT EXISTS idx_passport_posts_location ON passport_posts(location_id);

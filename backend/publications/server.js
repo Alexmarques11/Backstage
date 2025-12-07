@@ -39,6 +39,15 @@ app.get("/setup", async (req, res) => {
       )
     `);
     
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS locations (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(150),
+        address VARCHAR(250),
+        geo_location VARCHAR(250)
+      )
+    `);
+    
     res.json({ message: "Publications tables created successfully" });
   } catch (error) {
     console.error("Setup error:", error);
