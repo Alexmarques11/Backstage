@@ -7,17 +7,13 @@ async function initializeEventBus() {
 
     // Subscribe to events that should trigger notifications
     await eventBus.subscribeToEvents(
-      [
-        "ticket.purchased",
-        "event.reminder",
-        "listing.sold",
-      ],
+      ["ticket.purchased", "event.reminder", "listing.sold"],
       handleNotificationEvent
     );
 
-    console.log("✅ Notifications service subscribed to events");
+    console.log("Notifications service subscribed to events");
   } catch (err) {
-    console.error("❌ Failed to initialize event bus:", err);
+    console.error("Failed to initialize event bus:", err);
   }
 }
 
@@ -67,7 +63,13 @@ async function handleNotificationEvent(event) {
 }
 
 // Helper to create notification from event data
-async function createNotificationFromEvent(userId, type, title, message, relatedData) {
+async function createNotificationFromEvent(
+  userId,
+  type,
+  title,
+  message,
+  relatedData
+) {
   const notificationCache = require("../notificationCache");
   const { v4: uuidv4 } = require("uuid");
 
@@ -93,10 +95,10 @@ async function createNotificationFromEvent(userId, type, title, message, related
   userNotifications.unshift(notification.id);
   notificationCache.set(userKey, userNotifications);
 
-  console.log(`✅ Created notification for user ${userId}: ${title}`);
+  console.log(`Created notification for user ${userId}: ${title}`);
 
   // TODO: Send push notification here if enabled
-  
+
   return notification;
 }
 

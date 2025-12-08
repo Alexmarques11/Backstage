@@ -16,13 +16,13 @@ POST http://localhost:4000/auth/register
 Content-Type: application/json
 
 {
-  "name": "Zes",
-  "lastname": "copse",
-  "birthdate": "2003-05-29",
-  "username": "zescopse",
-  "email": "zescopse@example.com",
+  "name": "Grande",
+  "lastname": "Nabo",
+  "birthdate": "1897-02-05",
+  "username": "nabinho",
+  "email": "nabinho@example.com",
   "password": "12345678",
-  "genres": ["Rock", "Pop"]
+  "genres": ["Metal", "Jazz"]
 }
 
 ### Login user
@@ -102,12 +102,12 @@ GET http://localhost:4000/user/allusers
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTE5NjAzNCwiZXhwIjoxNzY1MTk2OTM0fQ.no0KGCiV4RCs0F8K4kcs6Aw06N8IpniB4nqJT-dYRSY
 
 ### Admin: Delete a user by ID (authenticated)
-DELETE http://localhost:4000/user/deleteuser/7
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywidXNlcm5hbWUiOiJ6ZXNjb3BzZSIsImVtYWlsIjoiemVzY29wc2VAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc2NTE5NTg0OSwiZXhwIjoxNzY1MTk2NzQ5fQ.f8lZ5XbNgVEAKmOg1yb6TmHxfTCprwMU6DGMvxTeBqM
+DELETE http://localhost:4000/user/deleteuser/15
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTIxMDQ0OSwiZXhwIjoxNzY1MjExMzQ5fQ.OSQpYTuO65-b5tXYTbbAXQ7XJBdLPv5DLeVzyXGemdY
 
 ### Admin: Update a user's role by ID (authenticated)
 PATCH http://localhost:4000/user/7/role
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTE5NjAzNCwiZXhwIjoxNzY1MTk2OTM0fQ.no0KGCiV4RCs0F8K4kcs6Aw06N8IpniB4nqJT-dYRSY
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTIwNjI0OCwiZXhwIjoxNzY1MjA3MTQ4fQ.bFdazmA_7h7O9Skl55hAgc1BpGhUWl1dt6XWC9JaIUY
 Content-Type: application/json
 
 {

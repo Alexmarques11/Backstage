@@ -30,17 +30,17 @@ function addNotificationToUser(userId, notificationId) {
 function removeNotificationFromUser(userId, notificationId) {
   const key = getUserNotificationsKey(userId);
   const notifications = getUserNotificationIds(userId);
-  const filtered = notifications.filter(id => id !== notificationId);
+  const filtered = notifications.filter((id) => id !== notificationId);
   notificationCache.set(key, filtered);
 }
 
 // Event listeners for debugging
 notificationCache.on("expired", (key, value) => {
-  console.log(`🗑️  Cache expired: ${key}`);
+  console.log(`Cache expired: ${key}`);
 });
 
 notificationCache.on("set", (key, value) => {
-  console.log(`💾 Cache set: ${key}`);
+  console.log(`Cache set: ${key}`);
 });
 
 module.exports = notificationCache;

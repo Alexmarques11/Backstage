@@ -7,7 +7,10 @@
     "start": "node notificationServer.js",
     "dev": "nodemon notificationServer.js"
   },
-  "keywords": ["notifications", "microservice"],
+  "keywords": [
+    "notifications",
+    "microservice"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -15,7 +18,9 @@
     "dotenv": "^16.3.1",
     "uuid": "^9.0.0",
     "amqplib": "^0.10.3",
-    "node-cache": "^5.1.2"
+    "node-cache": "^5.1.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

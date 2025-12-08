@@ -11,6 +11,7 @@
   "license": "ISC",
   "description": "Microserviço de eventos e concertos com integração Ticketmaster",
   "dependencies": {
+    "amqplib": "^0.10.9",
     "axios": "^1.13.2",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",

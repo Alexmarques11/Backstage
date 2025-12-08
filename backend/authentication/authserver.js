@@ -4,6 +4,7 @@ const authRoutes = require("./src/routes/authRoutes");
 const userRoutes = require("./src/routes/userRoutes");
 const setupSwagger = require("./static/swagger");
 const pool = require("./src/db/authDb");
+const { connectRabbitMQ } = require("./src/utils/rabbitmq");
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -23,6 +24,9 @@ app.use("/user", userRoutes);
 
 // Swagger
 setupSwagger(app);
+
+//Connect to RabbitMQ
+connectRabbitMQ();
 
 // Apenas 1 vez
 app.listen(port, "0.0.0.0", () =>
