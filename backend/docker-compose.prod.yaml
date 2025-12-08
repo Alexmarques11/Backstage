@@ -1,0 +1,82 @@
+# Production Docker Compose - uses images from Docker Hub
+# Usage: docker-compose -f docker-compose.prod.yaml up -d
+services:
+  database:
+    image: postgres:15-alpine
+    container_name: postgres_backstage_prod
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-user123}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-123456}
+      POSTGRES_DB: ${DATABASE_NAME:-backstage}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-user123} -d ${DATABASE_NAME:-backstage}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  app:
+    # Docker Hub image selection - use DOCKER_USERNAME env var to override
+    # Available accounts: alexmarques11 (default), goncalocruz, zeaccount
+    image: ${DOCKER_USERNAME:-alexmarques11}/backstage-server:latest
+    container_name: backend_app_prod
+    ports:
+      - "13000:3000"
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      DATABASE_HOST: database
+      DATABASE_USER: ${DATABASE_USER:-user123}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-123456}
+      DATABASE_NAME: ${DATABASE_NAME:-backstage}
+      DATABASE_PORT: 5432
+      DATABASE_SSL: 'false'
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-default_jwt_secret_change_in_production}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-default_refresh_secret_change_in_production}
+    restart: unless-stopped
+
+  auth:
+    # Docker Hub image selection - use DOCKER_USERNAME env var to override
+    # Available accounts: alexmarques11 (default), goncalocruz, zeaccount
+    image: ${DOCKER_USERNAME:-alexmarques11}/backstage-auth:latest
+    container_name: auth_server_prod
+    ports:
+      - "14000:4000"
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  notifications:
+    # Uses server repository with notifications tag to avoid registry limit
+    image: registry.digitalocean.com/backstage-registry-1761508031/backstage-server:notifications
+    container_name: notifications_server_prod
+    ports:
+      - "18000:3003"
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      DATABASE_HOST: database
+      DATABASE_USER: ${DATABASE_USER:-user123}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-123456}
+      DATABASE_NAME: ${DATABASE_NAME:-backstage}
+      DATABASE_PORT: 5432
+      DATABASE_SSL: 'false'
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-default_jwt_secret_change_in_production}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-default_refresh_secret_change_in_production}
+    restart: unless-stopped
+
+volumes:
+  postgres_data_prod:
+
+networks:
+  default:
+    driver: bridge
