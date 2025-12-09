@@ -2,13 +2,13 @@
 
 ### Variables
 @baseUrl = http://localhost:3003
-@postId = 1
+@postId = 2
 @userId = 1
 
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY1MjQwNTUwLCJleHAiOjE3NjUyNDE0NTB9.iE9fxU-HWMrLAwp51ZvPfZXlaC0XIlybwRaHk1auTZk
 
 ### Get all posts
-GET {{baseUrl}}/publicatins
+GET {{baseUrl}}/publications
 
 ### Get post by ID
 GET {{baseUrl}}/publications/{{postId}}
@@ -23,7 +23,7 @@ Authorization: Bearer {{token}}
 ### Create Concert
 POST {{baseUrl}}/publications/
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTI5MjAyNCwiZXhwIjoxNzY1MjkyOTI0fQ.zdbdjujpchQEGESiUghr7b-jcT62nJOVDqBgdf6fx7E
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTMyMTA0MywiZXhwIjoxNzY1MzIxOTQzfQ.tLrSByCbbY1f51SW7unyb1tA6uG9uY4q1oqyEn11t5I
 
 {
   "user_id": 2,
