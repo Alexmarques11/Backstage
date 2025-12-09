@@ -70,7 +70,7 @@ async function createNotificationFromEvent(
   message,
   relatedData
 ) {
-  const notificationCache = require("../notificationCache");
+  const notificationCache = require("../../notificationCache");
   const { v4: uuidv4 } = require("uuid");
 
   const notification = {

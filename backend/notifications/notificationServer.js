@@ -1,12 +1,12 @@
 require("dotenv").config();
 const express = require("express");
-const notificationRouter = require("./routes/notificationRoute");
+const notificationRouter = require("./src/routes/notificationRoute");
 const notificationCache = require("./notificationCache");
 const setupSwagger = require("./static/swagger");
-const { connectRabbitMQ } = require("./utils/rabbitmq");
+const { connectRabbitMQ } = require("./src/utils/rabbitmq");
 const {
   startConcertRecommendationsConsumer,
-} = require("./services/concertRecommendationHandler");
+} = require("./src/services/concertRecommendationHandler");
 
 const app = express();
 const PORT = process.env.NOTIFICATION_PORT || 3003;

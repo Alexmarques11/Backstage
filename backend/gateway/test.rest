@@ -1,0 +1,332 @@
+### Gateway Health Check
+GET http://localhost:8000/health
+
+###
+
+### Gateway Info
+GET http://localhost:8000/
+
+###
+
+### ============================================
+### AUTHENTICATION TESTS
+### ============================================
+
+###
+GET http://localhost:8000/auth/api-docs
+
+### Register New User
+POST http://localhost:8000/auth/auth/register
+Content-Type: application/json
+
+{
+  "name": "Gonçalo",
+  "lastname": "Gaspar",
+  "username": "doutorgaspar",
+  "email": "goncalo.gaspar@example.com",
+  "password": "SenhaSegura123!",
+  "birthdate": "1990-05-15",
+  "genres": ["Rock", "Pop"]
+}
+
+###
+
+### Login User
+POST http://localhost:8000/auth/auth/login
+Content-Type: application/json
+
+{
+  "email": "joao.silva@example.com",
+  "password": "SenhaSegura123!"
+}
+
+###
+
+### Refresh Token
+POST http://localhost:8000/api/auth/token
+Content-Type: application/json
+
+{
+  "token": "YOUR_REFRESH_TOKEN_HERE"
+}
+
+###
+
+### Logout
+DELETE http://localhost:8000/api/auth/logout
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### ============================================
+### USER PROFILE TESTS
+### ============================================
+
+### Get User Profile
+GET http://localhost:8000/api/users/1
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Update User Profile
+PUT http://localhost:8000/api/users/1
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "name": "João Pedro",
+  "lastname": "Silva Santos",
+  "genres": ["Rock", "Jazz", "Blues"]
+}
+
+###
+
+### Follow User
+POST http://localhost:8000/api/users/2/follow
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Unfollow User
+DELETE http://localhost:8000/api/users/2/unfollow
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Get User Followers
+GET http://localhost:8000/api/users/1/followers
+
+###
+
+### Get User Following
+GET http://localhost:8000/api/users/1/following
+
+###
+
+### ============================================
+### EVENTS TESTS
+### ============================================
+
+### List All Events
+GET http://localhost:8000/api/events
+
+###
+
+### List Events with Filters
+GET http://localhost:8000/api/events?genre=Rock&location=Lisboa&limit=10
+
+###
+
+### Get Event by ID
+GET http://localhost:8000/api/events/1
+
+###
+
+### Sync Events from Ticketmaster (Portugal)
+GET http://localhost:8000/api/events/sync?country=PT&size=20
+
+###
+
+### Sync Events from Ticketmaster (USA, specific date)
+GET http://localhost:8000/api/events/sync?country=US&date=2024-12-31&size=50
+
+###
+
+### Create Event (Admin only)
+POST http://localhost:8000/api/events
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "title": "Festival Rock in Rio Lisboa",
+  "date": "2024-06-15",
+  "location": "Parque da Bela Vista, Lisboa",
+  "genre": "Rock",
+  "description": "Grande festival de rock internacional"
+}
+
+###
+
+### Update Event (Admin only)
+PUT http://localhost:8000/api/events/1
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "title": "Festival Rock in Rio Lisboa 2024",
+  "description": "Atualização: novos artistas confirmados!"
+}
+
+###
+
+### Delete Event (Admin only)
+DELETE http://localhost:8000/api/events/1
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+###
+
+### ============================================
+### MARKET TESTS
+### ============================================
+
+### List Market Posts
+GET http://localhost:8000/api/market
+
+###
+
+### List Market Posts with Filters
+GET http://localhost:8000/api/market?title=Rock&limit=10
+
+###
+
+### Get Market Post by ID
+GET http://localhost:8000/api/market/1
+
+###
+
+### Create Market Post
+POST http://localhost:8000/api/market
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "title": "Bilhete Rock in Rio 2024",
+  "date": "2024-06-15",
+  "description": "Vendo bilhete para o primeiro dia do festival",
+  "price": 75.00,
+  "location": "Lisboa"
+}
+
+###
+
+### Update Market Post
+PUT http://localhost:8000/api/market/1
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "price": 65.00,
+  "description": "Atualização: Preço reduzido! Vendo bilhete para o primeiro dia"
+}
+
+###
+
+### Delete Market Post
+DELETE http://localhost:8000/api/market/1
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### ============================================
+### PUBLICATIONS TESTS
+### ============================================
+
+### List Publications
+GET http://localhost:8000/api/publications?limit=20
+
+###
+
+### Get Publication by ID
+GET http://localhost:8000/api/publications/1
+
+###
+
+### Create Publication
+POST http://localhost:8000/api/publications
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "title": "Minha experiência no Rock in Rio",
+  "content": "Foi incrível! Os shows foram espetaculares..."
+}
+
+###
+
+### Update Publication
+PUT http://localhost:8000/api/publications/1
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "title": "Minha experiência no Rock in Rio 2024 (Atualizado)",
+  "content": "Atualização: Adicionando mais fotos e vídeos..."
+}
+
+###
+
+### Delete Publication
+DELETE http://localhost:8000/api/publications/1
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### ============================================
+### PASSPORT TESTS
+### ============================================
+
+### List User Passports
+GET http://localhost:8000/api/passport
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Get Passport by ID
+GET http://localhost:8000/api/passport/1
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Create Passport Entry
+POST http://localhost:8000/api/passport
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "event_id": 1,
+  "user_id": 1,
+  "attended_date": "2024-06-15"
+}
+
+###
+
+### ============================================
+### NOTIFICATIONS TESTS
+### ============================================
+
+### Get User Notifications
+GET http://localhost:8000/api/notifications/1
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Get Unread Notifications
+GET http://localhost:8000/api/notifications/1?unread=true
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Get Unread Count
+GET http://localhost:8000/api/notifications/1/unread-count
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Mark Notification as Read
+PATCH http://localhost:8000/api/notifications/1
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Mark All Notifications as Read
+PATCH http://localhost:8000/api/notifications/1/mark-all-read
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###
+
+### Delete Notification
+DELETE http://localhost:8000/api/notifications/1
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+###

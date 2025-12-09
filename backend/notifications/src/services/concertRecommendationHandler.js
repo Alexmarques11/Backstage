@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require("uuid");
-const notificationCache = require("../notificationCache");
+const notificationCache = require("../../notificationCache");
 const { getChannel } = require("../utils/rabbitmq");
 
 /**

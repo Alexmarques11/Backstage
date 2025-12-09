@@ -114,3 +114,6 @@ Content-Type: application/json
   "role": "admin"
 }
 
+### API Documentation
+GET http://localhost:4000/api-docs
+
