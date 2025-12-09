@@ -1,0 +1,52 @@
+### Test Passport Endpoints
+
+### Variables
+@baseUrl = http://localhost:5000
+@postId = 1
+@userId = 1
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY1MjQxNTY3LCJleHAiOjE3NjUyNDI0Njd9.HfgKkdIIh-a_8ce8gxyXEGo0PchYcEPhff8qbPSgA0I
+
+### Get all passport
+GET {{baseUrl}}/passport
+Authorization: Bearer {{token}}
+### Get passport by ID
+GET {{baseUrl}}/passport/{{postId}}
+Authorization: Bearer {{token}}
+
+### Get passport with filter
+GET {{baseUrl}}/passport?title=Balls&location=Guimarães
+Authorization: Bearer {{token}}
+### Delete a passport
+DELETE {{baseUrl}}/passport/5
+Authorization: Bearer {{token}}
+
+### Create Passport
+POST {{baseUrl}}/passport
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "concert_title": "Rock Festival 2025",
+  "artist": "Various Artists",
+  "description": "Amazing rock festival",
+  "date": "2025-12-20T20:00:00Z",
+  "location": 1,
+  "genres": [12],
+  "rating": 4,
+  "photos": ["https://example.com/photo1.jpg", "https://example.com/photo2.jpg"]
+}
+
+### Update Concert
+PUT {{baseUrl}}/passport/4
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "concert_title": "Updated Rock Festival 2025",
+  "artist": "Various Artists",
+  "date": "2025-12-20T20:00:00Z",
+  "location": 1,
+  "genres": [12],
+  "rating": 5,
+  "photos": ["https://example.com/photo1.jpg", "https://example.com/photo2.jpg"]
+}

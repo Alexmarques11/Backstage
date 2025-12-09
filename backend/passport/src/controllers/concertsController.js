@@ -3,13 +3,15 @@ const concertsService = require("../services/concertsService");
 // Get concerts
 exports.getConcerts = async (req, res) => {
   try {
+    const user_id = req.user.id;
     const location = req.query.location || null;
     const title = req.query.title || null;
     const genre = req.query.genre || null;
     const limit = req.query.limit || 20;
     const offset = req.query.offset || 0;
 
-    const result = await concertsService.getConcerts({
+    const result = await concertsService.getUserPassportPosts({
+      user_id,
       location,
       title,
       genre,
@@ -22,7 +24,7 @@ exports.getConcerts = async (req, res) => {
     console.error("Error:", err);
     res.status(500).json({
       success: false,
-      error: "Error fetching concerts",
+      error: "Error fetching passport posts",
       details: err.message,
     });
   }
@@ -37,7 +39,7 @@ exports.getConcertById = async (req, res) => {
     if (!result) {
       return res.status(404).json({
         sucesso: false,
-        erro: "Concerto não encontrado",
+        erro: "Passport post not found",
       });
     }
 
@@ -46,7 +48,7 @@ exports.getConcertById = async (req, res) => {
     console.error("Error:", err);
     res.status(500).json({
       success: false,
-      error: "Error fetching concert",
+      error: "Error fetching passport post",
       details: err.message,
     });
   }
@@ -56,6 +58,7 @@ exports.getConcertById = async (req, res) => {
 exports.createConcert = async (req, res) => {
   try {
     const concertData = req.body;
+    concertData.user_id = req.user.id;
     const result = await concertsService.createConcert(concertData);
 
     res.status(201).json(result);
@@ -63,7 +66,7 @@ exports.createConcert = async (req, res) => {
     console.error("Error:", err);
     res.status(500).json({
       success: false,
-      error: "Error creating concert",
+      error: "Error creating passport post",
       details: err.message,
     });
   }
@@ -81,7 +84,7 @@ exports.updateConcert = async (req, res) => {
     console.error("Error:", err);
     res.status(500).json({
       success: false,
-      error: "Error updating concert",
+      error: "Error updating passport post",
       details: err.message,
     });
   }
@@ -99,7 +102,7 @@ exports.deleteConcert = async (req, res) => {
     console.error("Error:", err);
     res.status(500).json({
       success: false,
-      error: "Error deleting concert",
+      error: "Error deleting passport post",
       details: err.message,
     });
   }

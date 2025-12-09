@@ -66,15 +66,18 @@ exports.insertLocation = async (name, address, geoLocation) => {
 
 //Create concert
 exports.createConcert = async (
+  userId,
   title,
-  datetime,
+  description,
+  date,
   locationId,
+  imageUrl
 ) => {
   const result = await concertsPool.query(
-    `INSERT INTO concerts (title, datetime, location_id)
-     VALUES ($1, $2, $3)
+    `INSERT INTO user_concerts (user_id, title, description, date, location_id, image_url)
+     VALUES ($1, $2, $3, $4, $5, $6)
      RETURNING id`,
-    [title, datetime, locationId]
+    [userId, title, description, date, locationId, imageUrl]
   );
   return result.rows[0].id;
 };
@@ -82,7 +85,7 @@ exports.createConcert = async (
 //Get concert by ID with genres
 exports.getConcertById = async (concertId) => {
   const result = await concertsPool.query(
-    `SELECT c.id, c.title, c.datetime,
+    `SELECT c.id, c.user_id, c.title, c.description, c.date, c.image_url, c.created_at,
             l.id as location_id, l.name as location_name, l.address, l.geo_location
      FROM user_concerts c
      LEFT JOIN locations l ON c.location_id = l.id
@@ -113,7 +116,7 @@ exports.listConcerts = async (limit, offset) => {
     `SELECT c.*, l.name as location_name, l.address
      FROM user_concerts c
      LEFT JOIN locations l ON c.location_id = l.id
-     ORDER BY c.datetime DESC
+     ORDER BY c.date DESC
      LIMIT $1 OFFSET $2`,
     [limit, offset]
   );
@@ -135,7 +138,7 @@ exports.filterByLocation = async (locationName, limit, offset) => {
      FROM user_concerts c
      LEFT JOIN locations l ON c.location_id = l.id
      WHERE l.name ILIKE $1 OR l.address ILIKE $1
-     ORDER BY c.datetime DESC
+     ORDER BY c.date DESC
      LIMIT $2 OFFSET $3`,
     [`%${locationName}%`, limit, offset]
   );
@@ -191,8 +194,8 @@ exports.filterConcerts = async (filters, limit, offset) => {
     query += ` WHERE ${whereConditions.join(" AND ")}`;
   }
 
-  // Order by datetime DESC
-  query += ` ORDER BY c.datetime DESC`;
+  // Order by date DESC
+  query += ` ORDER BY c.date DESC`;
 
   query += ` LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
   params.push(limit, offset);
@@ -216,7 +219,7 @@ exports.filterByTitle = async (title, limit, offset) => {
      FROM user_concerts c
      LEFT JOIN locations l ON c.location_id = l.id
      WHERE c.title ILIKE $1
-     ORDER BY c.datetime DESC
+     ORDER BY c.date DESC
      LIMIT $2 OFFSET $3`,
     [`%${title}%`, limit, offset]
   );
@@ -240,7 +243,7 @@ exports.filterByGenre = async (genreName, limit, offset) => {
      INNER JOIN user_concerts_genres cg ON c.id = cg.user_concert_id
      INNER JOIN music_genres mg ON cg.genre_id = mg.id
      WHERE mg.name ILIKE $1
-     ORDER BY c.datetime DESC
+     ORDER BY c.date DESC
      LIMIT $2 OFFSET $3`,
     [`%${genreName}%`, limit, offset]
   );
@@ -272,4 +275,29 @@ exports.addGenreToConcert = async (concertId, genreId) => {
      ON CONFLICT DO NOTHING`,
     [concertId, genreId]
   );
+};
+
+//Update concert
+exports.updateConcert = async (
+  concertId,
+  userId,
+  title,
+  description,
+  date,
+  locationId,
+  imageUrl
+) => {
+  const result = await concertsPool.query(
+    `UPDATE user_concerts
+     SET user_id = COALESCE($2, user_id),
+         title = COALESCE($3, title),
+         description = COALESCE($4, description),
+         date = COALESCE($5, date),
+         location_id = COALESCE($6, location_id),
+         image_url = COALESCE($7, image_url)
+     WHERE id = $1
+     RETURNING *`,
+    [concertId, userId, title, description, date, locationId, imageUrl]
+  );
+  return result.rows[0] || null;
 };

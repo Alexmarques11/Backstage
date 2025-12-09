@@ -3,8 +3,8 @@ const router = express.Router();
 const concertsController = require("../controllers/concertsController");
 const { authenticateToken } = require("../middleware/authMiddleware");
 const { hasRole } = require("../middleware/roleMiddleware");
-const { OrGate } = require("../middleware/orGateMiddleware");
 const { isOwner } = require("../middleware/isOwner");
+const { OrGate } = require("../middleware/orGateMiddleware");
 
 /**
  * @swagger
@@ -55,7 +55,7 @@ const { isOwner } = require("../middleware/isOwner");
  *       500:
  *         description: Server error
  */
-router.get("/", concertsController.getConcerts);
+router.get("/", authenticateToken, concertsController.getConcerts);
 
 /**
  * @swagger
@@ -181,12 +181,7 @@ router.post("/", authenticateToken, concertsController.createConcert);
  *       500:
  *         description: Server error
  */
-router.put(
-  "/:id",
-  authenticateToken,
-  OrGate(hasRole("admin,manager"),isOwner),
-  concertsController.updateConcert
-);
+router.put("/:id", authenticateToken, isOwner, concertsController.updateConcert);
 
 /**
  * @swagger
@@ -229,7 +224,7 @@ router.put(
 router.delete(
   "/:id",
   authenticateToken,
-  OrGate(hasRole("admin,manager"),isOwner),
+  OrGate(hasRole("admin"), isOwner),
   concertsController.deleteConcert
 );
 

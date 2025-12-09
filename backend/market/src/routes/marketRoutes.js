@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const concertsController = require("../controllers/concertsController");
+const marketController = require("../controllers/marketController");
 const { authenticateToken } = require("../middleware/authMiddleware");
 const { hasRole } = require("../middleware/roleMiddleware");
 const { OrGate } = require("../middleware/orGateMiddleware");
@@ -55,7 +55,7 @@ const { isOwner } = require("../middleware/isOwner");
  *       500:
  *         description: Server error
  */
-router.get("/", concertsController.getConcerts);
+router.get("/", marketController.getMarketPosts);
 
 /**
  * @swagger
@@ -78,7 +78,7 @@ router.get("/", concertsController.getConcerts);
  *       500:
  *         description: Server error
  */
-router.get("/:id", concertsController.getConcertById);
+router.get("/:id", marketController.getConcertById);
 
 /**
  * @swagger
@@ -127,7 +127,7 @@ router.get("/:id", concertsController.getConcertById);
  *       500:
  *         description: Server error
  */
-router.post("/", authenticateToken, concertsController.createConcert);
+router.post("/", authenticateToken, marketController.createMarketPost);
 
 /**
  * @swagger
@@ -181,12 +181,7 @@ router.post("/", authenticateToken, concertsController.createConcert);
  *       500:
  *         description: Server error
  */
-router.put(
-  "/:id",
-  authenticateToken,
-  OrGate(hasRole("admin,manager"),isOwner),
-  concertsController.updateConcert
-);
+router.put("/:id", marketController.updateMarketPost);
 
 /**
  * @swagger
@@ -229,8 +224,10 @@ router.put(
 router.delete(
   "/:id",
   authenticateToken,
-  OrGate(hasRole("admin,manager"),isOwner),
-  concertsController.deleteConcert
+  OrGate(hasRole("admin"), isOwner),
+  // isOwner,
+  // hasRole("admin"),
+  marketController.deleteConcert
 );
 
 module.exports = router;

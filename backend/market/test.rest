@@ -1,0 +1,45 @@
+### Test Posts Endpoints
+
+### Variables
+@baseUrl = http://localhost:6000
+@postId = 1
+@userId = 1
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwidXNlcm5hbWUiOiJ6ZXNjb3BzZSIsImVtYWlsIjoiemVzY29wc2VAZXhhbXBsZS5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NjUyMzg0ODgsImV4cCI6MTc2NTIzOTM4OH0.HRhlAgUcAo9bRlK3UOqVIkg9f5icBjjTCWOj0vNXZzI
+
+### Get all posts
+GET {{baseUrl}}/market
+
+### Get post by ID
+GET {{baseUrl}}/market/{{postId}}
+
+### Get post with filter
+GET {{baseUrl}}/market?description=ticket&ticket_quantity=-2
+
+### Delete a post
+DELETE {{baseUrl}}/market/17
+Authorization: Bearer {{token}}
+
+### Create Concert
+POST {{baseUrl}}/market
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "description": "Amazing rock festival",
+  "suggested_price": 150,
+  "ticket_quantity": 500,
+  "status": 1,
+  "image_url": "https://example.com/image.jpg"
+}
+
+### Update Concert
+PUT {{baseUrl}}/market/6
+Content-Type: application/json
+
+{
+  "description": "Amazing rock festival - updated",
+  "suggested_price": 150,
+  "ticket_quantity": 50323,
+  "status": 1,
+  "image_url": "https://example.com/image.jpg"
+}

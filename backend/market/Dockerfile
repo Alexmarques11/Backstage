@@ -10,4 +10,4 @@ COPY market/ ./
 
 EXPOSE 6000
 
-CMD ["node", "marketServer.js"]
+CMD ["node", "server.js"]

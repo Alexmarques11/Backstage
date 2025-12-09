@@ -156,9 +156,6 @@ exports.deleteConcert = async (concertId) => {
   const client = await concertsPool.connect();
   try {
     await client.query("BEGIN");
-    await client.query(`DELETE FROM concerts_genres WHERE concert_id = $1`, [
-      concertId,
-    ]);
     const result = await client.query(
       `DELETE FROM concerts WHERE id = $1 RETURNING id, title`,
       [concertId]

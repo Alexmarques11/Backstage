@@ -1,18 +1,20 @@
-const concertsService = require("../services/concertsService");
+const marketService = require("../services/marketService");
 
 // Get concerts
-exports.getConcerts = async (req, res) => {
+exports.getMarketPosts = async (req, res) => {
   try {
-    const location = req.query.location || null;
-    const title = req.query.title || null;
-    const genre = req.query.genre || null;
+    const user = req.query.user || null;
+    const description = req.query.description || null;
+    const ticket_quantity = req.query.ticket_quantity || null;
+    const max_price = req.query.max_price || null;
     const limit = req.query.limit || 20;
     const offset = req.query.offset || 0;
 
-    const result = await concertsService.getConcerts({
-      location,
-      title,
-      genre,
+    const result = await marketService.getMarketPosts({
+      user,
+      description,
+      ticket_quantity,
+      max_price,
       limit,
       offset,
     });
@@ -32,7 +34,7 @@ exports.getConcerts = async (req, res) => {
 exports.getConcertById = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await concertsService.getConcertById(id);
+    const result = await marketService.getConcertById(id);
 
     if (!result) {
       return res.status(404).json({
@@ -53,10 +55,11 @@ exports.getConcertById = async (req, res) => {
 };
 
 //Create concert
-exports.createConcert = async (req, res) => {
+exports.createMarketPost = async (req, res) => {
   try {
-    const concertData = req.body;
-    const result = await concertsService.createConcert(concertData);
+    const marketpostData = req.body;
+    marketpostData.user_id = req.user.id; // Get user ID from authenticated token
+    const result = await marketService.createMarketPost(marketpostData);
 
     res.status(201).json(result);
   } catch (err) {
@@ -70,12 +73,11 @@ exports.createConcert = async (req, res) => {
 };
 
 //Update concert
-exports.updateConcert = async (req, res) => {
+exports.updateMarketPost = async (req, res) => {
   try {
     const { id } = req.params;
-    const concertData = req.body;
-    const result = await concertsService.updateConcert(id, concertData);
-
+    const marketPostData = req.body;
+    const result = await marketService.updateMarketPost(id, marketPostData);
     res.json(result);
   } catch (err) {
     console.error("Error:", err);
@@ -92,7 +94,7 @@ exports.deleteConcert = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const result = await concertsService.deleteConcert(id);
+    const result = await marketService.deleteMarketPost(id);
 
     res.json(result);
   } catch (err) {

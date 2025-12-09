@@ -1,10 +1,10 @@
 require("dotenv").config();
 const express = require("express");
-const concertsRoutes = require("./src/routes/concertsRoutes");
+const marketRoutes = require("./src/routes/marketRoutes");
 // const setupSwagger = require("./static/swagger");
 
 const app = express();
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.PORT || 6000;
 
 app.use(express.json());
 
@@ -14,7 +14,7 @@ app.get("/health", (req, res) => {
 });
 
 // Concerts routes
-app.use("/publications", concertsRoutes);
+app.use("/market", marketRoutes);
 
 // Swagger
 // setupSwagger(app);
