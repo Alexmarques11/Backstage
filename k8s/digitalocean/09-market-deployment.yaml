@@ -29,6 +29,8 @@ spec:
         - containerPort: 6000
           name: http
         env:
+        - name: PORT
+          value: "6000"
         - name: MARKET_DB_HOST
           valueFrom:
             secretKeyRef:
