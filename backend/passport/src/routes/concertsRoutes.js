@@ -179,7 +179,12 @@ router.post("/", authenticateToken, concertsController.createConcert);
  *       500:
  *         description: Server error
  */
-router.put("/:id", authenticateToken, isOwner, concertsController.updateConcert);
+router.put(
+  "/:id",
+  authenticateToken,
+  isOwner,
+  concertsController.updateConcert
+);
 
 /**
  * @swagger
