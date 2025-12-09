@@ -25,6 +25,8 @@ spec:
         env:
         - name: NODE_ENV
           value: "production"
+        - name: RABBITMQ_URL
+          value: "amqp://backstage:$(RABBITMQ_PASSWORD)@backstage-rabbitmq:5672"
         - name: RABBITMQ_HOST
           value: "backstage-rabbitmq"
         - name: RABBITMQ_PORT
