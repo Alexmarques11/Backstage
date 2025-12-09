@@ -10,15 +10,15 @@ app.use(express.json());
 
 // Health check
 app.get("/health", (req, res) => {
-  res.json({ status: "healthy", service: "backstage-events" });
+  res.json({ status: "healthy", service: "backstage-passport" });
 });
 
-// Concerts routes
+// Passport routes
 app.use("/passport", concertsRoutes);
 
 // Swagger
 setupSwagger(app);
 
 app.listen(PORT, "0.0.0.0", () =>
-  console.log(`Publication service running at http://0.0.0.0:${PORT}`)
+  console.log(`Passport service running at http://0.0.0.0:${PORT}`)
 );
