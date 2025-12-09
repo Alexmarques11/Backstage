@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const concertsRoutes = require("./src/routes/concertsRoutes");
-// const setupSwagger = require("./static/swagger");
+const setupSwagger = require("./static/swagger");
 
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -17,7 +17,7 @@ app.get("/health", (req, res) => {
 app.use("/publications", concertsRoutes);
 
 // Swagger
-// setupSwagger(app);
+setupSwagger(app);
 
 app.listen(PORT, "0.0.0.0", () =>
   console.log(`Publication service running at http://0.0.0.0:${PORT}`)

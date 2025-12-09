@@ -9,24 +9,22 @@ const { OrGate } = require("../middleware/orGateMiddleware");
 /**
  * @swagger
  * tags:
- *   - name: Concerts
- *     description: Concert management and synchronization
- *   - name: Concerts - Admin
- *     description: Admin only operations for concert management
+ *   - name: Passports
+ *     description: Passport management and synchronization
  */
 
 /**
  * @swagger
- * /concerts:
+ * /passport:
  *   get:
- *     summary: Get concerts with optional filters
- *     tags: [Concerts]
+ *     summary: Get passports with optional filters
+ *     tags: [Passports]
  *     parameters:
  *       - in: query
  *         name: title
  *         schema:
  *           type: string
- *         description: Filter by concert title
+ *         description: Filter by passport title
  *       - in: query
  *         name: location
  *         schema:
@@ -51,7 +49,7 @@ const { OrGate } = require("../middleware/orGateMiddleware");
  *         description: Pagination offset
  *     responses:
  *       200:
- *         description: List of concerts
+ *         description: List of passports
  *       500:
  *         description: Server error
  */
@@ -59,22 +57,22 @@ router.get("/", authenticateToken, concertsController.getConcerts);
 
 /**
  * @swagger
- * /concerts/{id}:
+ * /passport/{id}:
  *   get:
- *     summary: Get concert by ID
- *     tags: [Concerts]
+ *     summary: Get passport by ID
+ *     tags: [Passports]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: Concert ID
+ *         description: Passport ID
  *     responses:
  *       200:
- *         description: Concert details
+ *         description: Passport details
  *       404:
- *         description: Concert not found
+ *         description: Passport not found
  *       500:
  *         description: Server error
  */
@@ -82,10 +80,10 @@ router.get("/:id", concertsController.getConcertById);
 
 /**
  * @swagger
- * /concerts:
+ * /passport:
  *   post:
- *     summary: Create a new concert
- *     tags: [Concerts]
+ *     summary: Create a new passport
+ *     tags: [Passports]
  *     requestBody:
  *       required: true
  *       content:
@@ -123,7 +121,7 @@ router.get("/:id", concertsController.getConcertById);
  *                 type: string
  *     responses:
  *       201:
- *         description: Concert created successfully
+ *         description: Passport created successfully
  *       500:
  *         description: Server error
  */
@@ -131,17 +129,17 @@ router.post("/", authenticateToken, concertsController.createConcert);
 
 /**
  * @swagger
- * /concerts/{id}:
+ * /passport/{id}:
  *   put:
- *     summary: Update concert by ID
- *     tags: [Concerts]
+ *     summary: Update passport by ID
+ *     tags: [Passports]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: Concert ID
+ *         description: Passport ID
  *     requestBody:
  *       required: true
  *       content:
@@ -175,9 +173,9 @@ router.post("/", authenticateToken, concertsController.createConcert);
  *                 type: string
  *     responses:
  *       200:
- *         description: Concert updated successfully
+ *         description: Passport updated successfully
  *       404:
- *         description: Concert not found
+ *         description: Passport not found
  *       500:
  *         description: Server error
  */
@@ -185,10 +183,10 @@ router.put("/:id", authenticateToken, isOwner, concertsController.updateConcert)
 
 /**
  * @swagger
- * /concerts-admin/{id}:
+ * /passport/{id}:
  *   delete:
- *     summary: Delete concert by ID (admin only)
- *     tags: [Concerts - Admin]
+ *     summary: Delete passport by ID (admin only)
+ *     tags: [Passports]
  *     security:
  *       - Bearer: []
  *     parameters:
@@ -197,10 +195,10 @@ router.put("/:id", authenticateToken, isOwner, concertsController.updateConcert)
  *         required: true
  *         schema:
  *           type: integer
- *         description: Concert ID
+ *         description: Passport ID
  *     responses:
  *       200:
- *         description: Concert deleted successfully
+ *         description: Passport deleted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -217,7 +215,7 @@ router.put("/:id", authenticateToken, isOwner, concertsController.updateConcert)
  *       403:
  *         description: Forbidden - admin only
  *       404:
- *         description: Concert not found
+ *         description: Passport not found
  *       500:
  *         description: Server error
  */

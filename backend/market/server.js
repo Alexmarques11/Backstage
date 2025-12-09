@@ -1,10 +1,10 @@
 require("dotenv").config();
 const express = require("express");
 const marketRoutes = require("./src/routes/marketRoutes");
-// const setupSwagger = require("./static/swagger");
+const setupSwagger = require("./static/swagger");
 
 const app = express();
-const PORT = process.env.PORT || 6000;
+const PORT = process.env.PORT || 6001;
 
 app.use(express.json());
 
@@ -17,7 +17,7 @@ app.get("/health", (req, res) => {
 app.use("/market", marketRoutes);
 
 // Swagger
-// setupSwagger(app);
+setupSwagger(app);
 
 app.listen(PORT, "0.0.0.0", () =>
   console.log(`Publication service running at http://0.0.0.0:${PORT}`)

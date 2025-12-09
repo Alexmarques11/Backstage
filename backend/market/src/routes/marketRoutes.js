@@ -9,24 +9,22 @@ const { isOwner } = require("../middleware/isOwner");
 /**
  * @swagger
  * tags:
- *   - name: Concerts
- *     description: Concert management and synchronization
- *   - name: Concerts - Admin
- *     description: Admin only operations for concert management
+ *   - name: Market
+ *     description: MarkPost management and synchronization
  */
 
 /**
  * @swagger
- * /concerts:
+ * /market:
  *   get:
- *     summary: Get concerts with optional filters
- *     tags: [Concerts]
+ *     summary: Get market posts with optional filters
+ *     tags: [Market]
  *     parameters:
  *       - in: query
  *         name: title
  *         schema:
  *           type: string
- *         description: Filter by concert title
+ *         description: Filter by market post title
  *       - in: query
  *         name: location
  *         schema:
@@ -51,7 +49,7 @@ const { isOwner } = require("../middleware/isOwner");
  *         description: Pagination offset
  *     responses:
  *       200:
- *         description: List of concerts
+ *         description: List of market posts
  *       500:
  *         description: Server error
  */
@@ -59,22 +57,22 @@ router.get("/", marketController.getMarketPosts);
 
 /**
  * @swagger
- * /concerts/{id}:
+ * /market/{id}:
  *   get:
- *     summary: Get concert by ID
- *     tags: [Concerts]
+ *     summary: Get market post by ID
+ *     tags: [Market]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: Concert ID
+ *         description: MarkPost ID
  *     responses:
  *       200:
- *         description: Concert details
+ *         description: MarkPost details
  *       404:
- *         description: Concert not found
+ *         description: MarkPost not found
  *       500:
  *         description: Server error
  */
@@ -82,10 +80,10 @@ router.get("/:id", marketController.getConcertById);
 
 /**
  * @swagger
- * /concerts:
+ * /market:
  *   post:
- *     summary: Create a new concert
- *     tags: [Concerts]
+ *     summary: Create a new market post
+ *     tags: [Market]
  *     requestBody:
  *       required: true
  *       content:
@@ -123,7 +121,7 @@ router.get("/:id", marketController.getConcertById);
  *                 type: string
  *     responses:
  *       201:
- *         description: Concert created successfully
+ *         description: MarkPost created successfully
  *       500:
  *         description: Server error
  */
@@ -131,17 +129,17 @@ router.post("/", authenticateToken, marketController.createMarketPost);
 
 /**
  * @swagger
- * /concerts/{id}:
+ * /market/{id}:
  *   put:
- *     summary: Update concert by ID
- *     tags: [Concerts]
+ *     summary: Update market post by ID
+ *     tags: [Market]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: Concert ID
+ *         description: MarkPost ID
  *     requestBody:
  *       required: true
  *       content:
@@ -175,9 +173,9 @@ router.post("/", authenticateToken, marketController.createMarketPost);
  *                 type: string
  *     responses:
  *       200:
- *         description: Concert updated successfully
+ *         description: MarkPost updated successfully
  *       404:
- *         description: Concert not found
+ *         description: MarkPost not found
  *       500:
  *         description: Server error
  */
@@ -185,10 +183,10 @@ router.put("/:id", marketController.updateMarketPost);
 
 /**
  * @swagger
- * /concerts-admin/{id}:
+ * /market/{id}:
  *   delete:
- *     summary: Delete concert by ID (admin only)
- *     tags: [Concerts - Admin]
+ *     summary: Delete market post by ID (admin only)
+ *     tags: [Market]
  *     security:
  *       - Bearer: []
  *     parameters:
@@ -197,10 +195,10 @@ router.put("/:id", marketController.updateMarketPost);
  *         required: true
  *         schema:
  *           type: integer
- *         description: Concert ID
+ *         description: MarkPost ID
  *     responses:
  *       200:
- *         description: Concert deleted successfully
+ *         description: MarkPost deleted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -217,7 +215,7 @@ router.put("/:id", marketController.updateMarketPost);
  *       403:
  *         description: Forbidden - admin only
  *       404:
- *         description: Concert not found
+ *         description: MarkPost not found
  *       500:
  *         description: Server error
  */

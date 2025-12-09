@@ -10,9 +10,7 @@ const { isOwner } = require("../middleware/isOwner");
  * @swagger
  * tags:
  *   - name: Concerts
- *     description: Concert management and synchronization
- *   - name: Concerts - Admin
- *     description: Admin only operations for concert management
+ *     description: User concert publications management
  */
 
 /**
@@ -84,8 +82,10 @@ router.get("/:id", concertsController.getConcertById);
  * @swagger
  * /concerts:
  *   post:
- *     summary: Create a new concert
+ *     summary: Create a new concert publication
  *     tags: [Concerts]
+ *     security:
+ *       - Bearer: []
  *     requestBody:
  *       required: true
  *       content:
@@ -96,34 +96,51 @@ router.get("/:id", concertsController.getConcertById);
  *               - user_id
  *               - title
  *               - date
+ *               - location
+ *               - genres
+ *               - image_url
  *             properties:
  *               user_id:
  *                 type: integer
+ *                 description: ID of the user creating the publication
  *               title:
  *                 type: string
+ *                 description: Concert title
  *               description:
  *                 type: string
+ *                 description: Concert description
  *               date:
  *                 type: string
  *                 format: date-time
+ *                 description: Concert date and time
  *               location:
  *                 type: object
+ *                 required:
+ *                   - name
+ *                   - address
  *                 properties:
  *                   name:
  *                     type: string
+ *                     description: Venue name
  *                   address:
  *                     type: string
+ *                     description: Venue address
  *                   geo_location:
  *                     type: string
+ *                     description: Geographic coordinates
  *               genres:
  *                 type: array
  *                 items:
  *                   type: string
+ *                 description: List of music genres
  *               image_url:
  *                 type: string
+ *                 description: Concert image URL
  *     responses:
  *       201:
- *         description: Concert created successfully
+ *         description: Concert publication created successfully
+ *       401:
+ *         description: Unauthorized - no token provided
  *       500:
  *         description: Server error
  */
@@ -133,15 +150,17 @@ router.post("/", authenticateToken, concertsController.createConcert);
  * @swagger
  * /concerts/{id}:
  *   put:
- *     summary: Update concert by ID
+ *     summary: Update concert publication by ID
  *     tags: [Concerts]
+ *     security:
+ *       - Bearer: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: Concert ID
+ *         description: Concert publication ID
  *     requestBody:
  *       required: true
  *       content:
@@ -151,33 +170,46 @@ router.post("/", authenticateToken, concertsController.createConcert);
  *             properties:
  *               user_id:
  *                 type: integer
+ *                 description: User ID (for ownership verification)
  *               title:
  *                 type: string
+ *                 description: Concert title
  *               description:
  *                 type: string
+ *                 description: Concert description
  *               date:
  *                 type: string
  *                 format: date-time
+ *                 description: Concert date and time
  *               location:
  *                 type: object
  *                 properties:
  *                   name:
  *                     type: string
+ *                     description: Venue name
  *                   address:
  *                     type: string
+ *                     description: Venue address
  *                   geo_location:
  *                     type: string
+ *                     description: Geographic coordinates
  *               genres:
  *                 type: array
  *                 items:
  *                   type: string
+ *                 description: List of music genres
  *               image_url:
  *                 type: string
+ *                 description: Concert image URL
  *     responses:
  *       200:
- *         description: Concert updated successfully
+ *         description: Concert publication updated successfully
+ *       401:
+ *         description: Unauthorized - no token provided
+ *       403:
+ *         description: Forbidden - not owner or admin/manager
  *       404:
- *         description: Concert not found
+ *         description: Concert publication not found
  *       500:
  *         description: Server error
  */
@@ -190,10 +222,10 @@ router.put(
 
 /**
  * @swagger
- * /concerts-admin/{id}:
+ * /concerts/{id}:
  *   delete:
- *     summary: Delete concert by ID (admin only)
- *     tags: [Concerts - Admin]
+ *     summary: Delete concert publication by ID
+ *     tags: [Concerts]
  *     security:
  *       - Bearer: []
  *     parameters:
@@ -202,10 +234,10 @@ router.put(
  *         required: true
  *         schema:
  *           type: integer
- *         description: Concert ID
+ *         description: Concert publication ID
  *     responses:
  *       200:
- *         description: Concert deleted successfully
+ *         description: Concert publication deleted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -220,9 +252,9 @@ router.put(
  *       401:
  *         description: Unauthorized - no token provided
  *       403:
- *         description: Forbidden - admin only
+ *         description: Forbidden - not owner or admin/manager
  *       404:
- *         description: Concert not found
+ *         description: Concert publication not found
  *       500:
  *         description: Server error
  */
