@@ -10,7 +10,7 @@ app.use(express.json());
 
 // Health check
 app.get("/health", (req, res) => {
-  res.json({ status: "healthy", service": "backstage-market" });
+  res.json({ status: "healthy", service: "backstage-market" });
 });
 
 // Market routes
