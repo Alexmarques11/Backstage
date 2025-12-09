@@ -1,6 +1,6 @@
 # Notifications Microservice
 
-Handles all notification-related operations for the Backstage platform.
+Handles all notification-related operations for the Backstage platform using in-memory cache.
 
 ## Quick Start
 
@@ -18,7 +18,7 @@ npm start
 ### Docker
 ```bash
 # From backend directory
-docker-compose up notifications
+docker-compose up rabbitmq notifications
 ```
 
 ## Configuration
@@ -27,21 +27,21 @@ The service runs on **port 3003** (18000 when exposed via Docker).
 
 ### Environment Variables
 ```env
-NOTIFICATION_DB_HOST=localhost
-NOTIFICATION_DB_USER=postgres
-NOTIFICATION_DB_PASSWORD=password
-NOTIFICATION_DB_NAME=notification_db
-NOTIFICATION_DB_PORT=5432
-NOTIFICATION_DB_SSL=false
 NOTIFICATION_PORT=3003
+RABBITMQ_HOST=localhost
+RABBITMQ_PORT=5672
+RABBITMQ_USER=backstage
+RABBITMQ_PASSWORD=rabbitmq123
 ```
 
-## Database Setup
+## Cache Setup
 
-Hit the setup endpoint to create the notifications table:
+Notifications are stored in-memory with a 30-day TTL. Hit the setup endpoint to check service status:
 ```bash
 GET http://localhost:3003/setup
 ```
+
+**Note:** Notifications are stored in memory and will be lost on service restart. For persistent notifications, events are received via RabbitMQ and can be replayed.
 
 ## API Endpoints
 

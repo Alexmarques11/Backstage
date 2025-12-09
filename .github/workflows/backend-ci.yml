@@ -1,110 +1,50 @@
-name: Backend CI
+name: DigitalOcean Service Tests
 
 on:
-  push:
-    branches: [ main, develop ]
-    paths: 
-      - 'backend/**'
-      - '.github/workflows/backend-ci.yml'
-  pull_request:
-    branches: [ main ]
-    paths: 
-      - 'backend/**'
-      - '.github/workflows/backend-ci.yml'
+  workflow_run:
+    workflows: ["DigitalOcean Kubernetes Deploy"]
+    types:
+      - completed
+  workflow_dispatch:
 
 jobs:
-  test-api:
+  test-deployed-services:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: user123
-          POSTGRES_PASSWORD: 123456
-          POSTGRES_DB: backstage
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-        cache: 'npm'
-        cache-dependency-path: backend/package-lock.json
-    
-    - name: Install dependencies
-      working-directory: backend
-      run: npm ci
-    
-    - name: Install PostgreSQL client
-      run: sudo apt-get update && sudo apt-get install -y postgresql-client
-    
-    - name: Test database connectivity
+    - name: Test Server Service
       run: |
-        PGPASSWORD=123456 pg_isready -h localhost -p 5432 -U user123 -d backstage || {
-          echo "PostgreSQL is not ready"
-          exit 1
-        }
-        echo "PostgreSQL is ready"
+        echo "Testing Server health endpoint..."
+        curl -f http://159.65.95.83:30001/health || exit 1
+        echo "✓ Server is healthy"
     
-    - name: Start backend server
-      working-directory: backend
+    - name: Test Auth Service
       run: |
-        npm run dev &
-        SERVER_PID=$!
-        echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
-        
-        for i in {1..30}; do
-          if curl -s http://localhost:3000/health > /dev/null 2>&1; then
-            echo "Server is ready"
-            break
-          fi
-          echo "Waiting for server... ($i/30)"
-          sleep 2
-        done
-      env:
-        NODE_ENV: test
-        PUBLICATION_DB_HOST: localhost
-        PUBLICATION_DB_PORT: 5432
-        PUBLICATION_DB_USER: user123
-        PUBLICATION_DB_PASSWORD: 123456
-        PUBLICATION_DB_NAME: backstage
-        AUTH_DB_HOST: localhost
-        AUTH_DB_PORT: 5432
-        AUTH_DB_USER: user123
-        AUTH_DB_PASSWORD: 123456
-        AUTH_DB_NAME: backstage
-        DATABASE_SSL: 'false'
-        ACCESS_TOKEN_SECRET: test_jwt_secret_for_github_actions
-        REFRESH_TOKEN_SECRET: test_refresh_secret_for_github_actions
+        echo "Testing Auth health endpoint..."
+        curl -f http://159.65.95.83:30002/health || exit 1
+        echo "✓ Auth is healthy"
     
-    - name: Setup database
+    - name: Test Passport Service
       run: |
-        echo "Setting up database tables..."
-        curl -f http://localhost:3000/setup || exit 1
-        echo "Setting up publications tables..."
-        curl -f http://localhost:3000/setup-publications || exit 1
+        echo "Testing Passport health endpoint..."
+        curl -f http://159.65.95.83:30003/health || exit 1
+        echo "✓ Passport is healthy"
     
-    - name: Test API endpoints
+    - name: Test Market Service
       run: |
-        echo "Testing health endpoint..."
-        curl -f http://localhost:3000/health || exit 1
-        
-        echo "Testing posts endpoint..."
-        curl -f http://localhost:3000/posts || exit 1
-
-    - name: Cleanup
-      if: always()
+        echo "Testing Market health endpoint..."
+        curl -f http://159.65.95.83:30004/health || exit 1
+        echo "✓ Market is healthy"
+    
+    - name: Test Events Service
       run: |
-        if [ ! -z "$SERVER_PID" ]; then
-          kill $SERVER_PID || true
-        fi
+        echo "Testing Events health endpoint..."
+        curl -f http://159.65.95.83:30005/health || exit 1
+        echo "✓ Events is healthy"
+    
+    - name: Test Notifications Service
+      run: |
+        echo "Testing Notifications health endpoint..."
+        curl -f http://159.65.95.83:30006/health || exit 1
+        echo "✓ Notifications is healthy"

@@ -60,11 +60,8 @@ async function fetchConcerts(country = null, date = null, size = 20) {
       return [];
     }
 
-    console.log(`\n${"=".repeat(80)}`);
-    console.log(` MUSIC EVENTS - TICKETMASTER`);
-    console.log(`${"=".repeat(80)}`);
+    console.log(`\nMUSIC EVENTS - TICKETMASTER`);
     console.log(`Total events: ${events.length}`);
-    console.log(`${"=".repeat(80)}\n`);
 
     const mapped = events
       .filter((ev) => {
@@ -181,7 +178,6 @@ async function fetchConcerts(country = null, date = null, size = 20) {
     console.log(`\nTotal Ticketmaster events: ${mapped.length}\n`);
     console.log(`\nSample JSON data:`);
     console.log(JSON.stringify(mapped[0], null, 2));
-    console.log(`\n${"=".repeat(80)}\n`);
 
     return mapped;
   } catch (err) {

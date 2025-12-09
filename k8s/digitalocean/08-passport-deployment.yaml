@@ -54,6 +54,8 @@ spec:
             secretKeyRef:
               name: backstage-secrets
               key: PASSPORT_DB_NAME
+        - name: DATABASE_SSL
+          value: "true"
         - name: ACCESS_TOKEN_SECRET
           valueFrom:
             secretKeyRef:

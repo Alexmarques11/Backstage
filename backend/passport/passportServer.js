@@ -31,35 +31,34 @@ app.get('/', (req, res) => {
 // Setup route to create passport tables
 app.get('/setup', async (req, res) => {
   let createTablesQuery = `
+    CREATE TABLE IF NOT EXISTS music_genres (
+      id SERIAL PRIMARY KEY,
+      genre VARCHAR(50) NOT NULL UNIQUE
+    );
+    
     CREATE TABLE IF NOT EXISTS passport_posts (
       id SERIAL PRIMARY KEY,
-      user_id INT NOT NULL,
-      concert_id INT NOT NULL,
+      user_id INTEGER NOT NULL,
+      concert_id INTEGER NOT NULL,
       artist VARCHAR(200),
       description TEXT,
-      rating INT CHECK (rating >= 1 AND rating <= 5),
-      location_id INT,
+      rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+      location_id INTEGER,
       photos TEXT[],
-      videos TEXT[],
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     
     CREATE TABLE IF NOT EXISTS passport_genres (
-      passport_post_id INT NOT NULL,
-      genre_id INT NOT NULL,
-      PRIMARY KEY (passport_post_id, genre_id),
-      FOREIGN KEY (passport_post_id) REFERENCES passport_posts(id) ON DELETE CASCADE
+      passport_post_id INTEGER REFERENCES passport_posts(id) ON DELETE CASCADE,
+      genre_id INTEGER REFERENCES music_genres(id) ON DELETE CASCADE,
+      PRIMARY KEY (passport_post_id, genre_id)
     );
     
-    CREATE TABLE IF NOT EXISTS user_statistics (
+    CREATE TABLE IF NOT EXISTS locations (
       id SERIAL PRIMARY KEY,
-      user_id INT NOT NULL UNIQUE,
-      total_concerts_attended INT DEFAULT 0,
-      favorite_genre VARCHAR(100),
-      total_reviews INT DEFAULT 0,
-      average_rating DECIMAL(3,2),
-      last_concert_date TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      name VARCHAR(150),
+      address VARCHAR(250),
+      geo_location VARCHAR(250)
     );
     
     CREATE INDEX IF NOT EXISTS idx_passport_posts_user ON passport_posts(user_id);

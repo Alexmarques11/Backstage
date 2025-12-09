@@ -218,3 +218,19 @@ exports.addGenreToConcert = async (concertId, genreId) => {
     [concertId, genreId]
   );
 };
+
+exports.getConcertsByGenresList = async (genres, limit = 5) => {
+  const result = await concertsPool.query(
+    `SELECT DISTINCT c.id, c.title, c.datetime, c.tickets_available, c.purchase_url, c.image_url,
+            l.name as location_name, l.address, l.geo_location
+     FROM concerts c
+     LEFT JOIN locations l ON c.location_id = l.id
+     INNER JOIN concerts_genres cg ON c.id = cg.concert_id
+     INNER JOIN music_genres mg ON cg.genre_id = mg.id
+     WHERE mg.name = ANY($1)
+     ORDER BY c.datetime ASC
+     LIMIT $2`,
+    [genres, limit]
+  );
+  return result.rows;
+};

@@ -96,7 +96,7 @@ jobs:
         cache-from: type=gha,scope=events
         cache-to: type=gha,mode=max,scope=events
 
-    # Build and push Notifications (using server repository with notifications tag)
+    # Build and push Notifications (reuse server repository)
     - name: Build and push Notifications image
       uses: docker/build-push-action@v5
       with:

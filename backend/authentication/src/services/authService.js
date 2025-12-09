@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const authPool = require("../db/authDb");
 const userModel = require("../model/userModel");
+const { getChannel } = require("../utils/rabbitmq");
 
 require("dotenv").config();
 
@@ -57,6 +58,45 @@ exports.registerUser = async (userData) => {
     }
   }
 
+  const finalGenresResult = await authPool.query(
+    `SELECT mg.name
+     FROM users_genres ug
+     JOIN music_genres mg ON ug.genre_id = mg.id
+     WHERE ug.user_id = $1`,
+    [userId]
+  );
+
+  const finalGenres = finalGenresResult.rows.map((r) => r.name);
+
+  // ----------------------------
+  // 📤 PUBLICAR MENSAGEM NO RABBITMQ
+  // ----------------------------
+  try {
+    const channel = getChannel();
+    const exchange = "users";
+    const routingKey = "user.created";
+
+    await channel.assertExchange(exchange, "topic", { durable: true });
+
+    const message = {
+      userId: userId,
+      name,
+      lastname,
+      username,
+      email,
+      genres: finalGenres,
+      createdAt: new Date().toISOString(),
+    };
+
+    channel.publish(exchange, routingKey, Buffer.from(JSON.stringify(message)));
+
+    console.log("📨 RabbitMQ → user.created:", message);
+  } catch (err) {
+    console.error("❌ Erro ao enviar mensagem RabbitMQ:", err);
+    // NÃO faz throw, o registo não deve falhar por falha de MQ
+  }
+
+  // Resposta normal
   return { message: "User registered successfully!" };
 };
 

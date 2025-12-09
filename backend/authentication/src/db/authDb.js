@@ -7,7 +7,8 @@ const authPool = new Pool({
   user: process.env.AUTH_DB_USER || process.env.DATABASE_USER,
   password: process.env.AUTH_DB_PASSWORD || process.env.DATABASE_PASSWORD,
   database: process.env.AUTH_DB_NAME || process.env.DATABASE_NAME || "auth_db",
-  ssl: false,
+  ssl:
+    process.env.DATABASE_SSL === "true" ? { rejectUnauthorized: false } : false,
 });
 
 // Validate required environment variables

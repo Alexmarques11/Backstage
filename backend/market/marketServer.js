@@ -31,45 +31,29 @@ app.get('/', (req, res) => {
 // Setup route to create market tables
 app.get('/setup', async (req, res) => {
   let createTablesQuery = `
-    CREATE TABLE IF NOT EXISTS market_place (
+    CREATE TABLE IF NOT EXISTS market_place_post (
       id SERIAL PRIMARY KEY,
-      user_id INT NOT NULL,
+      user_id INTEGER NOT NULL,
       ticket_description TEXT,
       suggested_price DECIMAL(10,2),
-      ticket_quantity INT NOT NULL CHECK (ticket_quantity > 0),
-      status INT NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-    
-    CREATE TABLE IF NOT EXISTS ticket_transactions (
-      id SERIAL PRIMARY KEY,
-      listing_id INT NOT NULL,
-      buyer_id INT NOT NULL,
-      seller_id INT NOT NULL,
-      quantity INT NOT NULL,
-      total_price DECIMAL(10,2) NOT NULL,
-      transaction_status VARCHAR(50) DEFAULT 'pending' CHECK (transaction_status IN ('pending', 'completed', 'cancelled', 'refunded')),
-      payment_method VARCHAR(100),
-      transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      completed_at TIMESTAMP,
-      FOREIGN KEY (listing_id) REFERENCES market_place(id) ON DELETE CASCADE
+      ticket_quantity INTEGER NOT NULL CHECK (ticket_quantity > 0),
+      status INTEGER,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      image_url VARCHAR(250)
     );
     
     CREATE TABLE IF NOT EXISTS marketplace_reviews (
       id SERIAL PRIMARY KEY,
-      transaction_id INT NOT NULL,
-      reviewer_id INT NOT NULL,
-      reviewed_user_id INT NOT NULL,
-      rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+      listing_id INTEGER REFERENCES market_place_post(id) ON DELETE CASCADE,
+      reviewer_id INTEGER NOT NULL,
+      reviewed_user_id INTEGER NOT NULL,
+      rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
       comment TEXT,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (transaction_id) REFERENCES ticket_transactions(id) ON DELETE CASCADE
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     
-    CREATE INDEX IF NOT EXISTS idx_market_user ON market_place(user_id);
-    CREATE INDEX IF NOT EXISTS idx_market_status ON market_place(status);
-    CREATE INDEX IF NOT EXISTS idx_transactions_buyer ON ticket_transactions(buyer_id);
-    CREATE INDEX IF NOT EXISTS idx_transactions_seller ON ticket_transactions(seller_id);
+    CREATE INDEX IF NOT EXISTS idx_market_user ON market_place_post(user_id);
+    CREATE INDEX IF NOT EXISTS idx_market_status ON market_place_post(status);
   `;
 
   try {
