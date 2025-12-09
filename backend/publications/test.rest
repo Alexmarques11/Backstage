@@ -8,7 +8,7 @@
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY1MjQwNTUwLCJleHAiOjE3NjUyNDE0NTB9.iE9fxU-HWMrLAwp51ZvPfZXlaC0XIlybwRaHk1auTZk
 
 ### Get all posts
-GET {{baseUrl}}/publications
+GET {{baseUrl}}/publicatins
 
 ### Get post by ID
 GET {{baseUrl}}/publications/{{postId}}
@@ -21,17 +21,17 @@ DELETE {{baseUrl}}/publications/{{postId}}
 Authorization: Bearer {{token}}
 
 ### Create Concert
-POST {{baseUrl}}/publications
+POST {{baseUrl}}/publications/
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJhbGV4cG0iLCJlbWFpbCI6ImFsZXhwbUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTI5MjAyNCwiZXhwIjoxNzY1MjkyOTI0fQ.zdbdjujpchQEGESiUghr7b-jcT62nJOVDqBgdf6fx7E
 
 {
-  "user_id": 1,
+  "user_id": 2,
   "title": "Rock Festival 2025",
   "description": "Amazing rock festival",
   "date": "2025-12-20T20:00:00Z",
   "location": 1,
-  "genres": [1],
+  "genres": [6],
   "image_url": "https://example.com/image.jpg"
 }
 
