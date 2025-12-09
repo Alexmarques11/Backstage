@@ -6,7 +6,6 @@ COPY notifications/package*.json ./
 
 RUN npm ci --only=production
 
-COPY shared/ ./shared/
 COPY notifications/ ./
 
 EXPOSE 3003

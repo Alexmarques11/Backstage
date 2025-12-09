@@ -1,6 +1,8 @@
 require("dotenv").config();
 const express = require("express");
 const concertsRoutes = require("./src/routes/concertsRoutes");
+// const setupSwagger = require("./static/swagger");
+const { connectRabbitMQ } = require("./src/utils/rabbitmq");
 const setupSwagger = require("./static/swagger");
 
 const app = express();
@@ -10,13 +12,21 @@ app.use(express.json());
 
 // Health check
 app.get("/health", (req, res) => {
-  res.json({ status: "healthy", service: "backstage-publications", timestamp: new Date().toISOString() });
+  res.json({
+    status: "healthy",
+    service: "backstage-publications",
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // Concerts routes
 app.use("/publications", concertsRoutes);
 
 // Swagger
+// setupSwagger(app);
+
+//Connect to RabbitMQ
+connectRabbitMQ();
 setupSwagger(app);
 
 app.listen(PORT, "0.0.0.0", () =>

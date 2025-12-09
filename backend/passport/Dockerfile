@@ -2,7 +2,7 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY passport/package*.json ./
 
 RUN npm ci --only=production
 
@@ -10,4 +10,4 @@ COPY passport/ ./
 
 EXPOSE 5000
 
-CMD ["node", "passportServer.js"]
+CMD ["node", "server.js"]
