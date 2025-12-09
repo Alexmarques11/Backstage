@@ -7,13 +7,16 @@ const { connectRabbitMQ } = require("./src/utils/rabbitmq");
 const {
   startConcertRecommendationsConsumer,
 } = require("./src/services/concertRecommendationHandler");
+const {
+  startPublicationNotificationConsumer,
+} = require("./src/services/publicationNotificationHandler");
 
 const app = express();
 const PORT = process.env.NOTIFICATION_PORT || 3003;
 
 app.use(express.json());
 
-// Health check
+//Health check
 app.get("/health", (req, res) => {
   const stats = notificationCache.getStats();
   res.json({
@@ -24,17 +27,18 @@ app.get("/health", (req, res) => {
   });
 });
 
-// Notification routes
+//Notification routes
 app.use("/notifications", notificationRouter);
 
-// Swagger
+//Swagger
 setupSwagger(app);
 
-// Connect to RabbitMQ and start consumer
+//Connect to RabbitMQ and start consumers
 async function initializeRabbitMQ() {
   await connectRabbitMQ();
   setTimeout(() => {
     startConcertRecommendationsConsumer();
+    startPublicationNotificationConsumer();
   }, 1000);
 }
 

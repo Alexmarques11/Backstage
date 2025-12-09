@@ -1,4 +1,6 @@
 const concertsModel = require("../model/concertsModel");
+const { getChannel } = require("../utils/rabbitmq");
+const concertsPool = require("../db/concertsDb");
 
 //Get concerts
 exports.getConcerts = async (filters) => {
@@ -45,12 +47,15 @@ exports.getConcertById = async (concertId) => {
 
 //Create concert
 exports.createConcert = async (concertData) => {
-  const { user_id, title, description, date, location, genres, image_url } = concertData;
+  const { user_id, title, description, date, location, genres, image_url } =
+    concertData;
 
   try {
     // Validate required fields
     if (!title || !date || !location || !genres || !image_url) {
-      throw new Error("Missing required fields: title, date, location, genres, image_url");
+      throw new Error(
+        "Missing required fields: title, date, location, genres, image_url"
+      );
     }
 
     // Create concert
@@ -64,10 +69,48 @@ exports.createConcert = async (concertData) => {
     );
 
     // Add genres if provided
+    let genreNames = [];
     if (genres && Array.isArray(genres)) {
       for (const genre of genres) {
         await concertsModel.addGenreToConcert(concertId, genre);
       }
+
+      // Get genre names for RabbitMQ message
+      const genreResult = await concertsPool.query(
+        `SELECT name FROM music_genres WHERE id = ANY($1)`,
+        [genres]
+      );
+      genreNames = genreResult.rows.map((row) => row.name);
+    }
+
+    // Publish message to RabbitMQ for async notification
+    try {
+      const channel = getChannel();
+      const queue = "publication_created";
+
+      await channel.assertQueue(queue, { durable: true });
+
+      const message = {
+        concertId,
+        title,
+        description,
+        date,
+        location,
+        genres: genreNames,
+        image_url,
+        createdAt: new Date().toISOString(),
+      };
+
+      channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)), {
+        persistent: true,
+      });
+
+      console.log(
+        `Publication created message sent to queue for concert ${concertId}`
+      );
+    } catch (error) {
+      console.error("Error sending message to RabbitMQ:", error);
+      // Don't fail the creation if notification fails
     }
 
     return {
@@ -82,7 +125,8 @@ exports.createConcert = async (concertData) => {
 
 //Update concert
 exports.updateConcert = async (concertId, concertData) => {
-  const { user_id, title, description, date, location, genres, image_url } = concertData;
+  const { user_id, title, description, date, location, genres, image_url } =
+    concertData;
 
   try {
     let locationId = undefined;
@@ -90,13 +134,20 @@ exports.updateConcert = async (concertId, concertData) => {
     // Handle location update
     if (location) {
       const { name, address, geo_location } = location;
-      
+
       // Check if location exists
-      locationId = await concertsModel.getLocationByNameAndAddress(name, address);
-      
+      locationId = await concertsModel.getLocationByNameAndAddress(
+        name,
+        address
+      );
+
       // If not, create it
       if (!locationId) {
-        locationId = await concertsModel.insertLocation(name, address, geo_location);
+        locationId = await concertsModel.insertLocation(
+          name,
+          address,
+          geo_location
+        );
       }
     }
 
@@ -122,7 +173,7 @@ exports.updateConcert = async (concertId, concertData) => {
         `DELETE FROM user_concerts_genres WHERE user_concert_id = $1`,
         [concertId]
       );
-      
+
       // Add new genres
       for (const genre of genres) {
         await concertsModel.addGenreToConcert(concertId, genre);

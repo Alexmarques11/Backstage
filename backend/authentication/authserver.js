@@ -5,6 +5,9 @@ const userRoutes = require("./src/routes/userRoutes");
 const setupSwagger = require("./static/swagger");
 const pool = require("./src/db/authDb");
 const { connectRabbitMQ } = require("./src/utils/rabbitmq");
+const {
+  startPublicationEventListener,
+} = require("./src/services/publicationEventHandler");
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -25,8 +28,15 @@ app.use("/user", userRoutes);
 // Swagger
 setupSwagger(app);
 
-//Connect to RabbitMQ
-connectRabbitMQ();
+//Connect to RabbitMQ and start listening for events
+async function initializeRabbitMQ() {
+  await connectRabbitMQ();
+  await startPublicationEventListener();
+}
+
+initializeRabbitMQ().catch((err) => {
+  console.error("Failed to initialize RabbitMQ:", err);
+});
 
 // Apenas 1 vez
 app.listen(port, "0.0.0.0", () =>
