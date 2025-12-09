@@ -1,12 +1,13 @@
 const express = require("express");
 const cors = require("cors");
-const proxy = require("express-http-proxy");
+const proxy = require("express-http-proxy");  
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
+// Routes
 app.use("/auth", proxy("http://127.0.0.1:4000"));
 app.use("/publications", proxy("http://127.0.0.1:3000"));
 app.use("/users", proxy("http://127.0.0.1:4000"));

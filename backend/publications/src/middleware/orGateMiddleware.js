@@ -38,39 +38,4 @@ exports.OrGate = (...middlewares) => {
 
     tryNext();
   };
-  
-  return (req, res, next) => {
-    let authorized = false;
-    let errors = [];
-
-    for (const middleware of middlewares) {
-      try {
-        // Mock response to catch errors
-        const mockRes = {
-          status: (code) => ({
-            json: (data) => {
-              errors.push(data);
-              return mockRes;
-            },
-          }),
-        };
-
-        // If middleware calls next(), it succeeded
-        middleware(req, mockRes, () => {
-          authorized = true;
-          console.log("OrGate: Middleware succeeded:", authorized);
-        });
-
-        // If authorized, stop checking
-        if (authorized) break;
-      } catch (err) {
-        errors.push(err.message);
-      }
-    }
-
-    if (!authorized) {
-      return res.status(403).json({ errors, authorized });
-    }
-    next();
-  };
 };
