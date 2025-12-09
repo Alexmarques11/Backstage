@@ -7,15 +7,26 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use("/auth", proxy("http://127.0.0.1:4000"));
-app.use("/publications", proxy("http://127.0.0.1:3000"));
-app.use("/users", proxy("http://127.0.0.1:4000"));
-app.use("/passport", proxy("http://127.0.0.1:5000"));
-app.use("/market", proxy("http://127.0.0.1:6000"));
-app.use("/events", proxy("http://127.0.0.1:7000"));
-app.use("/notifications", proxy("http://127.0.0.1:4000"));
+// Health check
+app.get("/health", (req, res) => {
+  res.json({
+    status: "healthy",
+    service: "backstage-gateway",
+    timestamp: new Date().toISOString(),
+  });
+});
 
-app.listen(8000, () => {
-  console.log("Gateway is Listening to Port 8000");
+// Routes - Using Kubernetes service DNS names
+app.use("/auth", proxy("http://backstage-auth-service"));
+app.use("/publications", proxy("http://backstage-server-service"));
+app.use("/users", proxy("http://backstage-auth-service"));
+app.use("/passport", proxy("http://backstage-passport-service"));
+app.use("/market", proxy("http://backstage-market-service"));
+app.use("/events", proxy("http://backstage-events-service"));
+app.use("/notifications", proxy("http://backstage-notifications-service"));
+
+const PORT = process.env.PORT || 8000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Gateway is listening on port ${PORT}`);
 });
