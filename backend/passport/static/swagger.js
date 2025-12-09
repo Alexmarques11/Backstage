@@ -12,6 +12,14 @@ const options = {
     },
     servers: [
       {
+        url: process.env.SWAGGER_SERVER_URL || "http://159.65.95.83:30003",
+        description: "Production Server (Direct)",
+      },
+      {
+        url: "http://159.65.95.83:30000/passport",
+        description: "Production Server (Gateway)",
+      },
+      {
         url: "http://localhost:5000",
         description: "Development Server",
       },
