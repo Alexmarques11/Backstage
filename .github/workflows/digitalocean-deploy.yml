@@ -137,6 +137,11 @@ jobs:
         kubectl apply -f k8s/digitalocean/11-notifications-deployment.yaml
         kubectl rollout status deployment/backstage-notifications -n $NAMESPACE --timeout=5m
 
+    - name: Deploy Gateway
+      run: |
+        kubectl apply -f k8s/digitalocean/14-gateway-deployment.yaml
+        kubectl rollout status deployment/backstage-gateway -n $NAMESPACE --timeout=5m
+
     - name: Apply Services
       run: |
         kubectl apply -f k8s/digitalocean/06-services-nodeport.yaml
@@ -198,6 +203,12 @@ jobs:
           kubectl describe pods -l app=backstage-notifications -n $NAMESPACE
           exit 1
         }
+        kubectl wait --for=condition=ready pod -l app=backstage-gateway -n $NAMESPACE --timeout=5m || {
+          echo "Gateway pods failed to become ready. Checking status:"
+          kubectl get pods -l app=backstage-gateway -n $NAMESPACE
+          kubectl describe pods -l app=backstage-gateway -n $NAMESPACE
+          exit 1
+        }
 
     - name: Get deployment status
       run: |
@@ -231,19 +242,24 @@ jobs:
         PASSPORT_NODEPORT=$(kubectl get service backstage-passport-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
         MARKET_NODEPORT=$(kubectl get service backstage-market-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
         EVENTS_NODEPORT=$(kubectl get service backstage-events-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
+        GATEWAY_NODEPORT=$(kubectl get service backstage-gateway-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
         
         echo "=========================================="
         echo "Deployment Successful!"
         echo "=========================================="
         echo ""
-        echo "Access your services at:"
+        echo "🚪 API Gateway (Unified Entry Point):"
+        echo "  Gateway:      http://$NODE_IP:$GATEWAY_NODEPORT"
+        echo ""
+        echo "📡 Individual Service Access:"
         echo "  Server API:   http://$NODE_IP:$SERVER_NODEPORT"
         echo "  Auth API:     http://$NODE_IP:$AUTH_NODEPORT"
         echo "  Passport API: http://$NODE_IP:$PASSPORT_NODEPORT"
         echo "  Market API:   http://$NODE_IP:$MARKET_NODEPORT"
         echo "  Events API:   http://$NODE_IP:$EVENTS_NODEPORT"
         echo ""
-        echo "Health checks:"
+        echo "✅ Health checks:"
+        echo "  curl http://$NODE_IP:$GATEWAY_NODEPORT/health"
         echo "  curl http://$NODE_IP:$SERVER_NODEPORT/health"
         echo "  curl http://$NODE_IP:$AUTH_NODEPORT/health"
         echo "  curl http://$NODE_IP:$PASSPORT_NODEPORT/health"
