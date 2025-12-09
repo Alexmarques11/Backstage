@@ -110,36 +110,43 @@ jobs:
     - name: Deploy Server
       run: |
         kubectl apply -f k8s/digitalocean/04-server-deployment.yaml
+        kubectl rollout restart deployment/backstage-server -n $NAMESPACE
         kubectl rollout status deployment/backstage-server -n $NAMESPACE --timeout=5m
 
     - name: Deploy Auth
       run: |
         kubectl apply -f k8s/digitalocean/05-auth-deployment.yaml
+        kubectl rollout restart deployment/backstage-auth -n $NAMESPACE
         kubectl rollout status deployment/backstage-auth -n $NAMESPACE --timeout=5m
 
     - name: Deploy Passport
       run: |
         kubectl apply -f k8s/digitalocean/08-passport-deployment.yaml
+        kubectl rollout restart deployment/backstage-passport -n $NAMESPACE
         kubectl rollout status deployment/backstage-passport -n $NAMESPACE --timeout=5m
 
     - name: Deploy Market
       run: |
         kubectl apply -f k8s/digitalocean/09-market-deployment.yaml
+        kubectl rollout restart deployment/backstage-market -n $NAMESPACE
         kubectl rollout status deployment/backstage-market -n $NAMESPACE --timeout=5m
 
     - name: Deploy Events
       run: |
         kubectl apply -f k8s/digitalocean/10-events-deployment.yaml
+        kubectl rollout restart deployment/backstage-events -n $NAMESPACE
         kubectl rollout status deployment/backstage-events -n $NAMESPACE --timeout=5m
 
     - name: Deploy Notifications
       run: |
         kubectl apply -f k8s/digitalocean/11-notifications-deployment.yaml
+        kubectl rollout restart deployment/backstage-notifications -n $NAMESPACE
         kubectl rollout status deployment/backstage-notifications -n $NAMESPACE --timeout=5m
 
     - name: Deploy Gateway
       run: |
         kubectl apply -f k8s/digitalocean/14-gateway-deployment.yaml
+        kubectl rollout restart deployment/backstage-gateway -n $NAMESPACE
         kubectl rollout status deployment/backstage-gateway -n $NAMESPACE --timeout=5m
 
     - name: Apply Services
