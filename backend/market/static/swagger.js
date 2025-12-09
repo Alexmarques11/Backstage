@@ -12,11 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: process.env.SWAGGER_SERVER_URL || "http://159.65.95.83:30004",
-        description: "Production Server (Direct)",
-      },
-      {
-        url: "http://159.65.95.83:30000/market",
+        url: process.env.SWAGGER_SERVER_URL || "http://159.65.95.83:30000/market",
         description: "Production Server (Gateway)",
       },
       {
