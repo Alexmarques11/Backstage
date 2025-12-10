@@ -181,6 +181,72 @@ router.post("/", authenticateToken, concertsController.createConcert);
  */
 router.put("/:id", authenticateToken, isOwner, concertsController.updateConcert);
 
+
+/**
+ * @swagger
+ * /passport/statistics/{id}:
+ *   get:
+ *     summary: Get user statistics
+ *     tags: [Passports]
+ *     security:
+ *       - Bearer: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User statistics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalConcerts:
+ *                   type: integer
+ *                   description: Total number of concerts attended
+ *                 predominantGenres:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       name:
+ *                         type: string
+ *                       count:
+ *                         type: integer
+ *                   description: Most frequent music genres
+ *                 mostFrequentedLocations:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       name:
+ *                         type: string
+ *                       address:
+ *                         type: string
+ *                       count:
+ *                         type: integer
+ *                   description: Most visited locations
+ *                 temporalDistribution:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       year:
+ *                         type: integer
+ *                       count:
+ *                         type: integer
+ *                   description: Concert distribution by year and month
+ *       401:
+ *         description: Unauthorized - no token provided
+ *       500:
+ *         description: Server error
+ */
+router.get("/statistics/:id",concertsController.getStatistics);
+
 /**
  * @swagger
  * /passport/{id}:

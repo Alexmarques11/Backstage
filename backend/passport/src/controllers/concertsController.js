@@ -107,3 +107,20 @@ exports.deleteConcert = async (req, res) => {
     });
   }
 };
+
+exports.getStatistics = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const stats = await concertsService.getPassportStatistics(id);
+
+    res.json(stats);
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).json({
+      success: false,
+      error: "Error fetching passport statistics",
+      details: err.message,
+    });
+  }
+};

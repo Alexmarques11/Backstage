@@ -30,12 +30,12 @@ exports.getUserPassportPosts = async (filters) => {
 };
 
 //Get concert by ID
-exports.getConcertById = async (concertId) => {
+exports.getConcertById = async (userId) => {
   try {
-    const concert = await concertsModel.getConcertById(concertId);
+    const concert = await concertsModel.getConcertById(userId);
 
     if (!concert) {
-      throw new Error(`Concert with ID ${concertId} not found`);
+      throw new Error(`Concert with ID ${userId} not found`);
     }
 
     return concert;
@@ -141,12 +141,12 @@ exports.updateConcert = async (postId, postData) => {
 };
 
 //Delete concert by ID
-exports.deleteConcert = async (concertId) => {
+exports.deleteConcert = async (userId) => {
   try {
-    const deletedConcert = await concertsModel.deleteConcert(concertId);
+    const deletedConcert = await concertsModel.deleteConcert(userId);
 
     if (!deletedConcert) {
-      throw new Error(`Concert with ID ${concertId} not found`);
+      throw new Error(`Concert with ID ${userId} not found`);
     }
 
     return {
@@ -156,5 +156,31 @@ exports.deleteConcert = async (concertId) => {
     };
   } catch (err) {
     throw new Error(`Error deleting concert: ${err.message}`);
+  }
+};
+
+//Get concert by ID
+exports.getPassportStatistics = async (userId) => {
+  try {
+    console.log("Fetching stats for user ID:", userId);
+    const totalConcerts = await concertsModel.getTotalConcertsAttended(userId);
+    const genres = await concertsModel.getPredominantGenres(userId);
+    const frequentLocation = await concertsModel.getMostFrequentedLocations(userId);
+    const temporalDestribution = await concertsModel.getTemporalDistribution(userId);
+
+    const stats = {
+      totalConcerts,
+      genres,
+      frequentLocation,
+      temporalDestribution,
+    }
+
+    if (!stats) {
+      throw new Error(`Concert with ID ${userId} not found`);
+    }
+
+    return stats;
+  } catch (err) {
+    throw new Error(`Error fetching concert: ${err.message}`);
   }
 };

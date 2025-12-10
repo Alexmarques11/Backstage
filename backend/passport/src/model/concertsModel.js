@@ -300,3 +300,58 @@ exports.updateConcert = async (
   );
   return result.rows[0] || null;
 };
+
+// Statistics queries ig
+
+exports.getTotalConcertsAttended = async (userId) => {
+  const result = await passportPool.query(
+    `SELECT COUNT(*) as total
+     FROM passport_posts
+     WHERE user_id = $1`,
+    [userId]
+  );
+  return parseInt(result.rows[0].total);
+};
+
+exports.getPredominantGenres = async (userId, limit = 10) => {
+  const result = await passportPool.query(
+    `SELECT mg.name, COUNT(*) as count
+     FROM passport_posts p
+     INNER JOIN passport_genres pg ON p.id = pg.passport_post_id
+     INNER JOIN music_genres mg ON pg.genre_id = mg.id
+     WHERE p.user_id = $1
+     GROUP BY mg.id, mg.name
+     ORDER BY count DESC
+     LIMIT $2`,
+    [userId, limit]
+  );
+  return result.rows;
+};
+
+exports.getMostFrequentedLocations = async (userId, limit = 10) => {
+  const result = await passportPool.query(
+    `SELECT l.name, l.address, COUNT(*) as count
+     FROM passport_posts p
+     INNER JOIN locations l ON p.location_id = l.id
+     WHERE p.user_id = $1
+     GROUP BY l.id, l.name, l.address
+     ORDER BY count DESC
+     LIMIT $2`,
+    [userId, limit]
+  );
+  return result.rows;
+};
+
+exports.getTemporalDistribution = async (userId) => {
+  const result = await passportPool.query(
+    `SELECT 
+       EXTRACT(YEAR FROM created_at) as year,
+       COUNT(*) as count
+     FROM passport_posts
+     WHERE user_id = $1
+     GROUP BY year
+     ORDER BY year DESC`,
+    [userId]
+  );
+  return result.rows;
+};
