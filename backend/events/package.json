@@ -1,6 +1,7 @@
 {
   "name": "concerts",
   "version": "1.0.0",
+  "type": "commonjs",
   "main": "concertsServer.js",
   "scripts": {
     "start": "node concertsServer.js",

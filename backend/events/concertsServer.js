@@ -5,6 +5,7 @@ const setupSwagger = require("./static/swagger");
 const pool = require("./src/db/concertsDb");
 const { connectRabbitMQ } = require("./src/utils/rabbitmq");
 const { startUserEventsConsumer } = require("./src/services/userEventHandler");
+const createTables = require("./src/db/setupTables");
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -26,17 +27,27 @@ app.use("/concerts", concertsRoutes);
 // Swagger
 setupSwagger(app);
 
-//Connect to RabbitMQ and start consumer
-async function initializeRabbitMQ() {
-  await connectRabbitMQ();
-  // Aguardar um pouco para garantir que a conexão está estabelecida
-  setTimeout(() => {
-    startUserEventsConsumer();
-  }, 1000);
+// Initialize server
+async function startServer() {
+  try {
+    // Create tables if they don't exist
+    await createTables();
+
+    // Connect to RabbitMQ and start consumer
+    await connectRabbitMQ();
+    // Aguardar um pouco para garantir que a conexão está estabelecida
+    setTimeout(() => {
+      startUserEventsConsumer();
+    }, 1000);
+
+    // Start the server
+    app.listen(PORT, "0.0.0.0", () =>
+      console.log(`🎵 Concert service running at http://0.0.0.0:${PORT}`)
+    );
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
 }
 
-initializeRabbitMQ();
-
-app.listen(PORT, "0.0.0.0", () =>
-  console.log(`🎵 Concert service running at http://0.0.0.0:${PORT}`)
-);
+startServer();

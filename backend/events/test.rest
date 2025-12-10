@@ -27,7 +27,10 @@ GET http://localhost:17000/concerts/146
 Accept: application/json
 
 ### Sync concerts from Ticketmaster - default (US, today, 20 results)
-GET http://localhost:17000/concerts/sync
+GET http://localhost:7000/concerts/sync
+Accept: application/json
+### Sync concerts from Ticketmaster - default (US, today, 20 results)
+GET  http://159.65.95.83:30000/concerts/concerts/sync
 Accept: application/json
 
 ### Sync concerts from Ticketmaster - GB only

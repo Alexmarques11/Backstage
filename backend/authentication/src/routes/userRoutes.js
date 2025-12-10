@@ -218,7 +218,7 @@ router.delete(
 
 /**
  * @swagger
- * /users/{id}/role:
+ * /user/{id}/role:
  *   patch:
  *     summary: Update a user's role by ID (Admin only)
  *     tags: [User]
@@ -265,7 +265,7 @@ router.patch(
 
 /**
  * @swagger
- * /users/{id}/info:
+ * /user/{id}/info:
  *   get:
  *     summary: Get non-sensitive information of a user (Admin and Manager only)
  *     tags: [User]

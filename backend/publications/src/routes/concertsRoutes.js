@@ -9,22 +9,22 @@ const { isOwner } = require("../middleware/isOwner");
 /**
  * @swagger
  * tags:
- *   - name: Concerts
+ *   - name: Publications
  *     description: User concert publications management
  */
 
 /**
  * @swagger
- * /concerts:
+ * /publications:
  *   get:
- *     summary: Get concerts with optional filters
- *     tags: [Concerts]
+ *     summary: Get publications with optional filters
+ *     tags: [Publications]
  *     parameters:
  *       - in: query
  *         name: title
  *         schema:
  *           type: string
- *         description: Filter by concert title
+ *         description: Filter by publication title
  *       - in: query
  *         name: location
  *         schema:
@@ -49,7 +49,7 @@ const { isOwner } = require("../middleware/isOwner");
  *         description: Pagination offset
  *     responses:
  *       200:
- *         description: List of concerts
+ *         description: List of publications
  *       500:
  *         description: Server error
  */
@@ -57,22 +57,22 @@ router.get("/", concertsController.getConcerts);
 
 /**
  * @swagger
- * /concerts/{id}:
+ * /publications/{id}:
  *   get:
- *     summary: Get concert by ID
- *     tags: [Concerts]
+ *     summary: Get publication by ID
+ *     tags: [Publications]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: Concert ID
+ *         description: Publication ID
  *     responses:
  *       200:
- *         description: Concert details
+ *         description: Publication details
  *       404:
- *         description: Concert not found
+ *         description: Publication not found
  *       500:
  *         description: Server error
  */
@@ -80,10 +80,10 @@ router.get("/:id", concertsController.getConcertById);
 
 /**
  * @swagger
- * /concerts:
+ * /publications:
  *   post:
- *     summary: Create a new concert publication
- *     tags: [Concerts]
+ *     summary: Create a new publication
+ *     tags: [Publications]
  *     security:
  *       - Bearer: []
  *     requestBody:
@@ -105,14 +105,14 @@ router.get("/:id", concertsController.getConcertById);
  *                 description: ID of the user creating the publication
  *               title:
  *                 type: string
- *                 description: Concert title
+ *                 description: Publication title
  *               description:
  *                 type: string
- *                 description: Concert description
+ *                 description: Publication description
  *               date:
  *                 type: string
  *                 format: date-time
- *                 description: Concert date and time
+ *                 description: Publication date and time
  *               location:
  *                 type: object
  *                 required:
@@ -135,10 +135,10 @@ router.get("/:id", concertsController.getConcertById);
  *                 description: List of music genres
  *               image_url:
  *                 type: string
- *                 description: Concert image URL
+ *                 description: Publication image URL
  *     responses:
  *       201:
- *         description: Concert publication created successfully
+ *         description: Publication created successfully
  *       401:
  *         description: Unauthorized - no token provided
  *       500:
@@ -148,10 +148,10 @@ router.post("/", authenticateToken, concertsController.createConcert);
 
 /**
  * @swagger
- * /concerts/{id}:
+ * /publications/{id}:
  *   put:
- *     summary: Update concert publication by ID (admin, manager, or owner only)
- *     tags: [Concerts]
+ *     summary: Update publication by ID (admin, manager, or owner only)
+ *     tags: [Publications]
  *     security:
  *       - Bearer: []
  *     parameters:
@@ -160,7 +160,7 @@ router.post("/", authenticateToken, concertsController.createConcert);
  *         required: true
  *         schema:
  *           type: integer
- *         description: Concert publication ID
+ *         description: Publication ID
  *     requestBody:
  *       required: true
  *       content:
@@ -173,14 +173,14 @@ router.post("/", authenticateToken, concertsController.createConcert);
  *                 description: User ID (for ownership verification)
  *               title:
  *                 type: string
- *                 description: Concert title
+ *                 description: Publication title
  *               description:
  *                 type: string
- *                 description: Concert description
+ *                 description: Publication description
  *               date:
  *                 type: string
  *                 format: date-time
- *                 description: Concert date and time
+ *                 description: Publication date and time
  *               location:
  *                 type: object
  *                 properties:
@@ -200,16 +200,16 @@ router.post("/", authenticateToken, concertsController.createConcert);
  *                 description: List of music genres
  *               image_url:
  *                 type: string
- *                 description: Concert image URL
+ *                 description: Publication image URL
  *     responses:
  *       200:
- *         description: Concert publication updated successfully
+ *         description: Publication updated successfully
  *       401:
  *         description: Unauthorized - no token provided
  *       403:
  *         description: Forbidden - not owner or admin/manager
  *       404:
- *         description: Concert publication not found
+ *         description: Publication not found
  *       500:
  *         description: Server error
  */
@@ -222,10 +222,10 @@ router.put(
 
 /**
  * @swagger
- * /concerts/{id}:
+ * /publications/{id}:
  *   delete:
- *     summary: Delete concert publication by ID (admin, manager, or owner only)
- *     tags: [Concerts]
+ *     summary: Delete publication by ID (admin, manager, or owner only)
+ *     tags: [Publications]
  *     security:
  *       - Bearer: []
  *     parameters:
@@ -234,10 +234,10 @@ router.put(
  *         required: true
  *         schema:
  *           type: integer
- *         description: Concert publication ID
+ *         description: Publication ID
  *     responses:
  *       200:
- *         description: Concert publication deleted successfully
+ *         description: Publication deleted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -247,14 +247,14 @@ router.put(
  *                   type: boolean
  *                 message:
  *                   type: string
- *                 deletedConcert:
+ *                 deletedPublication:
  *                   type: object
  *       401:
  *         description: Unauthorized - no token provided
  *       403:
  *         description: Forbidden - not owner or admin/manager
  *       404:
- *         description: Concert publication not found
+ *         description: Publication not found
  *       500:
  *         description: Server error
  */
