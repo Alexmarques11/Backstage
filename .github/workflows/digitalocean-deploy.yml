@@ -245,11 +245,6 @@ jobs:
           NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')
         fi
         
-        SERVER_NODEPORT=$(kubectl get service backstage-server-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
-        AUTH_NODEPORT=$(kubectl get service backstage-auth-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
-        PASSPORT_NODEPORT=$(kubectl get service backstage-passport-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
-        MARKET_NODEPORT=$(kubectl get service backstage-market-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
-        EVENTS_NODEPORT=$(kubectl get service backstage-events-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
         GATEWAY_NODEPORT=$(kubectl get service backstage-gateway-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
         
         echo "=========================================="
@@ -259,20 +254,18 @@ jobs:
         echo "🚪 API Gateway (Unified Entry Point):"
         echo "  Gateway:      http://$NODE_IP:$GATEWAY_NODEPORT"
         echo ""
-        echo "📡 Individual Service Access:"
-        echo "  Server API:   http://$NODE_IP:$SERVER_NODEPORT"
-        echo "  Auth API:     http://$NODE_IP:$AUTH_NODEPORT"
-        echo "  Passport API: http://$NODE_IP:$PASSPORT_NODEPORT"
-        echo "  Market API:   http://$NODE_IP:$MARKET_NODEPORT"
-        echo "  Events API:   http://$NODE_IP:$EVENTS_NODEPORT"
+        echo "📡 Access all services via gateway:"
+        echo "  Publications: http://$NODE_IP:$GATEWAY_NODEPORT/publications"
+        echo "  Auth:         http://$NODE_IP:$GATEWAY_NODEPORT/auth"
+        echo "  User Profile: http://$NODE_IP:$GATEWAY_NODEPORT/user"
+        echo "  Passport:     http://$NODE_IP:$GATEWAY_NODEPORT/passport"
+        echo "  Market:       http://$NODE_IP:$GATEWAY_NODEPORT/market"
+        echo "  Concerts:     http://$NODE_IP:$GATEWAY_NODEPORT/concerts"
+        echo "  Events:       http://$NODE_IP:$GATEWAY_NODEPORT/events"
+        echo "  Notifications: http://$NODE_IP:$GATEWAY_NODEPORT/notifications"
         echo ""
-        echo "✅ Health checks:"
+        echo "✅ Health check:"
         echo "  curl http://$NODE_IP:$GATEWAY_NODEPORT/health"
-        echo "  curl http://$NODE_IP:$SERVER_NODEPORT/health"
-        echo "  curl http://$NODE_IP:$AUTH_NODEPORT/health"
-        echo "  curl http://$NODE_IP:$PASSPORT_NODEPORT/health"
-        echo "  curl http://$NODE_IP:$MARKET_NODEPORT/health"
-        echo "  curl http://$NODE_IP:$EVENTS_NODEPORT/health"
 
     - name: Deployment failed - Show logs
       if: failure()
