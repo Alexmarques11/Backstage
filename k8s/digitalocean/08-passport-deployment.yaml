@@ -29,6 +29,8 @@ spec:
         - containerPort: 5000
           name: http
         env:
+        - name: PORT
+          value: "5000"
         - name: PASSPORT_DB_HOST
           valueFrom:
             secretKeyRef:

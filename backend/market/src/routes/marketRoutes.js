@@ -185,7 +185,7 @@ router.put("/:id", marketController.updateMarketPost);
  * @swagger
  * /market/{id}:
  *   delete:
- *     summary: Delete market post by ID (admin only)
+ *     summary: Delete market post by ID (admin or owner only)
  *     tags: [Market]
  *     security:
  *       - Bearer: []

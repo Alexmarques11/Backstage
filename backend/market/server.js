@@ -4,21 +4,21 @@ const marketRoutes = require("./src/routes/marketRoutes");
 const setupSwagger = require("./static/swagger");
 
 const app = express();
-const PORT = process.env.PORT || 6001;
+const PORT = process.env.PORT || 6000;
 
 app.use(express.json());
 
 // Health check
 app.get("/health", (req, res) => {
-  res.json({ status: "healthy", service: "backstage-events" });
+  res.json({ status: "healthy", service: "backstage-market" });
 });
 
-// Concerts routes
+// Market routes
 app.use("/market", marketRoutes);
 
 // Swagger
 setupSwagger(app);
 
 app.listen(PORT, "0.0.0.0", () =>
-  console.log(`Publication service running at http://0.0.0.0:${PORT}`)
+  console.log(`Market service running at http://0.0.0.0:${PORT}`)
 );

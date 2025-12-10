@@ -3,7 +3,7 @@ const notificationCache = require("../../notificationCache");
 const { getChannel } = require("../utils/rabbitmq");
 
 /**
- * Process concert recommendations received from events service
+ *Process concert recommendations received from events service
  * @param {Object} data - Recommendation data
  */
 async function handleConcertRecommendations(data) {
@@ -16,7 +16,7 @@ async function handleConcertRecommendations(data) {
     console.log(`Total concerts: ${concerts.length}`);
     console.log(`Timestamp: ${timestamp}`);
 
-    // Display received concerts
+    //Display received concerts
     concerts.forEach((concert, index) => {
       console.log(`${index + 1}. ${concert.titulo}`);
       console.log(`   Date: ${concert.data} at ${concert.hora}`);
@@ -28,7 +28,7 @@ async function handleConcertRecommendations(data) {
       console.log();
     });
 
-    // Create notification for the user
+    //Create notification for the user
     const notification = {
       id: uuidv4(),
       user_id: userId,
@@ -45,11 +45,11 @@ async function handleConcertRecommendations(data) {
       created_at: new Date().toISOString(),
     };
 
-    // Save notification to cache
+    //Save notification to cache
     const notificationKey = `notification:${notification.id}`;
     notificationCache.set(notificationKey, notification);
 
-    // Add to user's notification list
+    //Add to user's notification list
     const userKey = `notifications:user:${userId}`;
     const userNotifications = notificationCache.get(userKey) || [];
     userNotifications.unshift(notification.id);
@@ -75,13 +75,13 @@ async function startConcertRecommendationsConsumer() {
     const queue = "notifications.concerts.recommended";
     const routingKey = "concerts.recommended";
 
-    // Create exchange
+    //Create exchange
     await channel.assertExchange(exchange, "topic", { durable: true });
 
-    // Create queue
+    //Create queue
     await channel.assertQueue(queue, { durable: true });
 
-    // Bind queue to exchange
+    //Bind queue to exchange
     await channel.bindQueue(queue, exchange, routingKey);
 
     console.log(`\nRECOMMENDATIONS CONSUMER STARTED`);
@@ -90,7 +90,7 @@ async function startConcertRecommendationsConsumer() {
     console.log(`Routing Key: ${routingKey}`);
     console.log(`Waiting for concert recommendations...\n`);
 
-    // Consume messages
+    //Consume messages
     channel.consume(
       queue,
       async (msg) => {
@@ -101,11 +101,11 @@ async function startConcertRecommendationsConsumer() {
 
             await handleConcertRecommendations(content);
 
-            // Acknowledge message processing
+            //Acknowledge message processing
             channel.ack(msg);
           } catch (error) {
             console.error("Error processing message:", error.message);
-            // Reject message and don't requeue
+            //Reject message and don't requeue
             channel.nack(msg, false, false);
           }
         }

@@ -82,6 +82,7 @@ jobs:
           --from-literal=EVENTS_DB_PASSWORD=${{ secrets.DO_EVENTS_DB_PASSWORD }} \
           --from-literal=EVENTS_DB_NAME=${{ secrets.DO_EVENTS_DB_NAME }} \
           --from-literal=RABBITMQ_PASSWORD=${{ secrets.DO_RABBITMQ_PASSWORD }} \
+          --from-literal=TICKETMASTER_API_KEY=${{ secrets.TICKETMASTER_KEY }} \
           --from-literal=ACCESS_TOKEN_SECRET=${{ secrets.DO_ACCESS_TOKEN_SECRET }} \
           --from-literal=REFRESH_TOKEN_SECRET=${{ secrets.DO_REFRESH_TOKEN_SECRET }} \
           -n $NAMESPACE
@@ -110,32 +111,44 @@ jobs:
     - name: Deploy Server
       run: |
         kubectl apply -f k8s/digitalocean/04-server-deployment.yaml
+        kubectl rollout restart deployment/backstage-server -n $NAMESPACE
         kubectl rollout status deployment/backstage-server -n $NAMESPACE --timeout=5m
 
     - name: Deploy Auth
       run: |
         kubectl apply -f k8s/digitalocean/05-auth-deployment.yaml
+        kubectl rollout restart deployment/backstage-auth -n $NAMESPACE
         kubectl rollout status deployment/backstage-auth -n $NAMESPACE --timeout=5m
 
     - name: Deploy Passport
       run: |
         kubectl apply -f k8s/digitalocean/08-passport-deployment.yaml
+        kubectl rollout restart deployment/backstage-passport -n $NAMESPACE
         kubectl rollout status deployment/backstage-passport -n $NAMESPACE --timeout=5m
 
     - name: Deploy Market
       run: |
         kubectl apply -f k8s/digitalocean/09-market-deployment.yaml
+        kubectl rollout restart deployment/backstage-market -n $NAMESPACE
         kubectl rollout status deployment/backstage-market -n $NAMESPACE --timeout=5m
 
     - name: Deploy Events
       run: |
         kubectl apply -f k8s/digitalocean/10-events-deployment.yaml
+        kubectl rollout restart deployment/backstage-events -n $NAMESPACE
         kubectl rollout status deployment/backstage-events -n $NAMESPACE --timeout=5m
 
     - name: Deploy Notifications
       run: |
         kubectl apply -f k8s/digitalocean/11-notifications-deployment.yaml
+        kubectl rollout restart deployment/backstage-notifications -n $NAMESPACE
         kubectl rollout status deployment/backstage-notifications -n $NAMESPACE --timeout=5m
+
+    - name: Deploy Gateway
+      run: |
+        kubectl apply -f k8s/digitalocean/14-gateway-deployment.yaml
+        kubectl rollout restart deployment/backstage-gateway -n $NAMESPACE
+        kubectl rollout status deployment/backstage-gateway -n $NAMESPACE --timeout=5m
 
     - name: Apply Services
       run: |
@@ -198,6 +211,12 @@ jobs:
           kubectl describe pods -l app=backstage-notifications -n $NAMESPACE
           exit 1
         }
+        kubectl wait --for=condition=ready pod -l app=backstage-gateway -n $NAMESPACE --timeout=5m || {
+          echo "Gateway pods failed to become ready. Checking status:"
+          kubectl get pods -l app=backstage-gateway -n $NAMESPACE
+          kubectl describe pods -l app=backstage-gateway -n $NAMESPACE
+          exit 1
+        }
 
     - name: Get deployment status
       run: |
@@ -226,29 +245,27 @@ jobs:
           NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')
         fi
         
-        SERVER_NODEPORT=$(kubectl get service backstage-server-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
-        AUTH_NODEPORT=$(kubectl get service backstage-auth-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
-        PASSPORT_NODEPORT=$(kubectl get service backstage-passport-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
-        MARKET_NODEPORT=$(kubectl get service backstage-market-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
-        EVENTS_NODEPORT=$(kubectl get service backstage-events-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
+        GATEWAY_NODEPORT=$(kubectl get service backstage-gateway-nodeport -n $NAMESPACE -o jsonpath='{.spec.ports[0].nodePort}')
         
         echo "=========================================="
         echo "Deployment Successful!"
         echo "=========================================="
         echo ""
-        echo "Access your services at:"
-        echo "  Server API:   http://$NODE_IP:$SERVER_NODEPORT"
-        echo "  Auth API:     http://$NODE_IP:$AUTH_NODEPORT"
-        echo "  Passport API: http://$NODE_IP:$PASSPORT_NODEPORT"
-        echo "  Market API:   http://$NODE_IP:$MARKET_NODEPORT"
-        echo "  Events API:   http://$NODE_IP:$EVENTS_NODEPORT"
+        echo "🚪 API Gateway (Unified Entry Point):"
+        echo "  Gateway:      http://$NODE_IP:$GATEWAY_NODEPORT"
         echo ""
-        echo "Health checks:"
-        echo "  curl http://$NODE_IP:$SERVER_NODEPORT/health"
-        echo "  curl http://$NODE_IP:$AUTH_NODEPORT/health"
-        echo "  curl http://$NODE_IP:$PASSPORT_NODEPORT/health"
-        echo "  curl http://$NODE_IP:$MARKET_NODEPORT/health"
-        echo "  curl http://$NODE_IP:$EVENTS_NODEPORT/health"
+        echo "📡 Access all services via gateway:"
+        echo "  Publications: http://$NODE_IP:$GATEWAY_NODEPORT/publications"
+        echo "  Auth:         http://$NODE_IP:$GATEWAY_NODEPORT/auth"
+        echo "  User Profile: http://$NODE_IP:$GATEWAY_NODEPORT/user"
+        echo "  Passport:     http://$NODE_IP:$GATEWAY_NODEPORT/passport"
+        echo "  Market:       http://$NODE_IP:$GATEWAY_NODEPORT/market"
+        echo "  Concerts:     http://$NODE_IP:$GATEWAY_NODEPORT/concerts"
+        echo "  Events:       http://$NODE_IP:$GATEWAY_NODEPORT/events"
+        echo "  Notifications: http://$NODE_IP:$GATEWAY_NODEPORT/notifications"
+        echo ""
+        echo "✅ Health check:"
+        echo "  curl http://$NODE_IP:$GATEWAY_NODEPORT/health"
 
     - name: Deployment failed - Show logs
       if: failure()

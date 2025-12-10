@@ -12,6 +12,10 @@ const options = {
     },
     servers: [
       {
+        url: process.env.SWAGGER_SERVER_URL || "http://159.65.95.83:30000/notifications",
+        description: "Production Server (Gateway)",
+      },
+      {
         url: "http://localhost:3003",
         description: "Development Server",
       },
@@ -83,7 +87,7 @@ const options = {
       },
     ],
   },
-  apis: ["./routes/*.js"],
+  apis: ["./src/routes/*.js"],
 };
 
 const swaggerSpec = swaggerJsDoc(options);

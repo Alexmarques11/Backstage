@@ -150,7 +150,7 @@ router.post("/", authenticateToken, concertsController.createConcert);
  * @swagger
  * /concerts/{id}:
  *   put:
- *     summary: Update concert publication by ID
+ *     summary: Update concert publication by ID (admin, manager, or owner only)
  *     tags: [Concerts]
  *     security:
  *       - Bearer: []
@@ -216,7 +216,7 @@ router.post("/", authenticateToken, concertsController.createConcert);
 router.put(
   "/:id",
   authenticateToken,
-  OrGate(hasRole("admin,manager"),isOwner),
+  OrGate(hasRole("admin,manager"), isOwner),
   concertsController.updateConcert
 );
 
@@ -224,7 +224,7 @@ router.put(
  * @swagger
  * /concerts/{id}:
  *   delete:
- *     summary: Delete concert publication by ID
+ *     summary: Delete concert publication by ID (admin, manager, or owner only)
  *     tags: [Concerts]
  *     security:
  *       - Bearer: []
@@ -261,7 +261,7 @@ router.put(
 router.delete(
   "/:id",
   authenticateToken,
-  OrGate(hasRole("admin,manager"),isOwner),
+  OrGate(hasRole("admin,manager"), isOwner),
   concertsController.deleteConcert
 );
 

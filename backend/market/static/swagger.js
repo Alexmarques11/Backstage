@@ -12,6 +12,10 @@ const options = {
     },
     servers: [
       {
+        url: process.env.SWAGGER_SERVER_URL || "http://159.65.95.83:30000/market",
+        description: "Production Server (Gateway)",
+      },
+      {
         url: "http://localhost:6000",
         description: "Development Server",
       },

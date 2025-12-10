@@ -148,9 +148,8 @@ async function handleUserCreated(userData) {
   }
 }
 
-/**
- * Start RabbitMQ consumer for user events
- */
+//Start RabbitMQ consumer for user events
+
 async function startUserEventsConsumer() {
   try {
     const channel = getChannel();

@@ -25,19 +25,17 @@ spec:
         env:
         - name: NODE_ENV
           value: "production"
-        - name: RABBITMQ_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: backstage-secrets
-              key: RABBITMQ_PASSWORD
-        - name: RABBITMQ_URL
-          value: "amqp://backstage:AqbZZR23pVHn5nuXY4WJo6bBcK+qwlBLuY/R4VZoYzk=@backstage-rabbitmq:5672"
         - name: RABBITMQ_HOST
           value: "backstage-rabbitmq"
         - name: RABBITMQ_PORT
           value: "5672"
         - name: RABBITMQ_USER
           value: "backstage"
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: backstage-secrets
+              key: RABBITMQ_PASSWORD
         - name: NOTIFICATION_PORT
           value: "3003"
         resources:
@@ -61,3 +59,21 @@ spec:
           periodSeconds: 10
       imagePullSecrets:
       - name: digitalocean-registry
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backstage-notifications-service
+  namespace: backstage
+  labels:
+    app: backstage-notifications
+spec:
+  type: ClusterIP
+  selector:
+    app: backstage-notifications
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 3003

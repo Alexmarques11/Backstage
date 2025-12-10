@@ -1,11 +1,24 @@
 const express = require("express");
 const cors = require("cors");
-const proxy = require("express-http-proxy");  
+const proxy = require("express-http-proxy");
+const morgan = require("morgan");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 
 const app = express();
 
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
+app.use(morgan("combined"));
+app.use(globalLimiter);
 
 // Health check
 app.get("/health", (req, res) => {
@@ -30,8 +43,8 @@ app.use("/notifications", proxy("http://backstage-notifications-service"));
 const PORT = process.env.PORT || 8000;
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚪 Gateway is listening on port ${PORT}`);
-  console.log(`📡 Proxying to internal Kubernetes services:`);
+  console.log(`Gateway is listening on port ${PORT}`);
+  console.log(`Proxying to internal Kubernetes services:`);
   console.log(`   - /auth → backstage-auth-service`);
   console.log(`   - /user → backstage-auth-service`);
   console.log(`   - /publications → backstage-server-service`);
