@@ -66,6 +66,11 @@ spec:
             secretKeyRef:
               name: backstage-secrets
               key: REFRESH_TOKEN_SECRET
+        - name: TICKETMASTER_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: backstage-secrets
+              key: TICKETMASTER_API_KEY
         envFrom:
         - configMapRef:
             name: backstage-config
