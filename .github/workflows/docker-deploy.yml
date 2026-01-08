@@ -10,15 +10,8 @@ on:
     types: [ published ]
   workflow_dispatch:
 
-env:
-  REGISTRY: registry.digitalocean.com/backstage-registry-1761508031
-  SERVER_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-server
-  AUTH_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-auth
-  PASSPORT_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-passport
-  MARKET_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-market
-  EVENTS_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-events
-  GATEWAY_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-server
-  NOTIFICATIONS_IMAGE: registry.digitalocean.com/backstage-registry-1761508031/backstage-server
+# Registry name is configured via DIGITALOCEAN_REGISTRY_NAME secret
+# Set it to your registry name (e.g., "backstage-registry-12345")
 
 jobs:
   build-and-push-images:
@@ -26,6 +19,16 @@ jobs:
     permissions:
       contents: read
       packages: write
+    
+    env:
+      REGISTRY: registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}
+      SERVER_IMAGE: registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}/backstage-server
+      AUTH_IMAGE: registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}/backstage-auth
+      PASSPORT_IMAGE: registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}/backstage-passport
+      MARKET_IMAGE: registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}/backstage-market
+      EVENTS_IMAGE: registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}/backstage-events
+      GATEWAY_IMAGE: registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}/backstage-server
+      NOTIFICATIONS_IMAGE: registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}/backstage-server
 
     steps:
     - name: Checkout repository

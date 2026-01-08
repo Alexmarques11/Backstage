@@ -55,7 +55,7 @@ services:
 
   notifications:
     # Uses server repository with notifications tag to avoid registry limit
-    image: registry.digitalocean.com/backstage-registry-1761508031/backstage-server:notifications
+    image: registry.digitalocean.com/backstage-registry-2026/backstage-server:notifications
     container_name: notifications_server_prod
     ports:
       - "18000:3003"

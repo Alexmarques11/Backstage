@@ -21,11 +21,11 @@ spec:
         app: backstage-server
     spec:
       imagePullSecrets:
-      - name: registry-backstage-registry-1761508031
+      - name: digitalocean-registry
       containers:
       - name: backstage-server
         # Update this with your actual registry image
-        image: registry.digitalocean.com/backstage-registry-1761508031/backstage-server:latest
+        image: registry.digitalocean.com/backstage-registry-2026/backstage-server:latest
         ports:
         - containerPort: 3000
           name: http

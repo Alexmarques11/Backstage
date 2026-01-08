@@ -21,10 +21,10 @@ spec:
         app: backstage-market
     spec:
       imagePullSecrets:
-      - name: registry-backstage-registry-1761508031
+      - name: digitalocean-registry
       containers:
       - name: backstage-market
-        image: registry.digitalocean.com/backstage-registry-1761508031/backstage-market:latest
+        image: registry.digitalocean.com/backstage-registry-2026/backstage-market:latest
         ports:
         - containerPort: 6000
           name: http

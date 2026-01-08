@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: notifications
-        image: registry.digitalocean.com/backstage-registry-1761508031/backstage-server:notifications
+        image: registry.digitalocean.com/backstage-registry-2026/backstage-server:notifications
         imagePullPolicy: Always
         ports:
         - containerPort: 3003

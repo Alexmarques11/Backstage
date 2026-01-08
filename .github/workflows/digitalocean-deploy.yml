@@ -83,17 +83,17 @@ jobs:
           --from-literal=EVENTS_DB_NAME=${{ secrets.DO_EVENTS_DB_NAME }} \
           --from-literal=RABBITMQ_PASSWORD=${{ secrets.DO_RABBITMQ_PASSWORD }} \
           --from-literal=TICKETMASTER_API_KEY=${{ secrets.TICKETMASTER_KEY }} \
-          --from-literal=ACCESS_TOKEN_SECRET=${{ secrets.DO_ACCESS_TOKEN_SECRET }} \
+          --from-literal=ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }} \
           --from-literal=REFRESH_TOKEN_SECRET=${{ secrets.DO_REFRESH_TOKEN_SECRET }} \
           -n $NAMESPACE
 
     - name: Create/Update registry pull secret
       run: |
         # Delete existing secret if it exists
-        kubectl delete secret registry-backstage-registry-1761508031 -n $NAMESPACE --ignore-not-found=true
+        kubectl delete secret digitalocean-registry -n $NAMESPACE --ignore-not-found=true
         
         # Create registry pull secret
-        kubectl create secret docker-registry registry-backstage-registry-1761508031 \
+        kubectl create secret docker-registry digitalocean-registry \
           --docker-server=registry.digitalocean.com \
           --docker-username=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} \
           --docker-password=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} \

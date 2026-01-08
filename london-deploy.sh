@@ -8,7 +8,7 @@ echo ""
 CLUSTER_NAME="backstage-london"
 REGION="lon1"
 DB_NAME="backstage-london-db"
-REGISTRY_NAME="backstage-registry-1761508031"
+REGISTRY_NAME="backstage-registry-2026"
 NAMESPACE="backstage"
 
 # Colors for output
