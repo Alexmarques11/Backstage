@@ -22,8 +22,8 @@ const options = {
     ],
     tags: [
       {
-        name: "Concerts",
-        description: "Concert management and synchronization",
+        name: "Publications",
+        description: "User concert publications management",
       },
     ],
   },
