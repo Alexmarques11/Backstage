@@ -62,7 +62,6 @@ const swaggerOptions = {
     .swagger-ui section.models h4 { color: #1a1a2e; }
   `,
   customSiteTitle: "Backstage Auth API",
-  customfavIcon: "https://cdn-icons-png.flaticon.com/512/3844/3844724.png",
 };
 
 const setupSwagger = (app) => {
