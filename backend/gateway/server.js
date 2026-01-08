@@ -14,7 +14,11 @@ const globalLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // Disable CSP to allow Swagger UI to load
+  })
+);
 app.use(cors());
 app.use(express.json());
 app.use(morgan("combined"));
