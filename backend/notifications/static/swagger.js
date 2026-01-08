@@ -12,7 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: process.env.SWAGGER_SERVER_URL || "http://159.65.95.83:30000/notifications",
+        url: process.env.SWAGGER_SERVER_URL || "http://144.126.227.141:30000/notifications",
         description: "Production Server (Gateway)",
       },
       {
