@@ -71,6 +71,13 @@ spec:
             secretKeyRef:
               name: backstage-secrets
               key: TICKETMASTER_API_KEY
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: backstage-secrets
+              key: RABBITMQ_PASSWORD
+        - name: RABBITMQ_URL
+          value: "amqp://backstage:$(RABBITMQ_PASSWORD)@backstage-rabbitmq:5672"
         envFrom:
         - configMapRef:
             name: backstage-config
