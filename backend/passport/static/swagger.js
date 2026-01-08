@@ -22,7 +22,7 @@ const options = {
     ],
     tags: [
       {
-        name: "Passport",
+        name: "Passports",
         description: "Concert passport management (check-in/check-out)",
       },
     ],
