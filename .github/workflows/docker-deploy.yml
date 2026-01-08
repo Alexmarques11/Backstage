@@ -145,3 +145,37 @@ jobs:
         echo "✅ Docker images successfully built and pushed to DigitalOcean Registry!"
         echo ""
         echo "Ready to trigger DigitalOcean Kubernetes deployment..."
+
+  deploy-to-kubernetes:
+    runs-on: ubuntu-latest
+    needs: [build-and-push-images]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+    - name: Save DigitalOcean kubeconfig
+      run: doctl kubernetes cluster kubeconfig save ${{ secrets.DIGITALOCEAN_CLUSTER_ID }}
+
+    - name: Restart deployments to pull new images
+      run: |
+        echo "🚀 Restarting Kubernetes deployments..."
+        kubectl rollout restart deployment/backstage-server -n backstage
+        kubectl rollout restart deployment/backstage-auth -n backstage
+        kubectl rollout restart deployment/backstage-passport -n backstage
+        kubectl rollout restart deployment/backstage-market -n backstage
+        kubectl rollout restart deployment/backstage-events -n backstage
+        kubectl rollout restart deployment/backstage-notifications -n backstage
+        kubectl rollout restart deployment/backstage-gateway -n backstage
+        echo "✅ All deployments restarted!"
+
+    - name: Wait for rollouts to complete
+      run: |
+        echo "⏳ Waiting for rollouts to complete..."
+        kubectl rollout status deployment/backstage-server -n backstage --timeout=120s || true
+        kubectl rollout status deployment/backstage-auth -n backstage --timeout=120s || true
+        kubectl rollout status deployment/backstage-gateway -n backstage --timeout=120s || true
+        echo "✅ Deployment complete!"
