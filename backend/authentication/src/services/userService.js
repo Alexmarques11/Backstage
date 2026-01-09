@@ -121,6 +121,30 @@ exports.deleteUser = async (userId) => {
   await authPool.query("DELETE FROM users_genres WHERE user_id=$1", [userId]);
   await authPool.query("DELETE FROM users WHERE id=$1", [userId]);
 
+  // Publish message to RabbitMQ for async notification
+  try {
+    const channel = getChannel();
+    const queue = "user.deleted";
+
+    await channel.assertQueue(queue, { durable: true });
+
+    const message = {
+      userId,
+      createdAt: new Date().toISOString(),
+    };
+
+    channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)), {
+      persistent: true,
+    });
+
+    console.log(
+      `User deleted message sent to queue for user ${userId}`
+    );
+  } catch (error) {
+    console.error("Error sending message to RabbitMQ:", error);
+    // Don't fail the creation if notification fails
+  }
+
   return { message: `User with ID ${userId} deleted successfully` };
 };
 

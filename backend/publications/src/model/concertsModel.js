@@ -44,6 +44,36 @@ exports.deleteConcert = async (concertId) => {
   }
 };
 
+exports.deleteConcertsByUserId = async (userId) => {
+  const client = await concertsPool.connect();
+  try {
+    await client.query("BEGIN");
+    
+    // Delete all genre associations for user's concerts
+    await client.query(
+      `DELETE FROM user_concerts_genres 
+       WHERE user_concert_id IN (
+         SELECT id FROM user_concerts WHERE user_id = $1
+       )`,
+      [userId]
+    );
+    
+    // Delete all concerts from the user
+    const result = await client.query(
+      `DELETE FROM user_concerts WHERE user_id = $1 RETURNING id`,
+      [userId]
+    );
+    
+    await client.query("COMMIT");
+    return result.rows; // Returns array of deleted concert IDs
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
 //Get location by name and address
 exports.getLocationByNameAndAddress = async (name, address) => {
   const result = await concertsPool.query(

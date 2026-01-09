@@ -25,6 +25,14 @@ app.use("/publications", concertsRoutes);
 // Swagger
 setupSwagger(app);
 
+//Connect to RabbitMQ and start consumers
+async function initializeRabbitMQ() {
+  await connectRabbitMQ();
+  startUserAutoDeletion();
+}
+
+initializeRabbitMQ();
+
 // Initialize server
 async function startServer() {
   try {
