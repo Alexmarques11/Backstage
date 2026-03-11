@@ -17,7 +17,7 @@ const globalLimiter = rateLimit({
 app.use(
   helmet({
     contentSecurityPolicy: false, // Disable CSP to allow Swagger UI to load
-  })
+  }),
 );
 app.use(cors());
 app.use(express.json());
@@ -35,7 +35,7 @@ app.get("/health", (req, res) => {
 
 // Routes - Using Kubernetes service DNS names
 // Each route proxies ALL requests (GET, POST, PUT, DELETE, etc.) to the respective service
-app.use("/auth", proxy("http://backstage-auth-service"));
+/*app.use("/auth", proxy("http://backstage-auth-service"));
 app.use("/user", proxy("http://backstage-auth-service"));
 app.use("/publications", proxy("http://backstage-server-service"));
 app.use("/passport", proxy("http://backstage-passport-service"));
@@ -43,6 +43,21 @@ app.use("/market", proxy("http://backstage-market-service"));
 app.use("/concerts", proxy("http://backstage-events-service"));
 app.use("/events", proxy("http://backstage-events-service"));
 app.use("/notifications", proxy("http://backstage-notifications-service"));
+*/
+
+app.use("/auth", proxy("http://auth:4000"));
+app.use("/user", proxy("http://auth:4000"));
+
+app.use("/publications", proxy("http://app:3000"));
+
+app.use("/passport", proxy("http://passport:5000"));
+
+app.use("/market", proxy("http://market:6000"));
+
+app.use("/concerts", proxy("http://events:7000"));
+app.use("/events", proxy("http://events:7000"));
+
+app.use("/notifications", proxy("http://notifications:8000"));
 
 const PORT = process.env.PORT || 8000;
 

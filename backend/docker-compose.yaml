@@ -158,6 +158,8 @@ services:
         condition: service_healthy
       auth-database:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       PUBLICATION_DB_HOST: publication-database
@@ -173,6 +175,7 @@ services:
       DATABASE_SSL: "false"
       ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-default_jwt_secret_change_in_production}
       REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-default_refresh_secret_change_in_production}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-backstage}:${RABBITMQ_PASSWORD:-rabbitmq123}@rabbitmq:5672
 
   auth:
     build:
@@ -184,6 +187,8 @@ services:
     depends_on:
       auth-database:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       AUTH_DB_HOST: auth-database
@@ -194,6 +199,7 @@ services:
       DATABASE_SSL: "false"
       ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-default_jwt_secret_change_in_production}
       REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-default_refresh_secret_change_in_production}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-backstage}:${RABBITMQ_PASSWORD:-rabbitmq123}@rabbitmq:5672
 
   passport:
     build:
@@ -247,6 +253,8 @@ services:
     depends_on:
       events-database:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       EVENTS_DB_HOST: events-database
@@ -257,6 +265,7 @@ services:
       DATABASE_SSL: "false"
       ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET:-default_jwt_secret_change_in_production}
       REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-default_refresh_secret_change_in_production}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-backstage}:${RABBITMQ_PASSWORD:-rabbitmq123}@rabbitmq:5672
 
   notifications:
     build:
