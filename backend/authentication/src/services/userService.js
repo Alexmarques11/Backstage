@@ -5,9 +5,9 @@ const userModel = require("../model/userModel");
 // Obter perfil de utilizador
 exports.getUserProfile = async (userId) => {
   const result = await authPool.query(
-    `SELECT id, name, lastname, birthdate, username, email
+    `SELECT id, name, lastname, birthdate, username, email, avatar
      FROM users WHERE id = $1`,
-    [userId]
+    [userId],
   );
 
   if (result.rows.length === 0) throw new Error("User not found");
@@ -23,12 +23,12 @@ exports.updateUserProfile = async (userId, profileData) => {
     `UPDATE users
      SET name = $1, lastname = $2, birthdate = $3
      WHERE id = $4`,
-    [name, lastname, birthdate, userId]
+    [name, lastname, birthdate, userId],
   );
 
   const result = await authPool.query(
-    `SELECT id, name, lastname, birthdate, username, email FROM users WHERE id = $1`,
-    [userId]
+    `SELECT id, name, lastname, birthdate, username, email, avatar FROM users WHERE id = $1`,
+    [userId],
   );
 
   return result.rows[0];
@@ -67,7 +67,7 @@ exports.getUserPreferences = async (userId) => {
      FROM users_genres ug
      JOIN music_genres mg ON ug.genre_id = mg.id
      WHERE ug.user_id = $1`,
-    [userId]
+    [userId],
   );
 
   return result.rows.map((r) => r.name);
@@ -85,14 +85,14 @@ exports.updateUserPreferences = async (userId, preferencesData) => {
   // Inserir os novos géneros
   const genreResult = await authPool.query(
     `SELECT id FROM music_genres WHERE name = ANY($1)`,
-    [genres]
+    [genres],
   );
 
   const genreIds = genreResult.rows.map((g) => g.id);
   for (const genreId of genreIds) {
     await authPool.query(
       `INSERT INTO users_genres (user_id, genre_id) VALUES ($1, $2)`,
-      [userId, genreId]
+      [userId, genreId],
     );
   }
 
@@ -104,7 +104,7 @@ exports.getAllUsers = async () => {
   const result = await authPool.query(
     `SELECT id, name, lastname, username, email, role, birthdate 
      FROM users
-     ORDER BY id ASC`
+     ORDER BY id ASC`,
   );
 
   return result.rows;
@@ -137,9 +137,7 @@ exports.deleteUser = async (userId) => {
       persistent: true,
     });
 
-    console.log(
-      `User deleted message sent to queue for user ${userId}`
-    );
+    console.log(`User deleted message sent to queue for user ${userId}`);
   } catch (error) {
     console.error("Error sending message to RabbitMQ:", error);
     // Don't fail the creation if notification fails
@@ -170,7 +168,7 @@ exports.getUserPublicInfo = async (userId) => {
   const userResult = await authPool.query(
     `SELECT id, name, lastname, username, birthdate, role
      FROM users WHERE id = $1`,
-    [userId]
+    [userId],
   );
 
   if (userResult.rows.length === 0) throw new Error("User not found");
@@ -183,7 +181,7 @@ exports.getUserPublicInfo = async (userId) => {
      FROM users_genres ug
      JOIN music_genres mg ON ug.genre_id = mg.id
      WHERE ug.user_id = $1`,
-    [userId]
+    [userId],
   );
 
   const genres = genresResult.rows.map((r) => r.name);
