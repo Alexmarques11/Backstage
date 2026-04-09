@@ -14,15 +14,15 @@ exports.findByUsernameOrEmail = (username, email) =>
 
 exports.createUser = (data) =>
   authPool.query(
-    `INSERT INTO users (name, lastname, birthdate, username, email, password)
-     VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, username, email`,
-    data
+    `INSERT INTO users (name, lastname, birthdate, username, email, password, avatar)
+     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id, username, email, avatar`,
+    data,
   );
 
 exports.storeRefreshToken = (userId, hashedToken) =>
   authPool.query(
     `INSERT INTO refresh_tokens (user_id, token) VALUES ($1, $2)`,
-    [userId, hashedToken]
+    [userId, hashedToken],
   );
 
 exports.findTokenByUser = (userId) =>

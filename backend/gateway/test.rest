@@ -43,7 +43,7 @@ Content-Type: application/json
 ### 
 
 ### Refresh Token
-POST http://localhost:8000/api/auth/token
+POST http://localhost:8000/auth/auth/token
 Content-Type: application/json
 
 {

@@ -14,6 +14,8 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static("uploads"));
 
 // Health check
 app.get("/health", (req, res) => {
@@ -43,5 +45,5 @@ initializeServices().catch((err) => {
 
 // Apenas 1 vez
 app.listen(port, "0.0.0.0", () =>
-  console.log(`Server running at http://0.0.0.0:${port}`)
+  console.log(`Server running at http://0.0.0.0:${port}`),
 );

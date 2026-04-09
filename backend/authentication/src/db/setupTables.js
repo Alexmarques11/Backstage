@@ -12,7 +12,7 @@ async function createTables() {
         "username" VARCHAR(100) UNIQUE NOT NULL,
         "email" VARCHAR(100) UNIQUE NOT NULL,
         "password" VARCHAR(250) NOT NULL,
-        "avatar" BYTEA,
+        "avatar" TEXT,
         "notifications_enabled" BOOLEAN DEFAULT true,
         "role" VARCHAR(20) NOT NULL DEFAULT 'user'
       )
@@ -242,7 +242,7 @@ async function createTables() {
     for (const genre of genres) {
       await pool.query(
         `INSERT INTO music_genres (name) VALUES ($1) ON CONFLICT (name) DO NOTHING`,
-        [genre]
+        [genre],
       );
     }
 

@@ -1,9 +1,20 @@
 const authService = require("../services/authService");
 
 // Register a new user
+// src/controllers/authController.js
 exports.registerUser = async (req, res) => {
+  console.log("BODY:", req.body); // Verifica se os textos chegam aqui
+  console.log("FILE:", req.file); // Verifica se a imagem chega aqui
+
   try {
-    const result = await authService.registerUser(req.body);
+    // Certifica-te que req.body não está vazio
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Body is empty. Check form-data config." });
+    }
+
+    const result = await authService.registerUser(req.body, req.file);
     res.status(201).json(result);
   } catch (err) {
     console.error(err);

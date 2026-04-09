@@ -189,6 +189,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    volumes:
+      - auth_uploads:/usr/src/app/uploads
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       AUTH_DB_HOST: auth-database
@@ -286,6 +288,7 @@ services:
 volumes:
   publication_data:
   auth_data:
+  auth_uploads:
   passport_data:
   market_data:
   events_data:

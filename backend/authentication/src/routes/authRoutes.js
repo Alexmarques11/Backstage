@@ -1,6 +1,26 @@
 const router = require("express").Router();
 const authController = require("../controllers/authController");
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
 
+// Garante que a pasta existe ou o Multer rebenta
+const uploadDir = "uploads/avatars";
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage: storage });
 /**
  * @swagger
  * tags:
@@ -17,7 +37,7 @@ const authController = require("../controllers/authController");
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -45,6 +65,9 @@ const authController = require("../controllers/authController");
  *                 type: array
  *                 items:
  *                   type: string
+ *              avatar:
+ *                type: string
+ *               format: binary
  *     responses:
  *       201:
  *         description: User registered successfully
@@ -53,7 +76,7 @@ const authController = require("../controllers/authController");
  *       500:
  *         description: Server error
  */
-router.post("/register", authController.registerUser);
+router.post("/register", upload.single("avatar"), authController.registerUser);
 
 /**
  * @swagger

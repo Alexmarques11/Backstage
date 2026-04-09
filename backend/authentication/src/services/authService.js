@@ -13,9 +13,11 @@ function generateAccessToken(user) {
 }
 
 // Registar novo utilizador
-exports.registerUser = async (userData) => {
+exports.registerUser = async (userData, file) => {
   const { name, lastname, birthdate, username, email, password, genres } =
     userData;
+
+  const avatarPath = file ? file.path : null;
 
   // Verificar se o email ou username já existem
   const emailExists = await userModel.findByEmail(email);
@@ -39,21 +41,23 @@ exports.registerUser = async (userData) => {
     username,
     email,
     hashedPassword,
+    avatarPath,
   ]);
+
   const userId = userResult.rows[0].id;
 
   // Inserir gêneros musicais (se houver)
   if (genres && Array.isArray(genres) && genres.length > 0) {
     const genreIdsResult = await authPool.query(
       `SELECT id FROM music_genres WHERE name = ANY($1)`,
-      [genres]
+      [genres],
     );
     const genreIds = genreIdsResult.rows.map((g) => g.id);
 
     for (const genreId of genreIds) {
       await authPool.query(
         `INSERT INTO users_genres (user_id, genre_id) VALUES ($1, $2)`,
-        [userId, genreId]
+        [userId, genreId],
       );
     }
   }
@@ -63,14 +67,12 @@ exports.registerUser = async (userData) => {
      FROM users_genres ug
      JOIN music_genres mg ON ug.genre_id = mg.id
      WHERE ug.user_id = $1`,
-    [userId]
+    [userId],
   );
 
   const finalGenres = finalGenresResult.rows.map((r) => r.name);
 
-  // ----------------------------
-  // 📤 PUBLICAR MENSAGEM NO RABBITMQ
-  // ----------------------------
+  //PUBLICAR MENSAGEM NO RABBITMQ
   try {
     const channel = getChannel();
     const exchange = "users";
@@ -85,19 +87,20 @@ exports.registerUser = async (userData) => {
       username,
       email,
       genres: finalGenres,
+      avatar: avatarPath,
       createdAt: new Date().toISOString(),
     };
 
     channel.publish(exchange, routingKey, Buffer.from(JSON.stringify(message)));
 
-    console.log("📨 RabbitMQ → user.created:", message);
+    console.log("RabbitMQ → user.created:", message);
   } catch (err) {
-    console.error("❌ Erro ao enviar mensagem RabbitMQ:", err);
+    console.error("Erro ao enviar mensagem RabbitMQ:", err);
     // NÃO faz throw, o registo não deve falhar por falha de MQ
   }
 
   // Resposta normal
-  return { message: "User registered successfully!" };
+  return { message: "User registered successfully!", avatar: avatarPath };
 };
 
 // Login de utilizador
@@ -132,7 +135,7 @@ exports.loginUser = async (credentials) => {
 
   await authPool.query(
     `INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)`,
-    [user.id, hashedRefreshToken, expiresAt]
+    [user.id, hashedRefreshToken, expiresAt],
   );
 
   return { accessToken, refreshToken };
@@ -146,7 +149,7 @@ exports.tokenUser = async (refreshToken) => {
   const matched = tokensResult.rows.find(
     (rt) =>
       bcrypt.compareSync(refreshToken, rt.token) &&
-      new Date(rt.expires_at) > new Date()
+      new Date(rt.expires_at) > new Date(),
   );
 
   if (!matched) throw new Error("Refresh token not found or expired");
