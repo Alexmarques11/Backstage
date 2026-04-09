@@ -65,9 +65,9 @@ const upload = multer({ storage: storage });
  *                 type: array
  *                 items:
  *                   type: string
- *              avatar:
- *                type: string
- *               format: binary
+ *               avatar:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       201:
  *         description: User registered successfully

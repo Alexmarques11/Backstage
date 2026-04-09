@@ -10,7 +10,7 @@ exports.getUserProfile = async (userId) => {
     [userId],
   );
 
-  if (result.rows.length === 0) throw new Error("User not found");
+  console.log("RESULT:", result.rows[0]);
 
   return result.rows[0];
 };
